@@ -4,6 +4,7 @@ from threading import Thread
 from point import *
 import cv2 as cv
 import numpy
+import copy
 
 class Image(object):
     """
@@ -99,20 +100,9 @@ class Image(object):
     def save(self, filename = "image.png"):
         """
         Salva a imagem atual em um arquivo.
-        @param filename Nome do arquivo a ser criado.
+        @param str filename Nome do arquivo a ser criado.
         """
         cv.imwrite(filename, self.raw)
-        
-    def check(self, reference):
-        x, y = zip(*reference.points)
-        poly = numpy.polyfit(y, x, deg = 1)
-        
-        if abs(poly[1]) > 1:
-            self.raw = cv.flip(cv.transpose(self.raw), 1)
-            self.shape = self.shape.inverse
-            return True
-        
-        return False
         
 class ImageWindow(object):
     """
@@ -129,11 +119,14 @@ class ImageWindow(object):
         @param Image image Imagem a ser exibida.
         @return ImageWindow
         """
-        self.size   = wsize
-        self.wname  = wname
-        self.image  = image
+        self.size = wsize
+        self.wname = wname
         self.shape = image.shape
         self.closed = False
+        self.word = None
+
+        self.image = [image]
+        self.index = 0
                 
         thread = Thread(target = ImageWindow.show, args = (self,))
         thread.start()
@@ -161,11 +154,32 @@ class ImageWindow(object):
 
             self._mousep = Point(x, y)
             self.anchor  = Point(_x, _y)
-            
-            cv.imshow(self.wname, self.image[
-                self.anchor.x : self.anchor.x + self.size[0],
-                self.anchor.y : self.anchor.y + self.size[1]                
-            ])
+            self.frame()
+    
+    def append(self, image):
+        """
+        Adiciona uma imagem à lista de imagens a serem exibidas.
+        @param Image image Imagem a ser adiciona à lista.
+        """
+        self.image.append(image)
+        self.index = len(self.image) - 1
+        self.frame()
+        
+    def text(self, txt, pos, color = (255, 255, 0)):
+        """
+        Insere um texto estático na janela.
+        @param str txt Texto a ser posicionado.
+        @param tuple pos Posição do texto.
+        @param tuple color Cor do texto.
+        """
+        pos = tuple([
+            (pos[i] if pos[i] >= 0 else self.size[i] + pos[i])
+                for i in xrange(2)
+        ])
+        
+        self.word = type('', (object,), {
+            'word': txt, 'pos': pos, 'color': color
+        })
     
     def show(self):
         """
@@ -177,14 +191,37 @@ class ImageWindow(object):
                 
         cv.namedWindow(self.wname, cv.WINDOW_AUTOSIZE)
         cv.setMouseCallback(self.wname, self.mouse)
+        self.frame()
+        
+        key = cv.waitKey(10) % 256
+    
+        while key != 27:
+            cv.setMouseCallback(self.wname, self.mouse)
+            key = cv.waitKey(10) % 256
+            
+            if key in [ord('w'), ord('W')]:
+                self.index = self.index + 1 if self.index < len(self.image) - 1 else 0
+            elif key in [ord('s'), ord('S')]:
+                self.index = self.index - 1 if self.index > 0 else len(self.image) - 1
 
-        cv.imshow(self.wname, self.image[
-            self.anchor.x : self.anchor.x + self.size[0],
-            self.anchor.y : self.anchor.y + self.size[1]
-        ])
-                
-        while cv.waitKey(10) % 256 != 27:
-            pass
+            self.frame()
             
         cv.destroyWindow(self.wname)
         exit()
+        
+    def frame(self):
+        """
+        Cria e exibe a imagem da janela.
+        @return None
+        """
+        wframe = copy.deepcopy(self.image[self.index][
+            self.anchor.x : self.anchor.x + self.size[0],
+            self.anchor.y : self.anchor.y + self.size[1]            
+        ])
+        
+        if self.word is not None:
+            cv.putText(wframe, self.word.word, self.word.pos,
+                cv.FONT_HERSHEY_TRIPLEX, 0.7, self.word.color
+            )
+            
+        cv.imshow(self.wname, wframe)

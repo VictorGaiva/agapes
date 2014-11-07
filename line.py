@@ -362,21 +362,25 @@ class LineList(object):
     def show(self):
         """
         Mostra em uma imagem, todas as linhas presentes na lista.
-        @return None
+        @return Image
         """
         img = Image.new(Map.shape)
         
         for line in self.lines:
             line.draw(img, (255, 255, 255))
                 
-        img.show()
+        return img
         
     def error(self, distance):
         """
         Contabiliza a porcentagem de erros nas linhas encontradas.
-        @param float distance Distância entre linhas em metros.
+        @param str distance Distância entre linhas em metros.
         @return float, int Porcentagem e metros de falhas encontradas.
         """
+        import re
+        m = re.search(r"([0-9]*)[\.\,]?([0-9]*).*", distance)
+        distance = float(m.group(1) + "." + m.group(2))
+
         img = Image.new(Map.shape)
         red, blue = 0, 0
         distmedia = 0
@@ -419,7 +423,7 @@ class LineList(object):
                 [cv.circle(img.raw, p, 0, (255, 0, 0), 2) for p in points]
                 blue += len(points)
             
-        img.show("Resultado")
+        #img.show("Resultado")
 
         total = red + blue
         metro = 2 * (distmedia / len(self.lines))

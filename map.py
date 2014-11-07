@@ -18,6 +18,7 @@ class Map(object):
 		Metaclasse de Map. Permite a criação de operadores mágicos em escopo
 		estático permitindo, assim, acessar a classe como instância.
 		"""
+        
         def __getitem__(cls, index):
             """
 			Acessa e retorna o elemento presente na posição dada
