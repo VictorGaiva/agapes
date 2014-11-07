@@ -103,6 +103,17 @@ class Image(object):
         """
         cv.imwrite(filename, self.raw)
         
+    def check(self, reference):
+        x, y = zip(*reference.points)
+        poly = numpy.polyfit(y, x, deg = 1)
+        
+        if abs(poly[1]) > 1:
+            self.raw = cv.flip(cv.transpose(self.raw), 1)
+            self.shape = self.shape.inverse
+            return True
+        
+        return False
+        
 class ImageWindow(object):
     """
     Classe responsável pela exibição de uma imagem e também
@@ -157,6 +168,10 @@ class ImageWindow(object):
             ])
     
     def show(self):
+        """
+        Método responsável por gerir a exibição da imagem.
+        @return None
+        """
         self.mid = Point(self.shape.x / 2, self.shape.y / 2)
         self.anchor = Point(self.mid.x - self.size[0] / 2, self.mid.y - self.size[1] / 2)
                 

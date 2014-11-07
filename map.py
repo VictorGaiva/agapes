@@ -1,17 +1,9 @@
 #!/usr/bin/python
 # -*- encoding: utf-8 -*-
-"""
-@package PSG
-@author Adolfo Hengling <adolfohengling@gmail.com>
-@author Marcos Teixeira <ecclesiedei@gmail.com>
-@author Rodrigo Siqueira <rodriados@gmail.com>
-"""
-
 class Map(object):
     """
     Objeto responsável pelo armazenamento e intermediação
     do mapa de componentes.
-    @module map
     """
     
     # Mapa e referências de todos os componentes. Instâncias

@@ -22,16 +22,23 @@ import os
 
 __builtin__.__path__ = os.path.dirname(os.path.realpath(__file__))
 __builtin__.__author__ = "Rodrigo Siqueira <rodriados@gmail.com>"
-__builtin__.__version__ = '0.0.1'
+__builtin__.__version__ = '0.0.2'
 
-# TODO 1:   Retirar a execução do programa diretamente do campo
+# TODO:     Transformar equações utilizadas para funções paramétricas
+#           permitindo, assim, aumentar o leque de curvas que podem
+#           ser descritas.
+
+# TODO:     Retirar a execução do programa diretamente do campo
 #           de drag-n-drop.
-# TODO 2:   Ao soltar uma imagem, exibí-la no campo de drag-n-drop
+
+# TODO:     Ao soltar uma imagem, exibí-la no campo de drag-n-drop
 #           e permitir a edição da imagem diretamente desse campo.
-# TODO 3:   Retirar o atributo global de  frame  e permitir que
+
+# TODO:     Retirar o atributo global de  frame  e permitir que
 #           todas as ações do programa sejam tomadas por MainWindow.
 global frame
-# TODO 4:   Adicionar ferramentas de edição de imagem na barra
+
+# TODO:     Adicionar ferramentas de edição de imagem na barra
 #           horizontal inferior da janela.
 
 class FileDrop(wx.FileDropTarget):
@@ -67,7 +74,7 @@ class MainWindow(wx.Frame):
     def __init__(self, parent, id = wx.ID_ANY, title = ''):
         super(MainWindow, self).__init__(
             parent, id, title,
-            size = (758, 592),
+            size = (756, 592),
             style = wx.MINIMIZE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.CLOSE_BOX | wx.CLIP_CHILDREN            
         )
         
@@ -131,6 +138,10 @@ def Run(file):
     image = Segmentation().apply(image)
 
     comps = Component.load(image)
+    
+    if image.check(comps[1]):
+        comps = Component.load(image)
+    
     lines = Line.first(comps[1])
 
     lines.complete()

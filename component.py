@@ -1,11 +1,5 @@
 #!/usr/bin/python
 # -*- encoding: utf-8 -*-
-"""
-@package PSG
-@author Adolfo Hengling <adolfohengling@gmail.com>
-@author Marcos Teixeira <ecclesiedei@gmail.com>
-@author Rodrigo Siqueira <rodriados@gmail.com>
-"""
 from image import *
 from point import *
 from map import *
@@ -18,7 +12,6 @@ class Component(object):
     Armazena, protege e manipula todos os pontos de um componente conexo da
     imagem. Cada componente é dado por uma lista de pontos, que juntos
     descrevem o contorno do componente.
-    @module component
     """
     
     def __init__(self, contour):
@@ -64,7 +57,6 @@ class ComponentList(object):
     Armazena uma lista de componentes obtidos da imagem. Este objeto
     administra, manipula e executa diversas operações sobre uma
     lista de componentes encontrados.
-	@module component
     """
     
     def __init__(self, lcomp):

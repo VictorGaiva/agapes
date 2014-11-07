@@ -12,7 +12,6 @@ class Line(ComponentList):
     Armazena e forma uma linha juntando componentes diferentes em
     posições diferentes. A linha pode ser representada ou reduzida
     para um polinômio.
-    @module line
     """
     
     # Constantes de direção. Auxiliam ao encontrar uma nova
@@ -303,7 +302,6 @@ class LineList(object):
     Armazena e manipula uma lista de linhas obtidas de uma
     imagem. Esse objeto também é responsável pela criação de todas
     as linhas existentes.
-    @module line
     """
     
     def __init__(self):

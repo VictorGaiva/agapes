@@ -1,18 +1,11 @@
 #!/usr/bin/python
 # -*- encoding: utf-8 -*-
-"""
-@package PSG
-@author Adolfo Hengling <adolfohengling@gmail.com>
-@author Marcos Teixeira <ecclesiedei@gmail.com>
-@author Rodrigo Siqueira <rodriados@gmail.com>
-"""
 import math
 
 class Point(tuple):
     """
     Armazena as coordenadas de um ponto e implementa operações
     básicas a serem aplicadas sobre ele.
-    @module point
     """
     
     def __new__(cls, x, y):

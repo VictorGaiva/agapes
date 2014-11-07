@@ -1,11 +1,5 @@
 #!/usr/bin/python
 # -*- encoding: utf-8 -*-
-"""
-@package PSG
-@author Adolfo Hengling <adolfohengling@gmail.com>
-@author Marcos Teixeira <ecclesiedei@gmail.com>
-@author Rodrigo Siqueira <rodriados@gmail.com>
-"""
 from sklearn.neighbors import KNeighborsClassifier
 from image import *
 import numpy
@@ -15,7 +9,6 @@ class Segmentation(object):
     Objeto responsável pela segmentação da imagem. É composto
     de métodos que possibilitam a binarização da imagem para
     processamento próximo e cálculo de falhas.
-    @module segmentation
     """
 
     def __init__(self, trainfile = None):
