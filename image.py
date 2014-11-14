@@ -104,6 +104,27 @@ class Image(object):
         """
         cv.imwrite(filename, self.raw)
         
+    def check(self, comps):
+        """
+        Verifica a necessidade de rotação da imagem e o faz
+        de acordo com o verificado.
+        """
+        count = 0
+        
+        for i in xrange(1, 9):
+            x, y = zip(*comps[i].points)
+            line = numpy.poly1d(numpy.polyfit(x, y, deg = 1))
+                
+            if abs(line[1]) < 1:
+                count += 1
+
+
+        if not count < 5:
+            self.shape = self.shape.inverse
+            self.raw = cv.transpose(self.raw)
+            
+        return (count < 5)
+        
 class ImageWindow(object):
     """
     Classe responsável pela exibição de uma imagem e também

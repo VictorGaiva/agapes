@@ -23,7 +23,7 @@ import os
 __builtin__.__path__ = os.path.dirname(os.path.realpath(__file__))
 __builtin__.__author__ = "Rodrigo Siqueira <rodriados@gmail.com>"
 __builtin__.__appname__ = "PSG - Tecnologia Aplicada"
-__builtin__.__version__ = "0.3"
+__builtin__.__version__ = "0.3.1"
 
 # TODO:     Feedback de execução e de erros. Mostra ao usuário que
 #           o programa está executando corretamente e os erros que
@@ -104,10 +104,18 @@ def ProcessImage(imgaddr, distance):
     Event.segment(seg)
     
     comps = Component.load(seg)
+    
+    if not seg.check(comps):
+        comps = Component.load(seg)
+    
     lines = Line.first(comps[1])
     lines.complete()
-    Event.process(lines.show())
+    finalimg = lines.show()
+    Event.process(finalimg)
     
+    name = imgaddr.rsplit('.', 1)
+    finalimg.save(name[0] + ".processado." + name[1])
+
     pcento, metros = lines.error(distance)
     Event.result(pcento, metros)
 
@@ -116,7 +124,7 @@ __builtin__.PrImage = ProcessImage
 if __name__ == '__main__':
     if len(sys.argv) == 3:
         SetHandles()
-        ProcessImage(sys.argv[1], sys.argv + " metros")
+        ProcessImage(sys.argv[1], sys.argv[2] + " metros")
         
     else:
         from gui import AppMain
