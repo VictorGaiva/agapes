@@ -1,10 +1,16 @@
 #!/usr/bin/python
 # -*- encoding: utf-8 -*-
-from segmentation import *
-from component import *
-from image import *
-from line import *
+"""
+PSG - Tecnologia Aplicada
 
+Este é um módulo utilizado para contagem de falhas em
+plantações de cana-de-açúcar através do uso de imagens
+aéreas capturadas por VANT's ou aparelhos similares.
+
+Este arquivo é responsável pelo desenho da interface do
+programa e também pela execução e apresentação dos
+resultados obtidos com a imagem fornecida.
+"""
 import os.path as path
 import threading
 import wx
@@ -102,19 +108,3 @@ class AppMain(wx.App):
         self.SetTopWindow(frame)
         
         return True
-
-#def Parse(string):
-#    import re
-#    m = re.search(r"([0-9]*)[\.\,]?([0-9]*).*", string)
-#    return float(m.group(1) + "." + m.group(2))
-
-def Run(file):
-    image = Image.load(file).resize(.3)
-    image = Segmentation().apply(image)
-
-    comps = Component.load(image)    
-    lines = Line.first(comps[1])
-
-    lines.complete()
-    pcent, meters = lines.error(frame.distancebox.GetValue())#Parse(frame.distancebox.GetValue()))
-    frame.resultarea.SetLabel("Falhas encontradas: %.2f metros (%d%%)" % (meters, pcent))

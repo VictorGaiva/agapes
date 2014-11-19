@@ -1,5 +1,16 @@
 #!/usr/bin/python
 # -*- encoding: utf-8 -*-
+"""
+PSG - Tecnologia Aplicada
+
+Este é um módulo utilizado para contagem de falhas em
+plantações de cana-de-açúcar através do uso de imagens
+aéreas capturadas por VANT's ou aparelhos similares.
+
+Este arquivo é responsável pelo desenho da interface do
+programa e também pela execução e apresentação dos
+resultados obtidos com a imagem fornecida.
+"""
 from threading import Thread
 from point import *
 import cv2 as cv
@@ -117,7 +128,6 @@ class Image(object):
                 
             if abs(line[1]) < 1:
                 count += 1
-
 
         if not count < 5:
             self.shape = self.shape.inverse

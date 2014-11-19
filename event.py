@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # -*- encoding: utf-8 -*-
+from sys import stdout
+
 class EventHandler(object):
     """
     Objeto responsável pela execução e alteração de
@@ -60,7 +62,8 @@ class Event(object):
             if name in cls.list:
                 return cls.list[name]
             else:
-                return EventHandler(lambda *l, **k: None)
+                msg = str(name) + " event triggered!\n"
+                return EventHandler(lambda *l, **k: stdout.write(msg))
         
         def __setattr__(cls, name, value):
             """
