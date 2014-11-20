@@ -370,7 +370,7 @@ class LineList(object):
         for pos, line in self.search():
             self.lines.insert(pos, line)
     
-    def show(self):
+    def display(self):
         """
         Mostra em uma imagem, todas as linhas presentes na lista.
         @return Image
@@ -385,13 +385,9 @@ class LineList(object):
     def error(self, distance):
         """
         Contabiliza a porcentagem de erros nas linhas encontradas.
-        @param str distance Distância entre linhas em metros.
+        @param float distance Distância entre linhas em metros.
         @return float, int Porcentagem e metros de falhas encontradas.
         """
-        import re
-        m = re.search(r"([0-9]*)[\.\,]?([0-9]*).*", distance)
-        distance = float(m.group(1) + "." + m.group(2))
-
         img = Image.new(Map.shape)
         red, blue = 0, 0
         distmedia = 0

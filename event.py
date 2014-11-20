@@ -32,7 +32,7 @@ class EventHandler(object):
             if handl in self.handlers:
                 self.handlers.remove(handl)
                 
-    def __call__(self, *args, **kwargs):    
+    def trigger(self, *args, **kwargs):
         """
         Executa os manipuladores do evento.
         @param list args Argumentos dos manipuladores.

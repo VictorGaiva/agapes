@@ -11,16 +11,13 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
+from event import *
 import os.path as path
 import threading
 import wx
 
-# TODO:     Retirar o atributo global de  frame  e permitir que
-#           todas as ações do programa sejam tomadas por MainWindow.
-global frame
-
-# TODO:     Implementar tratamento de eventos.
-# TODO:     Deixar de usar PrImage
+# TODO: Adicionar suporte a abas. Cada aba deve processar
+#       uma imagem separamente, e paralelamente com as outras.
 
 class FileDrop(wx.FileDropTarget):
     
@@ -29,14 +26,11 @@ class FileDrop(wx.FileDropTarget):
         self.imover = wx.BitmapFromImage(wx.Image(path.join(__path__, "img", "dragover.png"), wx.BITMAP_TYPE_ANY))
         self.obj = obj
         
-    def OnDropFiles(self, x, y, filenames):
-        global frame
-        self.obj.SetBitmap(self.original)
+    def OnDropFiles(self, x, y, filenames):        
+        self.obj.SetBitmap(self.original)        
         del self.original
         
-        t = threading.Thread(target = PrImage, args = (filenames[0], frame.distancebox.GetValue()))
-        t.start()
-        
+        Event.dropped.trigger(filenames[0])
         return True
         
     def OnEnter(self, *args):
@@ -70,7 +64,7 @@ class MainWindow(wx.Frame):
         contbox = wx.GridBagSizer(5, 5)
         hbarbox = wx.GridBagSizer(5, 5)
         disttxt = wx.StaticText(midpan, label = "Distância entre linhas:")
-        distbox = wx.TextCtrl(midpan, -1, "1.5 metros")
+        distbox = wx.TextCtrl(midpan, -1, "1.5")
         dstline = wx.StaticLine(midpan, style = wx.LI_VERTICAL, size = (1,24))
         resultx = wx.StaticText(midpan, label = "")
         
@@ -101,10 +95,40 @@ class MainWindow(wx.Frame):
         self.resultarea = resultx
                     
 class AppMain(wx.App):
-   
+    
     def OnInit(self):
-        global frame
-        frame = MainWindow(None, -1, __appname__)
-        self.SetTopWindow(frame)
+        self.frame = MainWindow(None, -1, __appname__)
+        self.SetTopWindow(self.frame)
         
         return True
+    
+    def OnDrop(self, function):
+        @ThreadWrapper
+        def process(filename):
+            function(filename, float(self.frame.distancebox.GetValue()))
+        
+        return process
+
+def ThreadWrapper(function):
+    """
+    Invólucro de funções a serem executadas em um thread.
+    @param lambda function Função a ser envolvida.
+    """
+    def threaded(*args, **kwargs):
+        t = threading.Thread(target = function, args = args, kwargs = kwargs)
+        t.start()
+        
+    return threaded
+
+def InitGUI(function):
+    """
+    Inicializa a interface gráfica do usuário, o que
+    permite que o programa seja utilizado sem a
+    necessidade do uso de uma linha de comando.
+    @param lambda function Função que realiza o processamento da imagem.
+    """
+    app = AppMain()
+    Event.dropped = app.OnDrop(function)
+        
+    app.MainLoop()
+    

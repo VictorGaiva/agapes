@@ -13,17 +13,19 @@ resultados obtidos com a imagem fornecida.
 """
 from segmentation import *
 from component import *
+from gui import InitGUI
 from image import *
 from event import *
 from line import *
 import __builtin__
-import sys
+import textwrap
+import argparse
 import os
 
 __builtin__.__path__ = os.path.dirname(os.path.realpath(__file__))
 __builtin__.__author__ = "Rodrigo Siqueira <rodriados@gmail.com>"
 __builtin__.__appname__ = "PSG - Tecnologia Aplicada"
-__builtin__.__version__ = "0.3.1"
+__builtin__.__version__ = "0.4"
 
 # TODO:     Feedback de execução e de erros. Mostra ao usuário que
 #           o programa está executando corretamente e os erros que
@@ -89,46 +91,114 @@ def SetHandles():
     Event.process = AddImage
     Event.result = ShowResult
 
-def ProcessImage(imgaddr, distance):
+def LoadImage(address):
+    """
+    Carrega uma imagem.
+    @param str address Endereço da imagem a ser carregada.
+    @return Imagem Imagem carregada.
+    """
+    img = Image.load(address).resize(.3)
+    Event.load.trigger(img)
+    
+    return img
+    
+def SegmentImage(image):
+    """
+    Executa a segmentação da imagem.
+    @param Image Imagem a ser segmentada.
+    @return ComponentList Lista de componentes.
+    """
+    img = Segmentation().apply(image)
+    comps = Component.load(img)
+    
+    if not img.check(comps):
+        comps = Component.load(img)
+        
+    Event.segment.trigger(img)
+    return comps
+
+def FindLines(comps):
+    """
+    Encontra as linhas de plantação sobre a imagem.
+    @param ComponentList comps Componentes encontrados.
+    @return LineList Linhas encontradas.
+    """
+    lines = Line.first(comps[1])
+    lines.complete()
+    
+    lineimg = lines.display()
+    Event.process.trigger(lineimg)
+    
+    return lines, lineimg
+
+def SaveImage(original, image):
+    """
+    Salva a imagem resultante.
+    @param str original Endereço da imagem original.
+    @param Imagem image Imagem a ser salva.
+    """
+    name = original.rsplit('.', 1)
+    image.save("{0}.processed.{1}".format(*name))
+
+def GetResult(lines, distance):
+    """
+    Exibe o resultado do processamento.
+    @param LineList lines Linhas encontradas na imagem.
+    @param float distance Distância entre as linhas de plantação.
+    """
+    porcento, metro = lines.error(distance)
+    Event.result.trigger(porcento, metro)
+
+def Process(imaddr, distance):
     """
     Núcleo de execução do processamento de imagens. Esta
     função é a grande responsável pelo cálculo do resultado
     desejado do programa.
     @param str imgaddr Endereço da imagem alvo.
-    @param float distance Distância entre linhas
+    @param float distance Distância entre linhas de plantação na imagem.
     """
-    img = Image.load(imgaddr).resize(.3)
-    Event.load(img)
+    SetHandles()
+    image = LoadImage(imaddr)
+    comps = SegmentImage(image)
+    lines, lineim = FindLines(comps)
     
-    seg = Segmentation().apply(img)
-    Event.segment(seg)
-    
-    comps = Component.load(seg)
-    
-    if not seg.check(comps):
-        comps = Component.load(seg)
-    
-    lines = Line.first(comps[1])
-    lines.complete()
-    finalimg = lines.show()
-    Event.process(finalimg)
-    
-    name = imgaddr.rsplit('.', 1)
-    finalimg.save(name[0] + ".processado." + name[1])
-
-    pcento, metros = lines.error(distance)
-    Event.result(pcento, metros)
-
-__builtin__.PrImage = ProcessImage
+    SaveImage(imaddr, lineim)
+    GetResult(lines, distance)
 
 if __name__ == '__main__':
-    if len(sys.argv) == 3:
-        SetHandles()
-        ProcessImage(sys.argv[1], sys.argv[2] + " metros")
-        
+    
+    parser = argparse.ArgumentParser(
+        formatter_class = argparse.RawDescriptionHelpFormatter,
+        description = textwrap.dedent("""\
+            PSG - Tecnologia Aplicada.
+            --------------------------
+            Esta aplicação é utilizada para contar a
+            quantidade de falhas presente em uma plantação
+            de cana-de-açúcar. São utilizadas imagens aéreas
+            para a contabilização das falhas presentes.
+            """.decode('latin1'))
+    )
+
+    parser.add_argument(
+        'image',
+        metavar = 'image',
+        type = str,
+        nargs = '?',
+        help = "imagem alvo da análise".decode('latin1')
+    )
+
+    parser.add_argument(
+        'dist',
+        metavar = 'dist',
+        type = float,
+        nargs = '?',
+        help = "distância entre as linhas de plantação".decode('latin1')
+    )
+
+    args = parser.parse_args()
+    
+    if args.dist is None or args.image is None:
+        InitGUI(Process)
     else:
-        from gui import AppMain
-        SetHandles()
-        app = AppMain()
-        app.MainLoop()
+        Process(args.image, args.dist)
     
