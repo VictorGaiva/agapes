@@ -3,12 +3,12 @@
 """
 PSG - Tecnologia Aplicada
 
-Este é um módulo utilizado para contagem de falhas em
-plantações de cana-de-açúcar através do uso de imagens
-aéreas capturadas por VANT's ou aparelhos similares.
+Este Ã© um mÃ³dulo utilizado para contagem de falhas em
+plantaÃ§Ãµes de cana-de-aÃ§Ãºcar atravÃ©s do uso de imagens
+aÃ©reas capturadas por VANT's ou aparelhos similares.
 
-Este arquivo é responsável pelo desenho da interface do
-programa e também pela execução e apresentação dos
+Este arquivo Ã© responsÃ¡vel pelo desenho da interface do
+programa e tambÃ©m pela execuÃ§Ã£o e apresentaÃ§Ã£o dos
 resultados obtidos com a imagem fornecida.
 """
 from event import *
@@ -63,7 +63,7 @@ class MainWindow(wx.Frame):
         vertbox = wx.BoxSizer(wx.VERTICAL)
         contbox = wx.GridBagSizer(5, 5)
         hbarbox = wx.GridBagSizer(5, 5)
-        disttxt = wx.StaticText(midpan, label = "Distância entre linhas:")
+        disttxt = wx.StaticText(midpan, label = "DistÃ¢ncia entre linhas:")
         distbox = wx.TextCtrl(midpan, -1, "1.5")
         dstline = wx.StaticLine(midpan, style = wx.LI_VERTICAL, size = (1,24))
         resultx = wx.StaticText(midpan, label = "")
@@ -111,21 +111,21 @@ class AppMain(wx.App):
 
 def ThreadWrapper(function):
     """
-    Invólucro de funções a serem executadas em um thread.
-    @param lambda function Função a ser envolvida.
+    InvÃ³lucro de funÃ§Ãµes a serem executadas em um thread.
+    @param lambda function FunÃ§Ã£o a ser envolvida.
     """
-    def threaded(*args, **kwargs):
+    def threadf(*args, **kwargs):
         t = threading.Thread(target = function, args = args, kwargs = kwargs)
         t.start()
         
-    return threaded
+    return threadf
 
 def InitGUI(function):
     """
-    Inicializa a interface gráfica do usuário, o que
+    Inicializa a interface grÃ¡fica do usuÃ¡rio, o que
     permite que o programa seja utilizado sem a
     necessidade do uso de uma linha de comando.
-    @param lambda function Função que realiza o processamento da imagem.
+    @param lambda function FunÃ§Ã£o que realiza o processamento da imagem.
     """
     app = AppMain()
     Event.dropped = app.OnDrop(function)

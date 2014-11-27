@@ -3,18 +3,16 @@
 """
 PSG - Tecnologia Aplicada
 
-Este é um módulo utilizado para contagem de falhas em
-plantações de cana-de-açúcar através do uso de imagens
-aéreas capturadas por VANT's ou aparelhos similares.
+Este Ã© um mÃ³dulo utilizado para contagem de falhas em
+plantaÃ§Ãµes de cana-de-aÃ§Ãºcar atravÃ©s do uso de imagens
+aÃ©reas capturadas por VANT's ou aparelhos similares.
 
-Este arquivo é responsável pelo desenho da interface do
-programa e também pela execução e apresentação dos
+Este arquivo Ã© responsÃ¡vel pelo desenho da interface do
+programa e tambÃ©m pela execuÃ§Ã£o e apresentaÃ§Ã£o dos
 resultados obtidos com a imagem fornecida.
 """
 from segmentation import *
-from component import *
 from gui import InitGUI
-from image import *
 from event import *
 from line import *
 import __builtin__
@@ -27,37 +25,19 @@ __builtin__.__author__ = "Rodrigo Siqueira <rodriados@gmail.com>"
 __builtin__.__appname__ = "PSG - Tecnologia Aplicada"
 __builtin__.__version__ = "0.4"
 
-# TODO:     Feedback de execução e de erros. Mostra ao usuário que
-#           o programa está executando corretamente e os erros que
-#           ocorreram.
+# TODO:     Melhorar o algoritmo que encontra linhas adjacentes.
+# TODO:     Feedback de execuÃ§Ã£o e de erros.
+# TODO:     Correlacionar a imagem da janela com a imagem original.
+# TODO:     Redimensionar imagem para um tamanho fixo, e nÃ£o para proporÃ§Ã£o.
+# TODO:     Transformar equaÃ§Ãµes utilizadas para funÃ§Ãµes paramÃ©tricas.
+# TODO:     Ao soltar uma imagem, exibÃ­-la diretamente no campo de drag-n-drop.
+# TODO:     Adicionar ferramentas de ediÃ§Ã£o de imagem, parte inferior da janela.
+# TODO:     CriaÃ§Ã£o de um instalador automÃ¡tico de dependencias.
 
-# TODO:     Correlacionar a imagem da janela com a imagem original,
-#           tornando mais fácil a localização da área visualizada
-#           na imagem original.
-
-# TODO:     Redimensionar imagem para um tamanho fixo, e não para
-#           uma proporção da imagem original como está sendo feito.
-
-# TODO:     Transformar equações utilizadas para funções paramétricas
-#           permitindo, assim, aumentar o leque de curvas que podem
-#           ser descritas.
-
-# TODO:     Retirar a execução do programa diretamente do campo
-#           de drag-n-drop.
-
-# TODO:     Ao soltar uma imagem, exibí-la no campo de drag-n-drop
-#           e permitir a edição da imagem diretamente desse campo.
-
-# TODO:     Adicionar ferramentas de edição de imagem na barra
-#           horizontal inferior da janela.
-
-# TODO:     Criação de um instalador para que as dependências do
-#           programa sejam automaticamente instaladas, sem intervenção
-#           manual.
 def ShowImage(img):
     """
     Prepara a janela para mostrar todos os passos de
-    execução do algoritmo.
+    execuÃ§Ã£o do algoritmo.
     @param Image img Primeira imagem a ser mostrada.
     """
     global window
@@ -84,7 +64,7 @@ def ShowResult(pcento, metros):
 def SetHandles():
     """
     Configura o tratamento dos eventos disparados pelo
-    núcleo de execução do programa.
+    nÃºcleo de execuÃ§Ã£o do programa.
     """
     Event.load = ShowImage
     Event.segment = AddImage
@@ -94,7 +74,7 @@ def SetHandles():
 def LoadImage(address):
     """
     Carrega uma imagem.
-    @param str address Endereço da imagem a ser carregada.
+    @param str address EndereÃ§o da imagem a ser carregada.
     @return Imagem Imagem carregada.
     """
     img = Image.load(address).resize(.3)
@@ -104,7 +84,7 @@ def LoadImage(address):
     
 def SegmentImage(image):
     """
-    Executa a segmentação da imagem.
+    Executa a segmentaÃ§Ã£o da imagem.
     @param Image Imagem a ser segmentada.
     @return ComponentList Lista de componentes.
     """
@@ -119,7 +99,7 @@ def SegmentImage(image):
 
 def FindLines(comps):
     """
-    Encontra as linhas de plantação sobre a imagem.
+    Encontra as linhas de plantaÃ§Ã£o sobre a imagem.
     @param ComponentList comps Componentes encontrados.
     @return LineList Linhas encontradas.
     """
@@ -134,7 +114,7 @@ def FindLines(comps):
 def SaveImage(original, image):
     """
     Salva a imagem resultante.
-    @param str original Endereço da imagem original.
+    @param str original EndereÃ§o da imagem original.
     @param Imagem image Imagem a ser salva.
     """
     name = original.rsplit('.', 1)
@@ -144,18 +124,18 @@ def GetResult(lines, distance):
     """
     Exibe o resultado do processamento.
     @param LineList lines Linhas encontradas na imagem.
-    @param float distance Distância entre as linhas de plantação.
+    @param float distance DistÃ¢ncia entre as linhas de plantaÃ§Ã£o.
     """
     porcento, metro = lines.error(distance)
     Event.result.trigger(porcento, metro)
 
 def Process(imaddr, distance):
     """
-    Núcleo de execução do processamento de imagens. Esta
-    função é a grande responsável pelo cálculo do resultado
+    NÃºcleo de execuÃ§Ã£o do processamento de imagens. Esta
+    funÃ§Ã£o Ã© a grande responsÃ¡vel pelo cÃ¡lculo do resultado
     desejado do programa.
-    @param str imgaddr Endereço da imagem alvo.
-    @param float distance Distância entre linhas de plantação na imagem.
+    @param str imgaddr EndereÃ§o da imagem alvo.
+    @param float distance DistÃ¢ncia entre linhas de plantaÃ§Ã£o na imagem.
     """
     SetHandles()
     image = LoadImage(imaddr)
@@ -172,10 +152,10 @@ if __name__ == '__main__':
         description = textwrap.dedent("""\
             PSG - Tecnologia Aplicada.
             --------------------------
-            Esta aplicação é utilizada para contar a
-            quantidade de falhas presente em uma plantação
-            de cana-de-açúcar. São utilizadas imagens aéreas
-            para a contabilização das falhas presentes.
+            Esta aplicaÃ§Ã£o Ã© utilizada para contar a
+            quantidade de falhas presente em uma plantaÃ§Ã£o
+            de cana-de-aÃ§Ãºcar. SÃ£o utilizadas imagens aÃ©reas
+            para a contabilizaÃ§Ã£o das falhas presentes.
             """.decode('latin1'))
     )
 
@@ -184,7 +164,7 @@ if __name__ == '__main__':
         metavar = 'image',
         type = str,
         nargs = '?',
-        help = "imagem alvo da análise".decode('latin1')
+        help = "imagem alvo da anÃ¡lise".decode('latin1')
     )
 
     parser.add_argument(
@@ -192,7 +172,7 @@ if __name__ == '__main__':
         metavar = 'dist',
         type = float,
         nargs = '?',
-        help = "distância entre as linhas de plantação".decode('latin1')
+        help = "distÃ¢ncia entre as linhas de plantaÃ§Ã£o".decode('latin1')
     )
 
     args = parser.parse_args()

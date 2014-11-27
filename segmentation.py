@@ -3,12 +3,12 @@
 """
 PSG - Tecnologia Aplicada
 
-Este È um mÛdulo utilizado para contagem de falhas em
-plantaÁıes de cana-de-aÁ˙car atravÈs do uso de imagens
-aÈreas capturadas por VANT's ou aparelhos similares.
+Este √© um m√≥dulo utilizado para contagem de falhas em
+planta√ß√µes de cana-de-a√ß√∫car atrav√©s do uso de imagens
+a√©reas capturadas por VANT's ou aparelhos similares.
 
-Este arquivo È respons·vel pelo desenho da interface do
-programa e tambÈm pela execuÁ„o e apresentaÁ„o dos
+Este arquivo √© respons√°vel pelo desenho da interface do
+programa e tamb√©m pela execu√ß√£o e apresenta√ß√£o dos
 resultados obtidos com a imagem fornecida.
 """
 from sklearn.neighbors import KNeighborsClassifier
@@ -17,14 +17,14 @@ import numpy
 
 class Segmentation(object):
     """
-    Objeto respons·vel pela segmentaÁ„o da imagem. … composto
-    de mÈtodos que possibilitam a binarizaÁ„o da imagem para
-    processamento prÛximo e c·lculo de falhas.
+    Objeto respons√°vel pela segmenta√ß√£o da imagem. √â composto
+    de m√©todos que possibilitam a binariza√ß√£o da imagem para
+    processamento pr√≥ximo e c√°lculo de falhas.
     """
 
     def __init__(self, trainfile = None):
         """
-        Inicializa e cria uma nova inst‚ncia do objeto.
+        Inicializa e cria uma nova inst√¢ncia do objeto.
         @param str trainfile Nome do arquivo com casos de treino.
         """
         x, y = [], []
@@ -44,7 +44,7 @@ class Segmentation(object):
     def apply(self, image):
         """
         Segmenta a imagem alvo.
-        @param Image image Imagem alvo de segmentaÁ„o.
+        @param Image image Imagem alvo de segmenta√ß√£o.
         @return Image Imagem segmentada de acordo com o treinamento dado.
         """
         shape = image.raw.shape[:2]

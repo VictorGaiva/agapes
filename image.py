@@ -3,12 +3,12 @@
 """
 PSG - Tecnologia Aplicada
 
-Este È um mÛdulo utilizado para contagem de falhas em
-plantaÁıes de cana-de-aÁ˙car atravÈs do uso de imagens
-aÈreas capturadas por VANT's ou aparelhos similares.
+Este √© um m√≥dulo utilizado para contagem de falhas em
+planta√ß√µes de cana-de-a√ß√∫car atrav√©s do uso de imagens
+a√©reas capturadas por VANT's ou aparelhos similares.
 
-Este arquivo È respons·vel pelo desenho da interface do
-programa e tambÈm pela execuÁ„o e apresentaÁ„o dos
+Este arquivo √© respons√°vel pelo desenho da interface do
+programa e tamb√©m pela execu√ß√£o e apresenta√ß√£o dos
 resultados obtidos com a imagem fornecida.
 """
 from threading import Thread
@@ -19,16 +19,16 @@ import copy
 
 class Image(object):
     """
-    Protege e intermedia todas as interaÁıes com a imagem
-    aberta. TambÈm analiza e aplica quaisquer alteraÁıes
-    requisitadas a uma das versıes da imagem.
+    Protege e intermedia todas as intera√ß√µes com a imagem
+    aberta. Tamb√©m analiza e aplica quaisquer altera√ß√µes
+    requisitadas a uma das vers√µes da imagem.
     """
     
     def __init__(self, source):
         """
-        Inicializa e cria uma nova inst‚ncia do objeto.
+        Inicializa e cria uma nova inst√¢ncia do objeto.
         @param ndarray source Imagem alvo do objeto.
-        @return Image Nova inst‚ncia do objeto
+        @return Image Nova inst√¢ncia do objeto
         """
         self.shape = Point(*source.shape[:2]).inverse
         self.raw = source
@@ -36,7 +36,7 @@ class Image(object):
     def __getitem__(self, index):
         """
         Localiza e retorna um item, no caso um pixel, da imagem.
-        @param tuple|slice index Õndice a ser acessado.
+        @param tuple|slice index √çndice a ser acessado.
         @return int|list Item ou itens selecionados.
         """
         return self.raw[index[1], index[0]]
@@ -58,7 +58,7 @@ class Image(object):
         Cria uma nova imagem totalmente vazia.
         @param tuple shape Formato da imagem.
         @param dtype dtype Tipo de cada elemento da imagem.
-        @param int channels N˙mero de canais da imagem.
+        @param int channels N√∫mero de canais da imagem.
         @return Image Imagem vazia criada.
         """
         shape = (channels,) + shape if channels > 1 else shape
@@ -67,8 +67,8 @@ class Image(object):
     
     def resize(self, proportion):
         """
-        Redimensiona a imagem de acordo com a proporÁ„o dada.
-        Nenhuma distorÁ„o ocorrer· durante o processo.
+        Redimensiona a imagem de acordo com a propor√ß√£o dada.
+        Nenhuma distor√ß√£o ocorrer√° durante o processo.
         @return Imagem Imagem redimensionada.
         """
         raw = cv.resize(self.raw, None, fx = proportion, fy = proportion)
@@ -76,7 +76,7 @@ class Image(object):
     
     def binarize(self):
         """
-        Transforma a imagem atual em uma imagem bin·ria.
+        Transforma a imagem atual em uma imagem bin√°ria.
         @return Image A nova imagem gerada.
         """
         raw = cv.cvtColor(self.raw, cv.COLOR_BGR2GRAY)
@@ -85,7 +85,7 @@ class Image(object):
     
     def colorize(self):
         """
-        Transforma uma imagem bin·ria em uma imagem colorida.
+        Transforma uma imagem bin√°ria em uma imagem colorida.
         @return Image A nova imagem gerada.
         """
         raw = cv.cvtColor(self.raw, cv.COLOR_GRAY2BGR)
@@ -101,10 +101,10 @@ class Image(object):
     
     def show(self, wname = "image"):
         """
-        Mostra a imagem armazenada pelo objeto e espera atÈ que
-        um bot„o seja apertado ou a janela seja fechada.
+        Mostra a imagem armazenada pelo objeto e espera at√© que
+        um bot√£o seja apertado ou a janela seja fechada.
         @param str window Nome da janela a ser aberta
-        @return int Bot„o pressionado.
+        @return int Bot√£o pressionado.
         """
         ImageWindow(wname, self)
     
@@ -117,7 +117,7 @@ class Image(object):
         
     def check(self, comps):
         """
-        Verifica a necessidade de rotaÁ„o da imagem e o faz
+        Verifica a necessidade de rota√ß√£o da imagem e o faz
         de acordo com o verificado.
         """
         count = 0
@@ -137,15 +137,15 @@ class Image(object):
         
 class ImageWindow(object):
     """
-    Classe respons·vel pela exibiÁ„o de uma imagem e tambÈm
+    Classe respons√°vel pela exibi√ß√£o de uma imagem e tamb√©m
     pelo controle da imagem sobre a janela, permitindo que
-    a imagem seja deslocada e toda a imagem seja visÌvel em
+    a imagem seja deslocada e toda a imagem seja vis√≠vel em
     uma tela menor que ela.
     """
     
     def __init__(self, wname, image, wsize = (800, 600)):
         """
-        Inicializa e cria uma nova inst‚ncia do objeto.
+        Inicializa e cria uma nova inst√¢ncia do objeto.
         @param str wname Nome da janela a ser criada.
         @param Image image Imagem a ser exibida.
         @return ImageWindow
@@ -164,11 +164,11 @@ class ImageWindow(object):
             
     def mouse(self, event, x, y, flag, *param):
         """
-        MÈtodo respons·vel pelo controle do mouse.
+        M√©todo respons√°vel pelo controle do mouse.
         @param int event Evento realizado pelo mouse.
         @param int x, y Coordenadas do evento.
         @param int flag Flags do evento.
-        @param list param Par‚metros adicionais.
+        @param list param Par√¢metros adicionais.
         """
         if event == cv.EVENT_LBUTTONDOWN:
             self._mousep = Point(x, y)
@@ -189,8 +189,8 @@ class ImageWindow(object):
     
     def append(self, image):
         """
-        Adiciona uma imagem ‡ lista de imagens a serem exibidas.
-        @param Image image Imagem a ser adiciona ‡ lista.
+        Adiciona uma imagem √† lista de imagens a serem exibidas.
+        @param Image image Imagem a ser adiciona √† lista.
         """
         self.image.append(image)
         self.index = len(self.image) - 1
@@ -198,9 +198,9 @@ class ImageWindow(object):
         
     def text(self, txt, pos, color = (255, 255, 0)):
         """
-        Insere um texto est·tico na janela.
+        Insere um texto est√°tico na janela.
         @param str txt Texto a ser posicionado.
-        @param tuple pos PosiÁ„o do texto.
+        @param tuple pos Posi√ß√£o do texto.
         @param tuple color Cor do texto.
         """
         pos = tuple([
@@ -214,7 +214,7 @@ class ImageWindow(object):
     
     def show(self):
         """
-        MÈtodo respons·vel por gerir a exibiÁ„o da imagem.
+        M√©todo respons√°vel por gerir a exibi√ß√£o da imagem.
         @return None
         """
         self.mid = Point(self.shape.x / 2, self.shape.y / 2)

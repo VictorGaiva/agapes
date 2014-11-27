@@ -3,12 +3,12 @@
 """
 PSG - Tecnologia Aplicada
 
-Este È um mÛdulo utilizado para contagem de falhas em
-plantaÁıes de cana-de-aÁ˙car atravÈs do uso de imagens
-aÈreas capturadas por VANT's ou aparelhos similares.
+Este √© um m√≥dulo utilizado para contagem de falhas em
+planta√ß√µes de cana-de-a√ß√∫car atrav√©s do uso de imagens
+a√©reas capturadas por VANT's ou aparelhos similares.
 
-Este arquivo È respons·vel pelo desenho da interface do
-programa e tambÈm pela execuÁ„o e apresentaÁ„o dos
+Este arquivo √© respons√°vel pelo desenho da interface do
+programa e tamb√©m pela execu√ß√£o e apresenta√ß√£o dos
 resultados obtidos com a imagem fornecida.
 """
 from image import *
@@ -21,13 +21,13 @@ import copy
 class Component(object):
     """
     Armazena, protege e manipula todos os pontos de um componente conexo da
-    imagem. Cada componente È dado por uma lista de pontos, que juntos
+    imagem. Cada componente √© dado por uma lista de pontos, que juntos
     descrevem o contorno do componente.
     """
     
     def __init__(self, contour):
         """
-        Inicializa e cria uma nova inst‚ncia do objeto.
+        Inicializa e cria uma nova inst√¢ncia do objeto.
         @param list contour Lista de pontos que descrevem os contornos do componente.
         @return Component
         """
@@ -45,7 +45,7 @@ class Component(object):
         """
         Encontra todos os componentes presentes na imagem dada, e
         retorna a lista de todos os componentes.
-        @param Image image Imagem alvo da operaÁ„o.
+        @param Image image Imagem alvo da opera√ß√£o.
         @return ComponentList
         """
         raw = copy.deepcopy(image.raw)
@@ -66,13 +66,13 @@ class Component(object):
 class ComponentList(object):
     """
     Armazena uma lista de componentes obtidos da imagem. Este objeto
-    administra, manipula e executa diversas operaÁıes sobre uma
+    administra, manipula e executa diversas opera√ß√µes sobre uma
     lista de componentes encontrados.
     """
     
     def __init__(self, lcomp):
         """
-        Inicializa e cria uma nova inst‚ncia do objeto.
+        Inicializa e cria uma nova inst√¢ncia do objeto.
         @param list lcomp Lista de componentes.
         @return ComponentList
         """
@@ -80,16 +80,16 @@ class ComponentList(object):
         
     def __getitem__(self, index):
         """
-        Acessa a lista e retorna o Component encontrado na posiÁ„o dada.
-        Caso o par‚metro seja uma slice, uma lista de Component È retornada.
-        @param int|slice index Õndice do elemento a ser retornado.
+        Acessa a lista e retorna o Component encontrado na posi√ß√£o dada.
+        Caso o par√¢metro seja uma slice, uma lista de Component √© retornada.
+        @param int|slice index √çndice do elemento a ser retornado.
         @return Component|list
         """
         return ([None] + self.comps)[index]
     
     def __iter__(self):
         """
-        Transforma o objeto em um iter·vel para permitir a f·cil iteraÁ„o
+        Transforma o objeto em um iter√°vel para permitir a f√°cil itera√ß√£o
         entre os componentes armazenados.
         @yields Component
         """
@@ -99,8 +99,8 @@ class ComponentList(object):
     @classmethod
     def mapped(cls, lcomp, shape):
         """
-        Inicializa o objeto com componentes j· instanciados e
-        cria o mapa de localizaÁ„o desses componentes.
+        Inicializa o objeto com componentes j√° instanciados e
+        cria o mapa de localiza√ß√£o desses componentes.
         @param list lcomp Componentes instanciados.
         @param tuple shape Formato da imagem alvo.
         @return ComponentList
@@ -124,9 +124,9 @@ class ComponentList(object):
     
     def sort(self, key = lambda c: c.belief, reverse = False):
         """
-        Ordena os componentes de acordo com a confianÁa individual de cada
+        Ordena os componentes de acordo com a confian√ßa individual de cada
         componente presente na imagem.
-        @param lambda key FunÁ„o para a ordenaÁ„o dos componentes.
+        @param lambda key Fun√ß√£o para a ordena√ß√£o dos componentes.
         """
         self.comps = sorted(self.comps, key = key, reverse = not reverse)
         

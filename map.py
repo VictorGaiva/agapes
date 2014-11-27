@@ -3,38 +3,38 @@
 """
 PSG - Tecnologia Aplicada
 
-Este È um mÛdulo utilizado para contagem de falhas em
-plantaÁıes de cana-de-aÁ˙car atravÈs do uso de imagens
-aÈreas capturadas por VANT's ou aparelhos similares.
+Este √© um m√≥dulo utilizado para contagem de falhas em
+planta√ß√µes de cana-de-a√ß√∫car atrav√©s do uso de imagens
+a√©reas capturadas por VANT's ou aparelhos similares.
 
-Este arquivo È respons·vel pelo desenho da interface do
-programa e tambÈm pela execuÁ„o e apresentaÁ„o dos
+Este arquivo √© respons√°vel pelo desenho da interface do
+programa e tamb√©m pela execu√ß√£o e apresenta√ß√£o dos
 resultados obtidos com a imagem fornecida.
 """
 class Map(object):
     """
-    Objeto respons·vel pelo armazenamento e intermediaÁ„o
+    Objeto respons√°vel pelo armazenamento e intermedia√ß√£o
     do mapa de componentes.
     """
     
-    # Mapa e referÍncias de todos os componentes. Inst‚ncias
-    # que s„o encapsuladas pelo objeto Map, que pode ser acessado
-    # a partir de todos os mÛdulos.
+    # Mapa e refer√™ncias de todos os componentes. Inst√¢ncias
+    # que s√£o encapsuladas pelo objeto Map, que pode ser acessado
+    # a partir de todos os m√≥dulos.
     map = None
     comp = None
     shape = None
     
     class __metaclass__(type):
         """
-		Metaclasse de Map. Permite a criaÁ„o de operadores m·gicos em escopo
-		est·tico permitindo, assim, acessar a classe como inst‚ncia.
+		Metaclasse de Map. Permite a cria√ß√£o de operadores m√°gicos em escopo
+		est√°tico permitindo, assim, acessar a classe como inst√¢ncia.
 		"""
         
         def __getitem__(cls, index):
             """
-			Acessa e retorna o elemento presente na posiÁ„o dada
-            pelo par‚metro index.
-			@param int index Õndice a ser explorado.
+			Acessa e retorna o elemento presente na posi√ß√£o dada
+            pelo par√¢metro index.
+			@param int index √çndice a ser explorado.
 			@return Component
 			"""
             return Map.comp[Map.map[index]]
@@ -42,8 +42,8 @@ class Map(object):
     @classmethod
     def set(cls, map, comps):
         """
-        MÈtodo respons·vel por modificar os valores apontados pelo
-        mapa e pela lista de referÍncias de componentes.
+        M√©todo respons√°vel por modificar os valores apontados pelo
+        mapa e pela lista de refer√™ncias de componentes.
         @param Image map Mapa dos componentes.
         @param list comps Lista de componentes.
         """

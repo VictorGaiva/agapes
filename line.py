@@ -3,12 +3,12 @@
 """
 PSG - Tecnologia Aplicada
 
-Este é um módulo utilizado para contagem de falhas em
-plantações de cana-de-açúcar através do uso de imagens
-aéreas capturadas por VANT's ou aparelhos similares.
+Este Ã© um mÃ³dulo utilizado para contagem de falhas em
+plantaÃ§Ãµes de cana-de-aÃ§Ãºcar atravÃ©s do uso de imagens
+aÃ©reas capturadas por VANT's ou aparelhos similares.
 
-Este arquivo é responsável pelo desenho da interface do
-programa e também pela execução e apresentação dos
+Este arquivo Ã© responsÃ©vel pelo desenho da interface do
+programa e tambÃ©m pela execuÃ§Ã£o e apresentaÃ§Ã£o dos
 resultados obtidos com a imagem fornecida.
 """
 from component import *
@@ -21,19 +21,19 @@ import math
 class Line(ComponentList):
     """
     Armazena e forma uma linha juntando componentes diferentes em
-    posições diferentes. A linha pode ser representada ou reduzida
-    para um polinômio.
+    posiÃ§Ãµes diferentes. A linha pode ser representada ou reduzida
+    para um polinÃ´mio.
     """
     
-    # Constantes de direção. Auxiliam ao encontrar uma nova
-    # linha, permitindo passar o parâmetro direção de forma
-    # mais legível.
+    # Constantes de direÃ§Ã£o. Auxiliam ao encontrar uma nova
+    # linha, permitindo passar o parÃ¢metro direÃ§Ã£o de forma
+    # mais legÃ­vel.
     left = -1
     right = 1
     
     def __init__(self, *comps):
         """
-        Inicializa e cria uma nova instância do objeto.
+        Inicializa e cria uma nova instÃ¢ncia do objeto.
         @param list comps Componentes iniciais da linha.
         @return Line
         """
@@ -49,8 +49,8 @@ class Line(ComponentList):
     @classmethod
     def first(cls, *comps):
         """
-        Inicia uma instância de lista de linhas e fornece à
-        lista a primeira linha encontrada que será base
+        Inicia uma instÃ¢ncia de lista de linhas e fornece Ã 
+        lista a primeira linha encontrada que serÃ¡ base
         para a descoberta de todas as outras.
         @param list comps Componentes que formam a primeira linha.
         @return LineList
@@ -69,8 +69,8 @@ class Line(ComponentList):
         Forma uma nova linha baseado em dados encontrados em outra
         linha.
         @param Line line Linha a qual a nova linha se baseia.
-        @param Point dpoint Vetor de distância entre as linhas.
-        @param int direction Direção em que a procura foi realizada.
+        @param Point dpoint Vetor de distÃ¢ncia entre as linhas.
+        @param int direction DireÃ§Ã£o em que a procura foi realizada.
         @return Line A nova linha encontrada.
         """
         comps = [None]
@@ -98,7 +98,7 @@ class Line(ComponentList):
     @property
     def points(self):
         """
-        Método-propriedade responsável por reunir todos os pontos
+        Mï¿½todo-propriedade responsï¿½vel por reunir todos os pontos
         de todos os componentes presentes na linha.
         @return list
         """
@@ -107,9 +107,9 @@ class Line(ComponentList):
     @property
     def polynom(self):
         """
-        Executa regressão polinomial nos componentes e encontra o polinômio,
+        Executa regressï¿½o polinomial nos componentes e encontra o polinï¿½mio,
         e a curva que melhor se encaixam nos pontos da linha.
-        @return polynom Polinômio obtido dos pontos.
+        @return polynom Polinï¿½mio obtido dos pontos.
         """
         if self.__polynom is None:
             x, y = zip(*self.points)
@@ -120,7 +120,7 @@ class Line(ComponentList):
     @property
     def length(self):
         """
-        Propriedade responsável pelo cálculo do comprimento de arco
+        Propriedade responsï¿½vel pelo cï¿½lculo do comprimento de arco
         da linha atual.
         @return float Comprimento de arco da linha
         """
@@ -134,15 +134,15 @@ class Line(ComponentList):
     @property
     def area(self):
         """
-        Propriedade responsável pelo cálculo da área ocupada pela linha.
-        @return float Área ocupada.
+        Propriedade responsï¿½vel pelo cï¿½lculo da ï¿½rea ocupada pela linha.
+        @return float ï¿½rea ocupada.
         """
         return sum([comp.area for comp in self])
     
     @property
     def density(self):
         """
-        Propriedade de densidade da linha. Indica, na média, a espessura
+        Propriedade de densidade da linha. Indica, na mï¿½dia, a espessura
         da linha.
         @return int Densidade em pixels.
         """
@@ -151,7 +151,7 @@ class Line(ComponentList):
     def conquer(self):
         """
         Encontra e adiciona novos componentes achados sobre a imagem do
-        polinômio. Após terminado o processo, corrige as propriedades da linha.
+        polinï¿½mio. Apï¿½s terminado o processo, corrige as propriedades da linha.
         @return None
         """
         before, after = self.nearby()
@@ -163,9 +163,9 @@ class Line(ComponentList):
             
     def fill(self):
         """
-        Encontra e adiciona novos componentes achados sobre o domínio atual
-        da linha. Alguns componentes podem ter sido deixados para trás no
-        momento de construção da linha.
+        Encontra e adiciona novos componentes achados sobre o domï¿½nio atual
+        da linha. Alguns componentes podem ter sido deixados para trï¿½s no
+        momento de construï¿½ï¿½o da linha.
         @return None
         """
         for _, comp in self.walkover(self.up, self.down):
@@ -175,8 +175,8 @@ class Line(ComponentList):
     
     def walkover(self, *control):
         """
-        Anda por sobre o polinômio da linha e encontra o que está sob ele.
-        @param list control Lista de parâmetros para o caminho na linha.
+        Anda por sobre o polinï¿½mio da linha e encontra o que estï¿½ sob ele.
+        @param list control Lista de parï¿½metros para o caminho na linha.
         @yields Point, Component
         """
         xlim, ylim = Map.shape
@@ -191,8 +191,8 @@ class Line(ComponentList):
         
     def nearby(self):
         """
-        Encontra o próximo componente - acima e abaixo da imagem do polinônio da
-        linha - com uma distância máxima confiável até eles.
+        Encontra o prÃ³ximo componente - acima e abaixo da imagem do polinÃ´nio da
+        linha - com uma distÃ¢ncia mÃ¡xima confiÃ¡vel atÃ© eles.
         @return list Componentes encontrados antes e depois da linha atual.
         """
         before, after = None, None
@@ -212,8 +212,8 @@ class Line(ComponentList):
     
     def search(self, direction):
         """
-        Procura pela linha mais próxima na direção indicada.
-        @param int direction Direção de busca de nova linha.
+        Procura pela linha mais prï¿½xima na direï¿½ï¿½o indicada.
+        @param int direction Direï¿½ï¿½o de busca de nova linha.
         @return bool Foi encontrada uma linha?
         """
         y0 = (self.down - self.up) * .5 + self.up
@@ -254,9 +254,9 @@ class Line(ComponentList):
         
     def add(self, *comps):
         """
-        Tenta adicionar novos componentes a uma linha. Caso não seja possível
-        decidir a linha em que o componente se encontra, o componente é
-        incluído em nenhuma delas.
+        Tenta adicionar novos componentes a uma linha. Caso nÃ£o seja possÃ­vel
+        decidir a linha em que o componente se encontra, o componente Ã©
+        incluÃ­do em nenhuma delas.
         @param Component comps Componentes a serem adicionados.
         @return int
         """
@@ -311,13 +311,13 @@ class Line(ComponentList):
 class LineList(object):
     """
     Armazena e manipula uma lista de linhas obtidas de uma
-    imagem. Esse objeto também é responsável pela criação de todas
+    imagem. Esse objeto tambï¿½m ï¿½ responsï¿½vel pela criaï¿½ï¿½o de todas
     as linhas existentes.
     """
     
     def __init__(self):
         """
-        Inicializa e cria uma nova instância do objeto.
+        Inicializa e cria uma nova instï¿½ncia do objeto.
         @return LineList
         """
         self.lines = type('rawLineList', (list,), {
@@ -327,9 +327,9 @@ class LineList(object):
         
     def __getitem__(self, index):
         """
-        Acessa e retorna a linha presente na posição dada
-        pelo parâmetro index.
-        @param int|slice index Índice ou índices a serem explorados.
+        Acessa e retorna a linha presente na posiï¿½ï¿½o dada
+        pelo parï¿½metro index.
+        @param int|slice index ï¿½ndice ou ï¿½ndices a serem explorados.
         @return Line|list
         """
         return self.lines[index]
@@ -353,7 +353,7 @@ class LineList(object):
         """
         Executa a busca de novas linhas a partir das linhas localizadas
         nos extremos da lista.
-        @yields int, Line Posição da nova linha encontrada e a própria linha.
+        @yields int, Line Posiï¿½ï¿½o da nova linha encontrada e a prï¿½pria linha.
         """
         while self.lines.first.search(Line.left):
             yield 0, self.lines.first.neigh['left'][1]
@@ -363,7 +363,7 @@ class LineList(object):
     
     def complete(self):
         """
-        Procura por novas linhas, adjacentes às linhas já
+        Procura por novas linhas, adjacentes ï¿½s linhas jï¿½
         conhecidas.
         @return None
         """
@@ -385,7 +385,7 @@ class LineList(object):
     def error(self, distance):
         """
         Contabiliza a porcentagem de erros nas linhas encontradas.
-        @param float distance Distância entre linhas em metros.
+        @param float distance Distï¿½ncia entre linhas em metros.
         @return float, int Porcentagem e metros de falhas encontradas.
         """
         img = Image.new(Map.shape)

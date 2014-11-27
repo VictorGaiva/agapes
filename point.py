@@ -3,34 +3,34 @@
 """
 PSG - Tecnologia Aplicada
 
-Este È um mÛdulo utilizado para contagem de falhas em
-plantaÁıes de cana-de-aÁ˙car atravÈs do uso de imagens
-aÈreas capturadas por VANT's ou aparelhos similares.
+Este √© um m√≥dulo utilizado para contagem de falhas em
+planta√ß√µes de cana-de-a√ß√∫car atrav√©s do uso de imagens
+a√©reas capturadas por VANT's ou aparelhos similares.
 
-Este arquivo È respons·vel pelo desenho da interface do
-programa e tambÈm pela execuÁ„o e apresentaÁ„o dos
+Este arquivo √© respons√°vel pelo desenho da interface do
+programa e tamb√©m pela execu√ß√£o e apresenta√ß√£o dos
 resultados obtidos com a imagem fornecida.
 """
 import math
 
 class Point(tuple):
     """
-    Armazena as coordenadas de um ponto e implementa operaÁıes
-    b·sicas a serem aplicadas sobre ele.
+    Armazena as coordenadas de um ponto e implementa opera√ß√µes
+    b√°sicas a serem aplicadas sobre ele.
     """
     
     def __new__(cls, x, y):
         """
-        Cria uma nova inst‚ncia do objeto.
-        @param float x Valor do Ìndice 0
-        @param float y Valor do Ìndice 1
+        Cria uma nova inst√¢ncia do objeto.
+        @param float x Valor do √≠ndice 0
+        @param float y Valor do √≠ndice 1
         @return Point
         """
         return super(Point, cls).__new__(cls, [x, y])
 
     def __init__(self, x, y):
         """
-        Inicializa uma nova inst‚ncia do objeto.
+        Inicializa uma nova inst√¢ncia do objeto.
         @param float x Valor do ponto no eixo-x
         @param float y Valor do ponto no eixo-y
         @return Point
@@ -42,7 +42,7 @@ class Point(tuple):
     def __add__(self, other):
         """
         Implementa a soma de dois pontos.
-        @param Point|tuple other Operador do c·lculo
+        @param Point|tuple other Operador do c√°lculo
         @return Point
         """
         return Point(self.x + other[0], self.y + other[1])
@@ -50,7 +50,7 @@ class Point(tuple):
     def __sub__(self, other):
         """
         Implementa a soma de dois pontos.
-        @param Point|tuple other Operador do c·lculo
+        @param Point|tuple other Operador do c√°lculo
         @return Point
         """
         return Point(self.x - other[0], self.y - other[1])
@@ -73,7 +73,7 @@ class Point(tuple):
     def round(self, precision = 0):
         """
         Arredonda os valores armazenados pelo objeto.
-        @param int precision Precis„o do arredondamento.
+        @param int precision Precis√£o do arredondamento.
         @return Point
         """
         x = round(self.x, precision)
@@ -82,9 +82,9 @@ class Point(tuple):
         
     def euclidean(self, destiny = (0,0)):
         """
-        Calcula a dist‚ncia euclidiana atÈ um outro ponto.
+        Calcula a dist√¢ncia euclidiana at√© um outro ponto.
         @param Point|tuple destiny Ponto para ser comparado.
-        @return double Dist‚ncia entre os dois pontos.
+        @return double Dist√¢ncia entre os dois pontos.
         """
         deltax = self.x - destiny[0]
         deltay = self.y - destiny[1]
@@ -93,9 +93,9 @@ class Point(tuple):
     
     def manhattan(self, destiny):
         """
-        Calcula a dist‚ncia de Manhattan atÈ um outro ponto.
+        Calcula a dist√¢ncia de Manhattan at√© um outro ponto.
         @param Point|tuple destiny Ponto para ser comparado.
-        @return double Dist‚ncia entre os dois pontos.
+        @return double Dist√¢ncia entre os dois pontos.
         """
         deltax = self.x - destiny[0]
         deltay = self.y - destiny[1]

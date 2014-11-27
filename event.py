@@ -4,13 +4,13 @@ from sys import stdout
 
 class EventHandler(object):
     """
-    Objeto respons·vel pela execuÁ„o e alteraÁ„o de
+    Objeto respons√°vel pela execu√ß√£o e altera√ß√£o de
     manipuladores de evento.
     """
     
     def __init__(self, handls):
         """
-        Cria uma nova inst‚ncia do objeto.
+        Cria uma nova inst√¢ncia do objeto.
         @param list|callable handls Manipulador de evento.
         """
         self.handlers = handls if type(handls) is list else [handls]
@@ -43,20 +43,20 @@ class EventHandler(object):
 
 class Event(object):
     """
-    Objeto respons·vel pelo controle, administraÁ„o e
-    armazenamento de eventos durante toda a execuÁ„o do programa.
+    Objeto respons√°vel pelo controle, administra√ß√£o e
+    armazenamento de eventos durante toda a execu√ß√£o do programa.
     """
     list = {}
     
     class __metaclass__(type):
         """
-        Metaclasse de Event. Facilita a utilizaÁ„o da classe
-        de eventos, disponibilizando mÈtodos m·gicos estaticamente.
+        Metaclasse de Event. Facilita a utiliza√ß√£o da classe
+        de eventos, disponibilizando m√©todos m√°gicos estaticamente.
         """
         
         def __getattr__(cls, name):
             """
-            Invoca um evento atravÈs da chamada de seu manipulador.
+            Invoca um evento atrav√©s da chamada de seu manipulador.
             @param str name Nome do evento invocado.
             """
             if name in cls.list:
@@ -67,17 +67,17 @@ class Event(object):
         
         def __setattr__(cls, name, value):
             """
-            Permite adicionar novos eventos e suas manipulaÁıes ‡
+            Permite adicionar novos eventos e suas manipula√ß√µes √†
             lista para serem escutados e executados.
             @param str name Nome do evento a ser escutado.
-            @param list|callable value FunÁıes a serem executadas pelo evento.
+            @param list|callable value Fun√ß√µes a serem executadas pelo evento.
             """
             cls.list[name] = EventHandler(value)
             
         def __delattr__(cls, name):
             """
-            Remove manipuladores de um evento. ApÛs a chamada desse
-            mÈtodo, o evento ser· totalmente destruÌdo.
-            @param str name Nome do evento a ser destruÌdo.
+            Remove manipuladores de um evento. Ap√≥s a chamada desse
+            m√©todo, o evento ser√° totalmente destru√≠do.
+            @param str name Nome do evento a ser destru√≠do.
             """
             del cls.list[name]
