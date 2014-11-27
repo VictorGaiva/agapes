@@ -16,8 +16,7 @@ import os.path as path
 import threading
 import wx
 
-# TODO: Adicionar suporte a abas. Cada aba deve processar
-#       uma imagem separamente, e paralelamente com as outras.
+# TODO: Adicionar suporte a abas, para processamento paralelo.
 
 class FileDrop(wx.FileDropTarget):
     
