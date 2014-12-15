@@ -12,6 +12,7 @@ programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
 from event import *
+import config
 import os.path as path
 import threading
 import wx
@@ -22,7 +23,7 @@ class FileDrop(wx.FileDropTarget):
     
     def __init__(self, obj):
         super(FileDrop, self).__init__()
-        self.imover = wx.BitmapFromImage(wx.Image(path.join(__path__, "img", "dragover.png"), wx.BITMAP_TYPE_ANY))
+        self.imover = wx.BitmapFromImage(wx.Image(path.join(config.path, "img", "dragover.png"), wx.BITMAP_TYPE_ANY))
         self.obj = obj
         
     def OnDropFiles(self, x, y, filenames):        
@@ -69,7 +70,7 @@ class MainWindow(wx.Frame):
         
         imctrl  = wx.StaticBitmap(
             midpan, -1,
-            wx.BitmapFromImage(wx.Image(path.join(__path__, "img", "draghere.png"), wx.BITMAP_TYPE_ANY)),
+            wx.BitmapFromImage(wx.Image(path.join(config.path, "img", "draghere.png"), wx.BITMAP_TYPE_ANY)),
             size = (740, 525)
         )
         
@@ -96,7 +97,7 @@ class MainWindow(wx.Frame):
 class AppMain(wx.App):
     
     def OnInit(self):
-        self.frame = MainWindow(None, -1, __appname__)
+        self.frame = MainWindow(None, -1, config.appname)
         self.SetTopWindow(self.frame)
         
         return True

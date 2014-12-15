@@ -212,8 +212,8 @@ class Line(ComponentList):
     
     def search(self, direction):
         """
-        Procura pela linha mais pr�xima na dire��o indicada.
-        @param int direction Dire��o de busca de nova linha.
+        Procura pela linha mais próxima na direção indicada.
+        @param direction Direção de busca de nova linha.
         @return bool Foi encontrada uma linha?
         """
         y0 = (self.down - self.up) * .5 + self.up
@@ -385,7 +385,7 @@ class LineList(object):
     def error(self, distance):
         """
         Contabiliza a porcentagem de erros nas linhas encontradas.
-        @param float distance Distância entre linhas em metros.
+        @param distance Distância entre linhas em metros.
         @return float, int Porcentagem e metros de falhas encontradas.
         """
         img = Image.new(Map.shape)
@@ -429,8 +429,6 @@ class LineList(object):
             elif len(points) > 0:
                 [cv.circle(img.raw, p, 0, (255, 0, 0), 2) for p in points]
                 blue += len(points)
-            
-        #img.show("Resultado")
 
         total = red + blue
         metro = 2 * (distmedia / len(self.lines))

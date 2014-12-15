@@ -11,55 +11,58 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
+import config
+import textwrap
+import argparse
+import sys
+import os
+
+sys.path.append(os.path.dirname(__file__))
+
 from segmentation import *
 from gui import InitGUI
 from event import *
 from line import *
-import __builtin__
-import textwrap
-import argparse
-import os
 
-__builtin__.__path__ = os.path.dirname(os.path.realpath(__file__))
-__builtin__.__author__ = "Rodrigo Siqueira <rodriados@gmail.com>"
-__builtin__.__appname__ = "PSG - Tecnologia Aplicada"
-__builtin__.__version__ = "0.4"
+# TODO: Melhorar o algoritmo que encontra linhas adjacentes.
+# TODO: Feedback de execução e de erros.
+# TODO: Correlacionar a imagem da janela com a imagem original.
+# TODO: Redimensionar imagem para um tamanho fixo, e não para proporção.
+# TODO: Transformar equações utilizadas para funções paramétricas.
+# TODO: Ao soltar uma imagem, exibí-la diretamente no campo de drag-n-drop.
+# TODO: Adicionar ferramentas de edição de imagem, parte inferior da janela.
+# TODO: Criação de um instalador automático de dependencias.
 
-# TODO:     Melhorar o algoritmo que encontra linhas adjacentes.
-# TODO:     Feedback de execução e de erros.
-# TODO:     Correlacionar a imagem da janela com a imagem original.
-# TODO:     Redimensionar imagem para um tamanho fixo, e não para proporção.
-# TODO:     Transformar equações utilizadas para funções paramétricas.
-# TODO:     Ao soltar uma imagem, exibí-la diretamente no campo de drag-n-drop.
-# TODO:     Adicionar ferramentas de edição de imagem, parte inferior da janela.
-# TODO:     Criação de um instalador automático de dependencias.
 
 def ShowImage(img):
     """
     Prepara a janela para mostrar todos os passos de
     execução do algoritmo.
-    @param Image img Primeira imagem a ser mostrada.
+    @param img Primeira imagem a ser mostrada.
     """
     global window
-    window = ImageWindow(__appname__, img)
-    
+    window = ImageWindow(config.appname, img)
+
+
 def AddImage(img):
     """
     Adiciona uma imagem a ser exibida na janela.
-    @param Image img Imagem a ser adicionada.
+    @param img Imagem a ser adicionada.
     """
     global window
     window.append(img)
-    
+
+
 def ShowResult(pcento, metros):
     """
     Mostra um texto na imagem indicando o resultado
     obtido do processamento da imagem alvo.
-    @param float pcento Porcentagem de falhas na imagem.
-    @param float metros Metros de falhas na imagem.
+    @param pcento Porcentagem de falhas na imagem.
+    @param metros Metros de falhas na imagem.
     """
     global window    
     window.text("Falhas: %.2f metros (%d%%)" % (metros, pcento), (20, -50))
+
 
 def SetHandles():
     """
@@ -71,21 +74,23 @@ def SetHandles():
     Event.process = AddImage
     Event.result = ShowResult
 
+
 def LoadImage(address):
     """
     Carrega uma imagem.
-    @param str address Endereço da imagem a ser carregada.
+    @param address Endereço da imagem a ser carregada.
     @return Imagem Imagem carregada.
     """
     img = Image.load(address).resize(.3)
     Event.load.trigger(img)
     
     return img
-    
+
+
 def SegmentImage(image):
     """
     Executa a segmentação da imagem.
-    @param Image Imagem a ser segmentada.
+    @param image Imagem a ser segmentada.
     @return ComponentList Lista de componentes.
     """
     img = Segmentation().apply(image)
@@ -97,10 +102,11 @@ def SegmentImage(image):
     Event.segment.trigger(img)
     return comps
 
+
 def FindLines(comps):
     """
     Encontra as linhas de plantação sobre a imagem.
-    @param ComponentList comps Componentes encontrados.
+    @param comps Componentes encontrados.
     @return LineList Linhas encontradas.
     """
     lines = Line.first(comps[1])
@@ -111,31 +117,33 @@ def FindLines(comps):
     
     return lines, lineimg
 
+
 def SaveImage(original, image):
     """
     Salva a imagem resultante.
-    @param str original Endereço da imagem original.
-    @param Imagem image Imagem a ser salva.
+    @param original Endereço da imagem original.
+    @param image Imagem a ser salva.
     """
     name = original.rsplit('.', 1)
     image.save("{0}.processed.{1}".format(*name))
 
+
 def GetResult(lines, distance):
     """
     Exibe o resultado do processamento.
-    @param LineList lines Linhas encontradas na imagem.
-    @param float distance Distância entre as linhas de plantação.
+    @param lines Linhas encontradas na imagem.
+    @param distance Distância entre as linhas de plantação.
     """
     porcento, metro = lines.error(distance)
     Event.result.trigger(porcento, metro)
 
+
 def Process(imaddr, distance):
     """
-    Núcleo de execução do processamento de imagens. Esta
-    função é a grande responsável pelo cálculo do resultado
-    desejado do programa.
-    @param str imgaddr Endereço da imagem alvo.
-    @param float distance Distância entre linhas de plantação na imagem.
+    Núcleo de execução do processamento de imagens. Esta função é a grande
+    responsável pelo cálculo do resultado desejado do programa.
+    @param imaddr Endereço da imagem alvo.
+    @param distance Distância entre linhas de plantação na imagem.
     """
     SetHandles()
     image = LoadImage(imaddr)
@@ -145,8 +153,12 @@ def Process(imaddr, distance):
     SaveImage(imaddr, lineim)
     GetResult(lines, distance)
 
+
 if __name__ == '__main__':
-    
+
+    while sys.argv[0] != __file__:
+        sys.argv.pop(0)
+
     parser = argparse.ArgumentParser(
         formatter_class = argparse.RawDescriptionHelpFormatter,
         description = textwrap.dedent("""\
