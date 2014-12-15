@@ -13,6 +13,7 @@ resultados obtidos com a imagem fornecida.
 """
 from sklearn.neighbors import KNeighborsClassifier
 from image import *
+import config
 import numpy
 
 class Segmentation(object):
@@ -30,7 +31,7 @@ class Segmentation(object):
         x, y = [], []
         
         if trainfile is None:
-            trainfile = __path__ + "/trainset.txt"
+            trainfile = config.path + "/trainset.txt"
         
         with open(trainfile, "r") as trainf:
             for line in trainf:
@@ -44,7 +45,7 @@ class Segmentation(object):
     def apply(self, image):
         """
         Segmenta a imagem alvo.
-        @param Image image Imagem alvo de segmentação.
+        @param image Imagem alvo de segmentação.
         @return Image Imagem segmentada de acordo com o treinamento dado.
         """
         shape = image.raw.shape[:2]
