@@ -370,16 +370,17 @@ class LineList(object):
         for pos, line in self.search():
             self.lines.insert(pos, line)
     
-    def display(self):
+    def display(self, inverted):
         """
         Mostra em uma imagem, todas as linhas presentes na lista.
         @return Image
         """
         img = Image.new(Map.shape)
-        
+        img.inverted = inverted
+
         for line in self.lines:
             line.draw(img, (255, 255, 255))
-                
+
         return img
         
     def error(self, distance):

@@ -34,11 +34,14 @@ from line import *
 # TODO: Criação de um instalador automático de dependencias.
 
 
+
+
+
 def ShowImage(img):
     """
     Prepara a janela para mostrar todos os passos de
     execução do algoritmo.
-    @param img Primeira imagem a ser mostrada.
+    :param img Primeira imagem a ser mostrada.
     """
     global window
     window = ImageWindow(config.appname, img)
@@ -47,7 +50,7 @@ def ShowImage(img):
 def AddImage(img):
     """
     Adiciona uma imagem a ser exibida na janela.
-    @param img Imagem a ser adicionada.
+    :param img Imagem a ser adicionada.
     """
     global window
     window.append(img)
@@ -57,8 +60,8 @@ def ShowResult(pcento, metros):
     """
     Mostra um texto na imagem indicando o resultado
     obtido do processamento da imagem alvo.
-    @param pcento Porcentagem de falhas na imagem.
-    @param metros Metros de falhas na imagem.
+    :param pcento Porcentagem de falhas na imagem.
+    :param metros Metros de falhas na imagem.
     """
     global window    
     window.text("Falhas: %.2f metros (%d%%)" % (metros, pcento), (20, -50))
@@ -73,6 +76,9 @@ def SetHandles():
     Event.segment = AddImage
     Event.process = AddImage
     Event.result = ShowResult
+
+
+
 
 
 def LoadImage(address):
@@ -100,10 +106,10 @@ def SegmentImage(image):
         comps = Component.load(img)
         
     Event.segment.trigger(img)
-    return comps
+    return comps, img.inverted
 
 
-def FindLines(comps):
+def FindLines(comps, inverted):
     """
     Encontra as linhas de plantação sobre a imagem.
     @param comps Componentes encontrados.
@@ -112,7 +118,7 @@ def FindLines(comps):
     lines = Line.first(comps[1])
     lines.complete()
     
-    lineimg = lines.display()
+    lineimg = lines.display(inverted)
     Event.process.trigger(lineimg)
     
     return lines, lineimg
@@ -147,11 +153,14 @@ def Process(imaddr, distance):
     """
     SetHandles()
     image = LoadImage(imaddr)
-    comps = SegmentImage(image)
-    lines, lineim = FindLines(comps)
+    comps, inv = SegmentImage(image)
+    lines, lineim = FindLines(comps, inv)
     
     SaveImage(imaddr, lineim)
     GetResult(lines, distance)
+
+
+
 
 
 if __name__ == '__main__':

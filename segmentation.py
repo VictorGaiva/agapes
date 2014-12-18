@@ -26,7 +26,7 @@ class Segmentation(object):
     def __init__(self, trainfile = None):
         """
         Inicializa e cria uma nova instância do objeto.
-        @param str trainfile Nome do arquivo com casos de treino.
+        :param trainfile Nome do arquivo com casos de treino.
         """
         x, y = [], []
         
@@ -45,8 +45,8 @@ class Segmentation(object):
     def apply(self, image):
         """
         Segmenta a imagem alvo.
-        @param image Imagem alvo de segmentação.
-        @return Image Imagem segmentada de acordo com o treinamento dado.
+        :param image Imagem alvo de segmentação.
+        :return Imagem segmentada de acordo com o treinamento dado.
         """
         shape = image.raw.shape[:2]
         image = image.tolab()
