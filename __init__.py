@@ -100,22 +100,22 @@ def SegmentImage(image):
     @return ComponentList Lista de componentes.
     """
     img = Segmentation().apply(image)
-    comps = Component.load(img)
+    comps, cmap = Component.load(img)
     
     if not img.check(comps):
-        comps = Component.load(img)
+        comps, cmap = Component.load(img)
         
     Event.segment.trigger(img)
-    return comps, img.inverted
+    return comps, cmap, img.inverted
 
 
-def FindLines(comps, inverted):
+def FindLines(comps, cmap, inverted):
     """
     Encontra as linhas de plantação sobre a imagem.
     @param comps Componentes encontrados.
     @return LineList Linhas encontradas.
     """
-    lines = Line.first(comps[1])
+    lines = Line.first(cmap, comps[1])
     lines.complete()
     
     lineimg = lines.display(inverted)
@@ -153,8 +153,8 @@ def Process(imaddr, distance):
     """
     SetHandles()
     image = LoadImage(imaddr)
-    comps, inv = SegmentImage(image)
-    lines, lineim = FindLines(comps, inv)
+    comps, cmap, inv = SegmentImage(image)
+    lines, lineim = FindLines(comps, cmap, inv)
     
     SaveImage(imaddr, lineim)
     GetResult(lines, distance)

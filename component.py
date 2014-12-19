@@ -101,18 +101,17 @@ class ComponentList(object):
         """
         Inicializa o objeto com componentes já instanciados e
         cria o mapa de localização desses componentes.
-        @param list lcomp Componentes instanciados.
-        @param tuple shape Formato da imagem alvo.
-        @return ComponentList
+        :param lcomp Componentes instanciados.
+        :param shape Formato da imagem alvo.
+        :return ComponentList
         """
         new = cls(lcomp)
         new.sort()
                 
-        map = Image.new(shape, numpy.uint16, 1)
-        [comp.draw(map, i + 1) for i, comp in enumerate(new.comps)]
-        Map.set(map, [None] + new.comps)
-        
-        return new
+        cmap = Image.new(shape, numpy.uint16, 1)
+        [comp.draw(cmap, i + 1) for i, comp in enumerate(new.comps)]
+
+        return new, Map(cmap, new.comps)
     
     @property
     def count(self):

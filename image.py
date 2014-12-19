@@ -14,6 +14,7 @@ resultados obtidos com a imagem fornecida.
 from threading import Thread
 from point import *
 import cv2 as cv
+import config
 import numpy
 import copy
 
@@ -158,10 +159,11 @@ class ImageWindow(object):
         :return Instância criada.
         """
         self.size = wsize
-        self.wname = wname
+        self.wname = "{0} #{1}".format(wname, config.wid)
         self.shape = image.shape
         self.closed = False
         self.word = None
+        config.wid += 1
 
         self.image = [image if not image.inverted else Image(cv.transpose(image.raw))]
         self.index = 0

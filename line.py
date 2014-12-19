@@ -31,7 +31,7 @@ class Line(ComponentList):
     left = -1
     right = 1
     
-    def __init__(self, *comps):
+    def __init__(self, cmap, *comps):
         """
         Inicializa e cria uma nova instância do objeto.
         @param list comps Componentes iniciais da linha.
@@ -46,8 +46,10 @@ class Line(ComponentList):
         self.neigh = {'right': (inf, None), 'left': (inf, None)}
         self.__polynom = None
 
+        self.map = cmap
+
     @classmethod
-    def first(cls, *comps):
+    def first(cls, cmap, *comps):
         """
         Inicia uma instância de lista de linhas e fornece à
         lista a primeira linha encontrada que será base
@@ -55,23 +57,23 @@ class Line(ComponentList):
         @param list comps Componentes que formam a primeira linha.
         @return LineList
         """
-        line = cls(*comps)
-        list = LineList()
+        line = cls(cmap, *comps)
+        llst = LineList(cmap)
         
         line.conquer()
-        list.add(line)
+        llst.add(line)
 
-        return list
+        return llst
     
     @classmethod
     def fromside(cls, line, dpoint, direction):
         """
         Forma uma nova linha baseado em dados encontrados em outra
         linha.
-        @param Line line Linha a qual a nova linha se baseia.
-        @param Point dpoint Vetor de distância entre as linhas.
-        @param int direction Direção em que a procura foi realizada.
-        @return Line A nova linha encontrada.
+        :param line Linha a qual a nova linha se baseia.
+        :param dpoint Vetor de distância entre as linhas.
+        :param direction Direção em que a procura foi realizada.
+        :return Line A nova linha encontrada.
         """
         comps = [None]
         
@@ -80,12 +82,13 @@ class Line(ComponentList):
             _y = int(dpoint.y + y)
             
             for _x in xrange(_x - 10, _x + 10):
-                if 0 <= _x < Map.shape.x and 0 <= _y < Map.shape.y \
-                and Map[_x, _y] not in comps and Map[_x, _y] is not None \
-                and Map[_x, _y].line is None:
-                    comps.append(Map[_x, _y])
+                if 0 <= _x < line.map.shape.x and 0 <= _y < line.map.shape.y \
+                and line.map[_x, _y] not in comps \
+                and line.map[_x, _y] is not None \
+                and line.map[_x, _y].line is None:
+                    comps.append(line.map[_x, _y])
                     
-        newl = cls(*comps[1:])
+        newl = cls(line.map, *comps[1:])
         newl.neigh['left' if direction > 0 else 'right'] = \
             dpoint.euclidean(), line
         
@@ -179,7 +182,7 @@ class Line(ComponentList):
         @param list control Lista de parâmetros para o caminho na linha.
         @yields Point, Component
         """
-        xlim, ylim = Map.shape
+        xlim, ylim = self.map.shape
         d = self.density / 2
         
         for y in xrange(*control):
@@ -187,7 +190,7 @@ class Line(ComponentList):
             
             for x in xrange(x - d, x + d):
                 if 0 <= x < xlim and 0 <= y < ylim:
-                    yield Point(x, y), Map[x, y]
+                    yield Point(x, y), self.map[x, y]
         
     def nearby(self):
         """
@@ -223,7 +226,7 @@ class Line(ComponentList):
         ty = numpy.poly1d([df(y0), 0])
         px = numpy.poly1d([-df(y0), y0 + df(y0) * x0])
         
-        xlim, ylim = Map.shape
+        xlim, ylim = self.map.shape
         delta = int(self.density / 3) * direction
         pn = Point(x0 + delta, px(x0 + delta))
                 
@@ -235,7 +238,7 @@ class Line(ComponentList):
                 y = int(pn.y) + y
 
                 if 0 <= x < xlim and 0 <= y < ylim:
-                    count = count + int(Map[x, y] not in ([None] + self.comps))
+                    count = count + int(self.map[x, y] not in ([None] + self.comps))
                     total = total + 1
                         
             if total and (count / total) >= .25:
@@ -272,7 +275,7 @@ class Line(ComponentList):
                 if comp.line.count > 0:
                     comp.line = None
                     continue
-                                    
+
             if comp.up < self.up:
                 self.up = comp.up
                 
@@ -300,13 +303,13 @@ class Line(ComponentList):
         for y in xrange(self.up, self.down):
             x = int(round(self.polynom(y)))
             
-            if not 0 <= x < Map.shape.x:
+            if not 0 <= x < self.map.shape.x:
                 continue
                 
-            if Map[x, y] in self.comps:
+            if self.map[x, y] in self.comps:
                 cv.circle(img.raw, (x, y), 0, (255, 0, 0), 2)
             else:
-                cv.circle(img.raw, (x, y), 0, (0, 0, 255), 2)            
+                cv.circle(img.raw, (x, y), 0, (0, 0, 255), 2)
             
 class LineList(object):
     """
@@ -315,7 +318,7 @@ class LineList(object):
     as linhas existentes.
     """
     
-    def __init__(self):
+    def __init__(self, cmap):
         """
         Inicializa e cria uma nova instância do objeto.
         @return LineList
@@ -324,6 +327,9 @@ class LineList(object):
             'first': property(lambda this: this[0]),
             'last':  property(lambda this: this[-1])
         })()
+
+        self.map = cmap
+        self.shape = cmap.shape
         
     def __getitem__(self, index):
         """
@@ -375,7 +381,7 @@ class LineList(object):
         Mostra em uma imagem, todas as linhas presentes na lista.
         @return Image
         """
-        img = Image.new(Map.shape)
+        img = Image.new(self.shape)
         img.inverted = inverted
 
         for line in self.lines:
@@ -389,7 +395,7 @@ class LineList(object):
         @param distance Distância entre linhas em metros.
         @return float, int Porcentagem e metros de falhas encontradas.
         """
-        img = Image.new(Map.shape)
+        img = Image.new(self.shape)
         red, blue = 0, 0
         distmedia = 0
         
@@ -407,8 +413,8 @@ class LineList(object):
                 incomp = False
                 
                 for _x in xrange(x - 3, x + 3):
-                    if 0 <= _x < Map.shape.x \
-                    and Map[_x, y] is not None and Map[_x, y] in line.comps:
+                    if 0 <= _x < self.shape.x \
+                    and self.map[_x, y] is not None and self.map[_x, y] in line.comps:
                         incomp = True
                         
                 if incomp:
@@ -434,6 +440,3 @@ class LineList(object):
         total = red + blue
         metro = 2 * (distmedia / len(self.lines))
         return (100 * red) / total, red / metro
-        
-        
-        
