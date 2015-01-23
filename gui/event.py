@@ -15,7 +15,6 @@ class EventHandler(object):
         """
         self.handlers = handls if type(handls) is list else [handls]
 
-
     def add(self, handls):
         """
         Adiciona manipuladores ao evento.
@@ -23,7 +22,6 @@ class EventHandler(object):
         """
         for handl in (handls if type(handls) is list else [handls]):
             self.handlers.append(handl)
-
 
     def remove(self, handls):
         """
@@ -34,7 +32,6 @@ class EventHandler(object):
             if handl in self.handlers:
                 self.handlers.remove(handl)
 
-
     def trigger(self, *args, **kwargs):
         """
         Executa os manipuladores do evento.
@@ -43,7 +40,6 @@ class EventHandler(object):
         """
         for handl in self.handlers:
             handl(*args, **kwargs)
-
 
 class EmptyHandler(EventHandler):
     """
@@ -58,7 +54,6 @@ class EmptyHandler(EventHandler):
         """
         self.name = name
 
-
     def add(self, handls):
         """
         Ignora adição de manipuladores ao evento.
@@ -66,14 +61,12 @@ class EmptyHandler(EventHandler):
         """
         pass
 
-
     def remove(self, handls):
         """
         Ignora a remoção de manipuladores ao evento.
         :param handls Manipuladores a serem removidos.
         """
         pass
-
 
     def trigger(self, *args, **kwargs):
         """
@@ -83,6 +76,27 @@ class EmptyHandler(EventHandler):
         """
         print "Unknown `" + self.name + "` event triggered!"
 
+class EventListener(object):
+    """
+    Objeto responsável por registrar novos eventos a partir do
+    uso de decoradores, para facilitar a criação de eventos.
+    """
+
+    def __init__(self, name):
+        """
+        Cria uma nova instância do objeto.
+        :param name Nome do evento a ser escutado.
+        """
+        self.name = name
+
+    def __call__(self, function):
+        """
+        Registra um método a ser executado em reação ao evento.
+        :param function Função a ser anexada.
+        :return Função inalterada.
+        """
+        Event.listen(self.name, function)
+        return function
 
 class Event(object):
     """
@@ -90,7 +104,7 @@ class Event(object):
     armazenamento de eventos durante toda a execução do programa.
     """
     list = {}
-    
+
     @classmethod
     def listen(cls, ename, function):
         """
@@ -100,7 +114,6 @@ class Event(object):
         :return EventHandler
         """
         cls.list[ename] = EventHandler(function)
-
 
     @classmethod
     def get(cls, ename):
@@ -114,7 +127,6 @@ class Event(object):
 
         else:
             return EmptyHandler(ename)
-
 
     @classmethod
     def delete(cls, ename):
