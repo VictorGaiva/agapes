@@ -11,35 +11,78 @@ class EventHandler(object):
     def __init__(self, handls):
         """
         Cria uma nova instância do objeto.
-        @param list|callable handls Manipulador de evento.
+        :param handls Manipulador de evento.
         """
         self.handlers = handls if type(handls) is list else [handls]
-        
-    def __iadd__(self, handls):
+
+
+    def add(self, handls):
         """
         Adiciona manipuladores ao evento.
-        @param list|callable handls Manipuladores a serem adicionados.
+        :param handls Manipuladores a serem adicionados.
         """
         for handl in (handls if type(handls) is list else [handls]):
             self.handlers.append(handl)
-            
-    def __isub__(self, handls):
+
+
+    def remove(self, handls):
         """
         Remove manipuladores ao evento.
-        @param list|callable handls Manipuladores a serem removidos.
+        :param handls Manipuladores a serem removidos.
         """
         for handl in (handls if type(handls) is list else [handls]):
             if handl in self.handlers:
                 self.handlers.remove(handl)
-                
+
+
     def trigger(self, *args, **kwargs):
         """
         Executa os manipuladores do evento.
-        @param list args Argumentos dos manipuladores.
-        @param dict kwargs Argumentos nomeados dos manipuladores.
+        :param args Argumentos dos manipuladores.
+        :param kwargs Argumentos nomeados dos manipuladores.
         """
         for handl in self.handlers:
             handl(*args, **kwargs)
+
+
+class EmptyHandler(EventHandler):
+    """
+    Objeto responsável pela execução de manipuladores
+    de eventos vazios ou inexistentes.
+    """
+
+    def __init__(self, name):
+        """
+        Cria uma nova instância do objeto.
+        :param name Nome do evento vazio chamado.
+        """
+        self.name = name
+
+
+    def add(self, handls):
+        """
+        Ignora adição de manipuladores ao evento.
+        :param handls Manipuladores a serem adicionados.
+        """
+        pass
+
+
+    def remove(self, handls):
+        """
+        Ignora a remoção de manipuladores ao evento.
+        :param handls Manipuladores a serem removidos.
+        """
+        pass
+
+
+    def trigger(self, *args, **kwargs):
+        """
+        Ignora execução de manipuladores do evento.
+        :param args Argumentos dos manipuladores.
+        :param kwargs Argumentos nomeados dos manipuladores.
+        """
+        print "Unknown `" + self.name + "` event triggered!"
+
 
 class Event(object):
     """
@@ -48,36 +91,36 @@ class Event(object):
     """
     list = {}
     
-    class __metaclass__(type):
+    @classmethod
+    def listen(cls, ename, function):
         """
-        Metaclasse de Event. Facilita a utilização da classe
-        de eventos, disponibilizando métodos mágicos estaticamente.
+        Cria um manipulador de eventos de acordo com o nome dado.
+        :param ename Nome do evento a ser criado.
+        :param function Funções a serem executadas quando durante o evento.
+        :return EventHandler
         """
-        
-        def __getattr__(cls, name):
-            """
-            Invoca um evento através da chamada de seu manipulador.
-            @param str name Nome do evento invocado.
-            """
-            if name in cls.list:
-                return cls.list[name]
-            else:
-                msg = str(name) + " event triggered!\n"
-                return EventHandler(lambda *l, **k: stdout.write(msg))
-        
-        def __setattr__(cls, name, value):
-            """
-            Permite adicionar novos eventos e suas manipulações à
-            lista para serem escutados e executados.
-            @param str name Nome do evento a ser escutado.
-            @param list|callable value Funções a serem executadas pelo evento.
-            """
-            cls.list[name] = EventHandler(value)
-            
-        def __delattr__(cls, name):
-            """
-            Remove manipuladores de um evento. Após a chamada desse
-            método, o evento será totalmente destruído.
-            @param str name Nome do evento a ser destruído.
-            """
-            del cls.list[name]
+        cls.list[ename] = EventHandler(function)
+
+
+    @classmethod
+    def get(cls, ename):
+        """
+        Recupera um evento através do nome de seu manipulador.
+        :param ename Nome do evento a ser recuperado.
+        :return EventHandler
+        """
+        if ename in cls.list:
+            return cls.list[ename]
+
+        else:
+            return EmptyHandler(ename)
+
+
+    @classmethod
+    def delete(cls, ename):
+        """
+        Remove manipuladores de um evento. Após a chamada desse
+        método, o evento será totalmente destruído.
+        :param ename Nome do evento a ser destruído.
+        """
+        del cls.list[ename]

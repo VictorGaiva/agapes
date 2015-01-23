@@ -11,7 +11,6 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-import config
 import textwrap
 import argparse
 import sys
@@ -69,10 +68,10 @@ def SetHandles():
     Configura o tratamento dos eventos disparados pelo
     núcleo de execução do programa.
     """
-    Event.load = ShowImage
-    Event.segment = AddImage
-    Event.process = AddImage
-    Event.result = ShowResult
+    Event.listen("load", ShowImage)
+    Event.listen("segment", AddImage)
+    Event.listen("process", AddImage)
+    Event.listen("result", ShowResult)
 
 
 def LoadImage(address):
@@ -82,8 +81,8 @@ def LoadImage(address):
     @return Imagem Imagem carregada.
     """
     img = Image.load(address).resize(.3)
-    Event.load.trigger(img)
-    
+
+    Event.get("load").trigger(img)
     return img
 
 
@@ -98,8 +97,8 @@ def SegmentImage(image):
     
     if not img.check(comps):
         comps = Component.load(img)
-        
-    Event.segment.trigger(img)
+
+    Event.get("segment").trigger(img)
     return comps
 
 
@@ -111,10 +110,9 @@ def FindLines(comps):
     """
     lines = Line.first(comps[1])
     lines.complete()
-    
     lineimg = lines.display()
-    Event.process.trigger(lineimg)
-    
+
+    Event.get("process").trigger(lineimg)
     return lines, lineimg
 
 
@@ -135,7 +133,7 @@ def GetResult(lines, distance):
     @param distance Distância entre as linhas de plantação.
     """
     porcento, metro = lines.error(distance)
-    Event.result.trigger(porcento, metro)
+    Event.get("result").trigger(porcento, metro)
 
 
 def Process(imaddr, distance):
