@@ -20,7 +20,7 @@ sys.path.append(os.path.dirname(__file__))
 
 from segmentation import *
 from gui import InitGUI
-from event import *
+from gui.event import *
 from line import *
 
 # TODO: Melhorar o algoritmo que encontra linhas adjacentes.
@@ -188,7 +188,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     if args.dist is None or args.image is None:
-        InitGUI(Process)
+        InitGUI()
     else:
         Process(args.image, args.dist)
-    
