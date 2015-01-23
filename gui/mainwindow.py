@@ -11,7 +11,9 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
+from .statusbar import *
 from .notepage import *
+from .menu import *
 import config
 import wx
 
@@ -28,34 +30,18 @@ class MainWindow(wx.Frame):
         :param wid Identificador da nova janela a ser criada.
         :param title Título da nova janela.
         """
-        super(MainWindow, self).__init__(
-            parent, wid, title,
+        wx.Frame.__init__(
+            self, parent, wid, title,
             size = config.wsize,
             style = wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER
         )
 
-        self.InitMenu()
+        self.menu = Menu(self)
+        self.status = StatusBar(self)
         self.InitUI()
-        self.InitStatus()
 
         self.Centre(wx.BOTH)
         self.Show()
-
-    def InitMenu(self):
-        """
-        Constrói e prosiciona o menu de ferramentas na janela.
-        :return None
-        """
-        w_menu = wx.MenuBar()
-
-        w_menu.file = wx.Menu()
-        m_quit = w_menu.file.Append(wx.ID_EXIT, u'Sair', u'Sair da aplicação.')
-
-        w_menu.Append(w_menu.file, u'&Arquivo')
-
-        self.Bind(wx.EVT_MENU, self.OnQuit, m_quit)
-
-        self.SetMenuBar(w_menu)
 
     def InitUI(self):
         """
@@ -74,19 +60,6 @@ class MainWindow(wx.Frame):
         w_notebook.AddPage(NotePage(w_notebook), u"Talhões")
 
         w_notebook.ChangeSelection(1)
-
-    def InitStatus(self):
-        """
-        Inicializa a barra de status da janela atual.
-        :return None
-        """
-        w_status = self.CreateStatusBar(
-            2,
-            wx.STB_SHOW_TIPS | wx.STB_ELLIPSIZE_END | wx.ST_SIZEGRIP
-        )
-
-        w_status.SetFieldsCount(1)
-        w_status.PushStatusText(u"Carregamento concluído.", 0)
 
     def OnQuit(self, event):
         """

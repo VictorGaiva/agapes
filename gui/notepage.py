@@ -12,8 +12,8 @@ programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
 from .util import *
-import os.path as path
-import config
+from .dropfield import *
+from . import images
 import wx
 
 class NotePage(wx.Panel):
@@ -27,8 +27,8 @@ class NotePage(wx.Panel):
         Cria uma nova instância do objeto.
         :param parent Janela-pai da janela atual.
         """
-        super(NotePage, self).__init__(
-            parent, -1
+        wx.Panel.__init__(
+            self, parent, -1
         )
 
         self.sz, self.el = Factory(HierarchicalJar).createmany(2)
@@ -50,12 +50,7 @@ class NotePage(wx.Panel):
         self.sz.all.Add(wx.StaticLine(self.el.wrap, style = wx.LI_VERTICAL), 0, wx.EXPAND | wx.RIGHT, 4)
         self.sz.all.Add(self.sz.right, 1, wx.EXPAND)
 
-        self.dropfield = wx.StaticBitmap(
-            self.el.wrap, -1,
-            wx.BitmapFromImage(wx.Image(path.join(config.path, "img", "draghere.png"), wx.BITMAP_TYPE_ANY)),
-            size = (100, 453)
-        )
-
+        self.dropfield = DropField(self.el.wrap)
         self.sz.tools = wx.BoxSizer(wx.HORIZONTAL)
 
         self.sz.left.Add(self.dropfield, 0, wx.EXPAND | wx.BOTTOM, 5)

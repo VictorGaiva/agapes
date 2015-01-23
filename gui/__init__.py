@@ -11,7 +11,7 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .event import *
+from .util import *
 from .appmain import *
 import threading
 
