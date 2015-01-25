@@ -11,41 +11,56 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
+from .image import *
+import config
+
 from sklearn.neighbors import KNeighborsClassifier
-from image import *
 import numpy
 
-class Segmentation(object):
+class Segmentator(object):
     """
     Objeto responsável pela segmentação da imagem. É composto
     de métodos que possibilitam a binarização da imagem para
     processamento próximo e cálculo de falhas.
     """
 
-    def __init__(self, trainfile = None):
+    def __init__(self, x, y, k = 1):
         """
         Inicializa e cria uma nova instância do objeto.
-        @param str trainfile Nome do arquivo com casos de treino.
+        :param x Entradas de casos de treinamento.
+        :param y Classes dos casos de treinamento.
+        :param k Número de vizinhos mais próximos a ser considerado.
+        """
+        self.knn = KNeighborsClassifier(
+            n_neighbors = k,
+            warn_on_equidistant = False
+        )
+
+        self.knn.fit(x, y)
+
+    @classmethod
+    def train(cls, trainfile = config.path + "/trainset.txt"):
+        """
+        Treina uma instância de Segmentator para aplicação
+        do algoritmo de segmentação.
+        :param trainfile Arquivo de casos de teste.
+        :return Segmentator Nova instância
         """
         x, y = [], []
-        
-        if trainfile is None:
-            trainfile = __path__ + "/trainset.txt"
-        
-        with open(trainfile, "r") as trainf:
-            for line in trainf:
+
+        with open(trainfile, "r") as trainl:
+            for line in trainl:
                 l = line.strip().split(' ')
                 x.append([int(l[0]), int(l[1]), int(l[2])])
                 y.append(int(l[3]))
-        
-        self.knn = KNeighborsClassifier(n_neighbors = 1, warn_on_equidistant = False)
-        self.knn.fit(x, y)
-            
+
+        return cls(x, y)
+
     def apply(self, image):
         """
         Segmenta a imagem alvo.
-        @param Image image Imagem alvo de segmentação.
-        @return Image Imagem segmentada de acordo com o treinamento dado.
+        :param image Imagem alvo de segmentação.
+        :return Imagem segmentada de acordo com o treinamento dado.
         """
         shape = image.raw.shape[:2]
         image = image.tolab()

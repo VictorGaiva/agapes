@@ -11,9 +11,9 @@ Este arquivo é responsével pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from component import *
-from point import *
-from map import *
+from .component import *
+from .point import *
+
 import cv2 as cv
 import numpy
 import math
@@ -31,7 +31,7 @@ class Line(ComponentList):
     left = -1
     right = 1
     
-    def __init__(self, *comps):
+    def __init__(self, cmap, *comps):
         """
         Inicializa e cria uma nova instância do objeto.
         @param list comps Componentes iniciais da linha.
@@ -46,32 +46,17 @@ class Line(ComponentList):
         self.neigh = {'right': (inf, None), 'left': (inf, None)}
         self.__polynom = None
 
-    @classmethod
-    def first(cls, *comps):
-        """
-        Inicia uma instância de lista de linhas e fornece à
-        lista a primeira linha encontrada que será base
-        para a descoberta de todas as outras.
-        @param list comps Componentes que formam a primeira linha.
-        @return LineList
-        """
-        line = cls(*comps)
-        list = LineList()
-        
-        line.conquer()
-        list.add(line)
+        self.map = cmap
 
-        return list
-    
     @classmethod
     def fromside(cls, line, dpoint, direction):
         """
         Forma uma nova linha baseado em dados encontrados em outra
         linha.
-        @param Line line Linha a qual a nova linha se baseia.
-        @param Point dpoint Vetor de distância entre as linhas.
-        @param int direction Direção em que a procura foi realizada.
-        @return Line A nova linha encontrada.
+        :param line Linha a qual a nova linha se baseia.
+        :param dpoint Vetor de distância entre as linhas.
+        :param direction Direção em que a procura foi realizada.
+        :return Line A nova linha encontrada.
         """
         comps = [None]
         
@@ -80,12 +65,13 @@ class Line(ComponentList):
             _y = int(dpoint.y + y)
             
             for _x in xrange(_x - 10, _x + 10):
-                if 0 <= _x < Map.shape.x and 0 <= _y < Map.shape.y \
-                and Map[_x, _y] not in comps and Map[_x, _y] is not None \
-                and Map[_x, _y].line is None:
-                    comps.append(Map[_x, _y])
+                if 0 <= _x < line.map.shape.x and 0 <= _y < line.map.shape.y \
+                and line.map[_x, _y] not in comps \
+                and line.map[_x, _y] is not None \
+                and line.map[_x, _y].line is None:
+                    comps.append(line.map[_x, _y])
                     
-        newl = cls(*comps[1:])
+        newl = cls(line.map, *comps[1:])
         newl.neigh['left' if direction > 0 else 'right'] = \
             dpoint.euclidean(), line
         
@@ -98,7 +84,7 @@ class Line(ComponentList):
     @property
     def points(self):
         """
-        M�todo-propriedade respons�vel por reunir todos os pontos
+        Método-propriedade responsável por reunir todos os pontos
         de todos os componentes presentes na linha.
         @return list
         """
@@ -107,9 +93,9 @@ class Line(ComponentList):
     @property
     def polynom(self):
         """
-        Executa regress�o polinomial nos componentes e encontra o polin�mio,
+        Executa regressão polinomial nos componentes e encontra o polinômio,
         e a curva que melhor se encaixam nos pontos da linha.
-        @return polynom Polin�mio obtido dos pontos.
+        @return polynom Polinômio obtido dos pontos.
         """
         if self.__polynom is None:
             x, y = zip(*self.points)
@@ -120,7 +106,7 @@ class Line(ComponentList):
     @property
     def length(self):
         """
-        Propriedade respons�vel pelo c�lculo do comprimento de arco
+        Propriedade responsável pelo cálculo do comprimento de arco
         da linha atual.
         @return float Comprimento de arco da linha
         """
@@ -134,15 +120,15 @@ class Line(ComponentList):
     @property
     def area(self):
         """
-        Propriedade respons�vel pelo c�lculo da �rea ocupada pela linha.
-        @return float �rea ocupada.
+        Propriedade responsável pelo cálculo da área ocupada pela linha.
+        @return float Área ocupada.
         """
         return sum([comp.area for comp in self])
     
     @property
     def density(self):
         """
-        Propriedade de densidade da linha. Indica, na m�dia, a espessura
+        Propriedade de densidade da linha. Indica, na média, a espessura
         da linha.
         @return int Densidade em pixels.
         """
@@ -151,7 +137,7 @@ class Line(ComponentList):
     def conquer(self):
         """
         Encontra e adiciona novos componentes achados sobre a imagem do
-        polin�mio. Ap�s terminado o processo, corrige as propriedades da linha.
+        polinômio. Após terminado o processo, corrige as propriedades da linha.
         @return None
         """
         before, after = self.nearby()
@@ -163,9 +149,9 @@ class Line(ComponentList):
             
     def fill(self):
         """
-        Encontra e adiciona novos componentes achados sobre o dom�nio atual
-        da linha. Alguns componentes podem ter sido deixados para tr�s no
-        momento de constru��o da linha.
+        Encontra e adiciona novos componentes achados sobre o domínio atual
+        da linha. Alguns componentes podem ter sido deixados para trás no
+        momento de construção da linha.
         @return None
         """
         for _, comp in self.walkover(self.up, self.down):
@@ -175,11 +161,11 @@ class Line(ComponentList):
     
     def walkover(self, *control):
         """
-        Anda por sobre o polin�mio da linha e encontra o que est� sob ele.
-        @param list control Lista de par�metros para o caminho na linha.
+        Anda por sobre o polinômio da linha e encontra o que está sob ele.
+        @param list control Lista de parâmetros para o caminho na linha.
         @yields Point, Component
         """
-        xlim, ylim = Map.shape
+        xlim, ylim = self.map.shape
         d = self.density / 2
         
         for y in xrange(*control):
@@ -187,7 +173,7 @@ class Line(ComponentList):
             
             for x in xrange(x - d, x + d):
                 if 0 <= x < xlim and 0 <= y < ylim:
-                    yield Point(x, y), Map[x, y]
+                    yield Point(x, y), self.map[x, y]
         
     def nearby(self):
         """
@@ -212,8 +198,8 @@ class Line(ComponentList):
     
     def search(self, direction):
         """
-        Procura pela linha mais pr�xima na dire��o indicada.
-        @param int direction Dire��o de busca de nova linha.
+        Procura pela linha mais próxima na direção indicada.
+        @param direction Direção de busca de nova linha.
         @return bool Foi encontrada uma linha?
         """
         y0 = (self.down - self.up) * .5 + self.up
@@ -223,7 +209,7 @@ class Line(ComponentList):
         ty = numpy.poly1d([df(y0), 0])
         px = numpy.poly1d([-df(y0), y0 + df(y0) * x0])
         
-        xlim, ylim = Map.shape
+        xlim, ylim = self.map.shape
         delta = int(self.density / 3) * direction
         pn = Point(x0 + delta, px(x0 + delta))
                 
@@ -235,7 +221,7 @@ class Line(ComponentList):
                 y = int(pn.y) + y
 
                 if 0 <= x < xlim and 0 <= y < ylim:
-                    count = count + int(Map[x, y] not in ([None] + self.comps))
+                    count = count + int(self.map[x, y] not in ([None] + self.comps))
                     total = total + 1
                         
             if total and (count / total) >= .25:
@@ -272,7 +258,7 @@ class Line(ComponentList):
                 if comp.line.count > 0:
                     comp.line = None
                     continue
-                                    
+
             if comp.up < self.up:
                 self.up = comp.up
                 
@@ -290,8 +276,8 @@ class Line(ComponentList):
     def draw(self, img, color):
         """
         Desenha dados sobre uma linha.
-        @param Image img Imagem alvo.
-        @param tuple color Cor dos componentes a serem pintados.
+        @param img Imagem alvo.
+        @param color Cor dos componentes a serem pintados.
         @return None
         """
         for comp in self.comps:
@@ -300,45 +286,65 @@ class Line(ComponentList):
         for y in xrange(self.up, self.down):
             x = int(round(self.polynom(y)))
             
-            if not 0 <= x < Map.shape.x:
+            if not 0 <= x < self.map.shape.x:
                 continue
                 
-            if Map[x, y] in self.comps:
+            if self.map[x, y] in self.comps:
                 cv.circle(img.raw, (x, y), 0, (255, 0, 0), 2)
             else:
-                cv.circle(img.raw, (x, y), 0, (0, 0, 255), 2)            
+                cv.circle(img.raw, (x, y), 0, (0, 0, 255), 2)
             
 class LineList(object):
     """
     Armazena e manipula uma lista de linhas obtidas de uma
-    imagem. Esse objeto tamb�m � respons�vel pela cria��o de todas
+    imagem. Esse objeto também é responsável pela criação de todas
     as linhas existentes.
     """
     
-    def __init__(self):
+    def __init__(self, cmap):
         """
-        Inicializa e cria uma nova inst�ncia do objeto.
+        Inicializa e cria uma nova instância do objeto.
         @return LineList
         """
         self.lines = type('rawLineList', (list,), {
             'first': property(lambda this: this[0]),
             'last':  property(lambda this: this[-1])
         })()
+
+        self.map = cmap
+        self.shape = cmap.shape
         
     def __getitem__(self, index):
         """
-        Acessa e retorna a linha presente na posi��o dada
-        pelo par�metro index.
-        @param int|slice index �ndice ou �ndices a serem explorados.
-        @return Line|list
+        Acessa e retorna a linha presente na posição dada
+        pelo parâmetro index.
+        :param index Índice ou índices a serem explorados.
+        :return Line|list
         """
         return self.lines[index]
+
+    @classmethod
+    def first(cls, cmap, *comps):
+        """
+        Inicia uma instância de lista de linhas e fornece à
+        lista a primeira linha encontrada que será base
+        para a descoberta de todas as outras.
+        :param list comps Componentes que formam a primeira linha.
+        :return LineList
+        """
+        line = Line(cmap, *comps)
+        llst = cls(cmap)
+
+        line.conquer()
+        llst.add(line)
+
+        return llst
 
     @property
     def count(self):
         """
         Contagem de linhas na lista.
-        @return int Quantidade de elementos.
+        :return int Quantidade de elementos.
         """
         return len(self.lines)
         
@@ -353,7 +359,7 @@ class LineList(object):
         """
         Executa a busca de novas linhas a partir das linhas localizadas
         nos extremos da lista.
-        @yields int, Line Posi��o da nova linha encontrada e a pr�pria linha.
+        @yields int, Line Posição da nova linha encontrada e a própria linha.
         """
         while self.lines.first.search(Line.left):
             yield 0, self.lines.first.neigh['left'][1]
@@ -363,32 +369,35 @@ class LineList(object):
     
     def complete(self):
         """
-        Procura por novas linhas, adjacentes �s linhas j�
+        Procura por novas linhas, adjacentes às linhas já
         conhecidas.
         @return None
         """
         for pos, line in self.search():
             self.lines.insert(pos, line)
     
-    def display(self):
+    def display(self, inverted):
         """
         Mostra em uma imagem, todas as linhas presentes na lista.
         @return Image
         """
-        img = Image.new(Map.shape)
-        
+        img = Image.new(self.shape)
+
         for line in self.lines:
             line.draw(img, (255, 255, 255))
-                
+
+        if inverted:
+            img.transpose()
+
         return img
         
     def error(self, distance):
         """
         Contabiliza a porcentagem de erros nas linhas encontradas.
-        @param float distance Dist�ncia entre linhas em metros.
+        @param distance Distância entre linhas em metros.
         @return float, int Porcentagem e metros de falhas encontradas.
         """
-        img = Image.new(Map.shape)
+        img = Image.new(self.shape)
         red, blue = 0, 0
         distmedia = 0
         
@@ -406,8 +415,8 @@ class LineList(object):
                 incomp = False
                 
                 for _x in xrange(x - 3, x + 3):
-                    if 0 <= _x < Map.shape.x \
-                    and Map[_x, y] is not None and Map[_x, y] in line.comps:
+                    if 0 <= _x < self.shape.x \
+                    and self.map[_x, y] is not None and self.map[_x, y] in line.comps:
                         incomp = True
                         
                 if incomp:
@@ -429,12 +438,7 @@ class LineList(object):
             elif len(points) > 0:
                 [cv.circle(img.raw, p, 0, (255, 0, 0), 2) for p in points]
                 blue += len(points)
-            
-        #img.show("Resultado")
 
         total = red + blue
         metro = 2 * (distmedia / len(self.lines))
         return (100 * red) / total, red / metro
-        
-        
-        
