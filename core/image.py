@@ -11,10 +11,11 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from threading import Thread
-from point import *
-import cv2 as cv
+from .point import *
 import config
+
+from threading import Thread
+import cv2 as cv
 import numpy
 import copy
 
@@ -32,9 +33,9 @@ class Image(object):
         :return Nova instância do objeto de imagem.
         """
         self.shape = Point(*source.shape[:2]).swap
+        self.inverted = False
         self.raw = source
 
-        self.inverted = False
 
     def __getitem__(self, index):
         """
@@ -68,12 +69,21 @@ class Image(object):
         blank = numpy.zeros(shape[::-1], dtype)
         return cls(blank)
     
-    def resize(self, proportion):
+    def resize(self, proportion, min = Point(1,1)):
         """
         Redimensiona a imagem de acordo com a proporção dada.
         Nenhuma distorção ocorrerá durante o processo.
+        :param proportion Proporção de redimensionamento da imagem.
+        :param min Tamanho mínimo da imagem após redimensionamento.
         :return Imagem redimensionada.
         """
+        if self.shape.x * proportion < min.x \
+        or self.shape.y * proportion < min.y:
+            proportion = max(
+                min.x / float(self.shape.x),
+                min.y / float(self.shape.y)
+            )
+
         raw = cv.resize(self.raw, None, fx = proportion, fy = proportion)
         return Image(raw)
     
@@ -119,7 +129,17 @@ class Image(object):
             filename,
             self.raw if not self.inverted else cv.transpose(self.raw)
         )
-        
+
+    def transpose(self):
+        """
+        Inverte a imagem atual. Assim, as dimensões se inventem
+        e é necessário inverter as coordenadas de um ponto para
+        resgatar um mesmo pixel da imagem anterior.
+        """
+        self.shape = self.shape.swap
+        self.raw = cv.transpose(self.raw)
+        self.inverted = not self.inverted
+
     def check(self, comps):
         """
         Verifica a necessidade de rotação da imagem e o faz
@@ -136,9 +156,7 @@ class Image(object):
                 count += 1
 
         if not count < 5:
-            self.shape = self.shape.swap
-            self.raw = cv.transpose(self.raw)
-            self.inverted = True
+            self.transpose()
             return False
 
         return True

@@ -11,9 +11,9 @@ Este arquivo é responsével pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from component import *
-from point import *
-from map import *
+from .component import *
+from .point import *
+
 import cv2 as cv
 import numpy
 import math
@@ -48,23 +48,6 @@ class Line(ComponentList):
 
         self.map = cmap
 
-    @classmethod
-    def first(cls, cmap, *comps):
-        """
-        Inicia uma instância de lista de linhas e fornece à
-        lista a primeira linha encontrada que será base
-        para a descoberta de todas as outras.
-        @param list comps Componentes que formam a primeira linha.
-        @return LineList
-        """
-        line = cls(cmap, *comps)
-        llst = LineList(cmap)
-        
-        line.conquer()
-        llst.add(line)
-
-        return llst
-    
     @classmethod
     def fromside(cls, line, dpoint, direction):
         """
@@ -335,16 +318,33 @@ class LineList(object):
         """
         Acessa e retorna a linha presente na posição dada
         pelo parâmetro index.
-        @param index Índice ou índices a serem explorados.
-        @return Line|list
+        :param index Índice ou índices a serem explorados.
+        :return Line|list
         """
         return self.lines[index]
+
+    @classmethod
+    def first(cls, cmap, *comps):
+        """
+        Inicia uma instância de lista de linhas e fornece à
+        lista a primeira linha encontrada que será base
+        para a descoberta de todas as outras.
+        :param list comps Componentes que formam a primeira linha.
+        :return LineList
+        """
+        line = Line(cmap, *comps)
+        llst = cls(cmap)
+
+        line.conquer()
+        llst.add(line)
+
+        return llst
 
     @property
     def count(self):
         """
         Contagem de linhas na lista.
-        @return int Quantidade de elementos.
+        :return int Quantidade de elementos.
         """
         return len(self.lines)
         
@@ -382,10 +382,12 @@ class LineList(object):
         @return Image
         """
         img = Image.new(self.shape)
-        img.inverted = inverted
 
         for line in self.lines:
             line.draw(img, (255, 255, 255))
+
+        if inverted:
+            img.transpose()
 
         return img
         

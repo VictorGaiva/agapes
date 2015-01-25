@@ -11,9 +11,10 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from image import *
-from point import *
-from map import *
+from .image import *
+from .point import *
+from .map import *
+
 import cv2 as cv
 import numpy
 import copy
@@ -39,21 +40,6 @@ class Component(object):
         self.area = cv.contourArea(contour)
         self.belief = self.down - self.up
         self.line = None
-    
-    @classmethod
-    def load(cls, image):
-        """
-        Encontra todos os componentes presentes na imagem dada, e
-        retorna a lista de todos os componentes.
-        @param Image image Imagem alvo da operação.
-        @return ComponentList
-        """
-        raw = copy.deepcopy(image.raw)
-        cnts, _ = cv.findContours(raw, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
-        lcomp = [cls(contour) for contour in cnts]
-        comps = [comp for comp in lcomp if comp.belief > 1]
-        
-        return ComponentList.mapped(comps, image.shape)
     
     def draw(self, image, color):
         """
@@ -95,6 +81,24 @@ class ComponentList(object):
         """
         for component in self.comps:
             yield component
+
+    @classmethod
+    def load(cls, img, _once = False):
+        """
+        Encontra todos os componentes presentes na imagem dada, e
+        retorna a lista de todos os componentes.
+        :param img Imagem alvo da operação.
+        :return ComponentList, Map
+        """
+        raw = copy.deepcopy(img.raw)
+        cnts, _ = cv.findContours(raw, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+        lcomp = [Component(contour) for contour in cnts]
+        comps = [comp for comp in lcomp if comp.belief > 1]
+
+        retv = cls.mapped(comps, img.shape)
+        retv = retv if not _once and not img.check(retv[0]) else cls.load(img, True)
+
+        return retv
     
     @classmethod
     def mapped(cls, lcomp, shape):
@@ -103,7 +107,7 @@ class ComponentList(object):
         cria o mapa de localização desses componentes.
         :param lcomp Componentes instanciados.
         :param shape Formato da imagem alvo.
-        :return ComponentList
+        :return ComponentList, Map
         """
         new = cls(lcomp)
         new.sort()
