@@ -14,6 +14,11 @@ resultados obtidos com a imagem fornecida.
 import textwrap
 import argparse
 import sys
+import os
+
+sys.path.append(
+    os.path.dirname(__file__)
+)
 
 if __name__ == '__main__':
 
@@ -45,7 +50,7 @@ if __name__ == '__main__':
         metavar = 'dist',
         type = float,
         nargs = '?',
-        help = "distância entre as linhas de plantação, em metros".decode('latin1')
+        help = "distância entre as linhas de plantação".decode('latin1')
     )
 
     args = parser.parse_args()
@@ -57,4 +62,3 @@ if __name__ == '__main__':
     else:
         from core import InitCommandLine
         InitCommandLine(args.image, args.dist)
-    
