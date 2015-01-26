@@ -143,6 +143,24 @@ class NotePage(wx.Panel):
         self.segmbt = wx.ToggleButton(self.root, -1, "S", size = (25, 25))
         self.linebt = wx.ToggleButton(self.root, -1, "L", size = (25, 25))
 
+        self.origbt.Disable()
+        self.segmbt.Disable()
+        self.linebt.Disable()
+
+        def event(e, id, a, b, c):
+            e.Skip()
+            self.dropfield.imgindex = id
+            self.dropfield.bmp = self.dropfield.imglist[self.dropfield.imgindex][0]
+            self.dropfield.Refresh()
+            a.SetValue(False)
+            b.SetValue(False)
+            c.SetValue(True)
+
+        self.origbt.Bind(wx.EVT_TOGGLEBUTTON, lambda e: event(e, 1, self.segmbt, self.linebt, self.origbt))
+        self.segmbt.Bind(wx.EVT_TOGGLEBUTTON, lambda e: event(e, 2, self.linebt, self.origbt, self.segmbt))
+        self.linebt.Bind(wx.EVT_TOGGLEBUTTON, lambda e: event(e, 3, self.segmbt, self.origbt, self.linebt))
+
+
         amostratx = wx.StaticText(self.root, -1, "Amostras:")
         porcenttx = wx.StaticText(self.root, -1, "%")
 

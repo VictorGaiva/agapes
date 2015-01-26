@@ -15,7 +15,7 @@ from .statusbar import *
 from .notepage import *
 from .menu import *
 
-from controller import *
+import controller
 import config
 import wx
 
@@ -80,6 +80,7 @@ class MainWindow(wx.Frame):
         """
         for filename in filenames:
             newpage = NotePage(self.nbook)
+            controller.ExecutePage(newpage, filename)
 
             self.nbook.AddPage(newpage, "#{0}".format(config.wid))
             config.wid = config.wid + 1

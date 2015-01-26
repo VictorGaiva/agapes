@@ -102,7 +102,15 @@ class Image(object):
         """
         raw = cv.cvtColor(self.raw, cv.COLOR_GRAY2BGR)
         return Image(raw)
-    
+
+    def normalize(self):
+        """
+        Normaliza a ordem dos canais no padrão RGB.
+        :return Imagem colorida gerada.
+        """
+        raw = cv.cvtColor(self.raw, cv.COLOR_BGR2RGB)
+        return Image(raw)
+
     def tolab(self):
         """
         Transforma a imagem atual para o tipo L*a*b*.
@@ -138,6 +146,8 @@ class Image(object):
         self.shape = self.shape.swap
         self.raw = cv.transpose(self.raw)
         self.inverted = not self.inverted
+
+        return self
 
     def check(self, comps):
         """
