@@ -27,9 +27,10 @@ class DropField(wx.StaticBitmap, wx.FileDropTarget):
         :param parent Janela-pai da janela atual.
         :param size Tamanho a ser ocupado pelo widget.
         """
+        self.size = size
+        self.parent = parent
         self.imginit = wx.BitmapFromImage(images.drag.init)
         self.imgover = wx.BitmapFromImage(images.drag.over)
-        self.size = size
 
         wx.StaticBitmap.__init__(
             self, parent, -1,
@@ -71,5 +72,6 @@ class DropField(wx.StaticBitmap, wx.FileDropTarget):
         self.SetBitmap(self.imginit)
         self.SetSize(self.size)
 
-        Event.get("DropFile").trigger(filenames)
+        PostEvent("DropFiles", filenames)
+
         return True

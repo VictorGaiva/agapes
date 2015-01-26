@@ -11,6 +11,7 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
+from gui import InitGUI
 from core.image import ImageWindow
 from core import *
 import config
@@ -34,3 +35,11 @@ def ExecuteCommandLine(address, distance):
     win.append(img)
 
     SaveImage(address, img)
+    
+def ExecuteGUI():
+    """
+    Inicializa a execução da interface gráfica de usuário.
+    Dessa forma, precisamos aguardar pelo usuário para que
+    algum processamento inicie.
+    """
+    InitGUI()

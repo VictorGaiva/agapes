@@ -30,16 +30,17 @@ class Menu(wx.MenuBar):
         )
 
         self.file = wx.Menu()
+        self.parent = parent
         self.quit = self.file.Append(wx.ID_EXIT, u"Sair", u"Sair da aplicação")
 
         self.Append(self.file, u"&Arquivo")
 
         parent.SetMenuBar(self)
-        self.BindEvents(parent)
+        self.BindEvents()
 
-    def BindEvents(self, target):
+    def BindEvents(self):
         """
-        Anexa métodos a todos os eventos disparados pelo
-        objeto.
+        Víncula métodos do objeto a eventos que podem ser disparados.
+        :return None
         """
-        target.Bind(wx.EVT_MENU, target.OnQuit, self.quit)
+        self.parent.Bind(wx.EVT_MENU, self.parent.OnQuit, self.quit)

@@ -31,6 +31,7 @@ class StatusBar(wx.StatusBar):
             style = wx.STB_SHOW_TIPS | wx.STB_ELLIPSIZE_END | wx.ST_SIZEGRIP
         )
 
+        self.parent = parent
         self.SetFieldsCount(1)
         self.PushStatusText(u"Carregamento concluído.", 0)
 
@@ -53,8 +54,8 @@ class StatusBar(wx.StatusBar):
 
     def BindEvents(self):
         """
-        Anexa métodos a todos os eventos disparados pelo objeto.
+        Víncula métodos do objeto a eventos que podem ser disparados.
         :return None
         """
-        Event.listen("PushStatus", self.Push)
-        Event.listen("PopStatus", self.Pop)
+        BindEvent("PopStatus", self.Pop)
+        BindEvent("PushStatus", self.Push)

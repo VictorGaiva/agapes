@@ -14,6 +14,8 @@ resultados obtidos com a imagem fornecida.
 from .statusbar import *
 from .notepage import *
 from .menu import *
+
+from controller import *
 import config
 import wx
 
@@ -36,12 +38,14 @@ class MainWindow(wx.Frame):
             style = wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER
         )
 
+        self.InitUI()
         self.menu = Menu(self)
         self.status = StatusBar(self)
-        self.InitUI()
 
         self.Centre(wx.BOTH)
         self.Show()
+
+        self.BindEvents()
 
     def InitUI(self):
         """
@@ -49,22 +53,40 @@ class MainWindow(wx.Frame):
         corretos.
         :return None
         """
-        w_box_root = wx.Panel(self)
-        w_notebook = wx.Notebook(w_box_root, -1, style = wx.BK_TOP | wx.NB_MULTILINE)
+        self.root = wx.Panel(self)
+        self.nbook = wx.Notebook(self.root, -1, style = wx.BK_TOP | wx.NB_MULTILINE)
 
-        w_sizer_wrap = wx.BoxSizer()
-        w_sizer_wrap.Add(w_notebook, 1, wx.EXPAND | wx.ALL, 5)
-        w_box_root.SetSizer(w_sizer_wrap)
+        wrapper = wx.BoxSizer()
+        wrapper.Add(self.nbook, 1, wx.EXPAND | wx.ALL, 5)
+        self.root.SetSizer(wrapper)
 
-        w_notebook.AddPage(NotePage(w_notebook), u"Planilha")
-        w_notebook.AddPage(NotePage(w_notebook), u"Talhões")
+        self.nbook.AddPage(NotePage(self.nbook), u"Planilha")
+        self.nbook.AddPage(NotePage(self.nbook), u"Talhões")
+        self.nbook.ChangeSelection(1)
 
-        w_notebook.ChangeSelection(1)
-
-    def OnQuit(self, event):
+    def OnQuit(self, *args):
         """
-        Método a ser chamado quando o programa estiver sendo fechado.
-        :param event Dados sobre o evento engatilhado.
+        Método a ser executado quando o programa estiver sendo fechado.
         :return None
         """
         self.Close()
+
+    def OnDropFiles(self, filenames):
+        """
+        Método executado assim que o evento DropFiles é disparado.
+        Este método cria uma nova aba e permite que uma imagem
+        seja processada.
+        :return None
+        """
+        for filename in filenames:
+            newpage = NotePage(self.nbook)
+
+            self.nbook.AddPage(newpage, "#{0}".format(config.wid))
+            config.wid = config.wid + 1
+
+    def BindEvents(self):
+        """
+        Víncula métodos do objeto a eventos que podem ser disparados.
+        :return None
+        """
+        BindEvent("DropFiles", self.OnDropFiles)
