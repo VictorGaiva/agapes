@@ -72,5 +72,6 @@ class DropField(wx.StaticBitmap, wx.FileDropTarget):
         self.SetBitmap(self.imginit)
         self.SetSize(self.size)
 
-        Event.get("DropFile").trigger(filenames)
+        PostEvent("DropFiles", filenames)
+
         return True

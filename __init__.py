@@ -60,5 +60,4 @@ if __name__ == '__main__':
         InitGUI()
 
     else:
-        from core import InitCommandLine
-        InitCommandLine(args.image, args.dist)
+        pass

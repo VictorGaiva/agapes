@@ -14,6 +14,8 @@ resultados obtidos com a imagem fornecida.
 from .statusbar import *
 from .notepage import *
 from .menu import *
+
+from controller import *
 import config
 import wx
 
@@ -43,6 +45,8 @@ class MainWindow(wx.Frame):
         self.Centre(wx.BOTH)
         self.Show()
 
+        self.BindEvents()
+
     def InitUI(self):
         """
         Constrói e posiciona os elementos utilizados pela janela nos locais
@@ -60,10 +64,29 @@ class MainWindow(wx.Frame):
         self.nbook.AddPage(NotePage(self.nbook), u"Talhões")
         self.nbook.ChangeSelection(1)
 
-    def OnQuit(self, event):
+    def OnQuit(self, *args):
         """
-        Método a ser chamado quando o programa estiver sendo fechado.
-        :param event Dados sobre o evento engatilhado.
+        Método a ser executado quando o programa estiver sendo fechado.
         :return None
         """
         self.Close()
+
+    def OnDropFiles(self, filenames):
+        """
+        Método executado assim que o evento DropFiles é disparado.
+        Este método cria uma nova aba e permite que uma imagem
+        seja processada.
+        :return None
+        """
+        for file in filenames:
+            newpage = NotePage(self.nbook)
+
+            self.nbook.AddPage(newpage, "#{0}".format(config.wid))
+            config.wid = config.wid + 1
+
+    def BindEvents(self):
+        """
+        Víncula métodos do objeto a eventos que podem ser disparados.
+        :return None
+        """
+        BindEvent("DropFiles", self.OnDropFiles)

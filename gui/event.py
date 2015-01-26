@@ -76,7 +76,7 @@ class EmptyHandler(EventHandler):
         """
         print "Unknown `" + self.name + "` event triggered!"
 
-class EventListener(object):
+class EventBinder(object):
     """
     Objeto responsável por registrar novos eventos a partir do
     uso de decoradores, para facilitar a criação de eventos.
@@ -91,9 +91,9 @@ class EventListener(object):
 
     def __call__(self, function):
         """
-        Registra um método a ser executado em reação ao evento.
+        Vincula um método a ser executado em reação ao evento.
         :param function Função a ser anexada.
-        :return Função inalterada.
+        :return Método inalterado porém estático.
         """
         Event.listen(self.name, function)
         return function
@@ -136,3 +136,24 @@ class Event(object):
         :param ename Nome do evento a ser destruído.
         """
         del cls.list[ename]
+
+def BindEvent(ename, function):
+    """
+    Vincula novos eventos personalizados com suas
+    respectivas funções.
+    :param ename Nome do evento a ser vínculado.
+    :param function Método ou função a ser vínculada.
+    :return None
+    """
+    Event.listen(ename, function)
+
+def PostEvent(ename, *args, **kwargs):
+    """
+    Dispara e executa um evento, passando os parâmetros
+    fornecidos.
+    :param ename Nome do evento a ser disparado.
+    :param args Argumentos de posição.
+    :param kwargs Argumentos nominais.
+    :return mixed
+    """
+    return Event.get(ename).trigger(*args, **kwargs)
