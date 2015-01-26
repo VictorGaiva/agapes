@@ -78,7 +78,7 @@ class MainWindow(wx.Frame):
         seja processada.
         :return None
         """
-        for file in filenames:
+        for filename in filenames:
             newpage = NotePage(self.nbook)
 
             self.nbook.AddPage(newpage, "#{0}".format(config.wid))

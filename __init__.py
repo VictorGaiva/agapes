@@ -56,8 +56,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     if args.dist is None or args.image is None:
-        from gui import InitGUI
-        InitGUI()
+        from controller import ExecuteGUI
+        ExecuteGUI()
 
     else:
         pass
