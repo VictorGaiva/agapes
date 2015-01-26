@@ -11,6 +11,7 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
+from controller import ExecuteCommandLine
 import textwrap
 import argparse
 import sys
@@ -59,5 +60,4 @@ if __name__ == '__main__':
         pass
 
     else:
-        from core import InitCommandLine
-        InitCommandLine(args.image, args.dist)
+        ExecuteCommandLine(args.image, args.dist)

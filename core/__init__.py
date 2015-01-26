@@ -73,24 +73,3 @@ def SaveImage(original, image):
     """
     name = original.rsplit('.', 1)
     image.save("{0}.processed.{1}".format(*name))
-
-def InitCommandLine(address, distance):
-    """
-    Executar o programa a partir da linha de comando, permitindo
-    assim, o uso em plataformas diferenciadas onde a GUI não
-    está disponível ou é incopatível.
-    :param address Endereço da imagem alvo do processamento.
-    :param distance Distância entre as linhas de plantação.
-    """
-    img = LoadImage(address)
-    win = ImageWindow(config.appname, img)
-
-    img, comp, cmap = SegmentImage(img)
-    win.append(img)
-
-    img, lines, pcent, meter = ProcessImage(img, cmap, distance)
-    win.text("Falhas: %.2f metros (%d%%)" % (meter, pcent), (20, -50))
-    win.append(img)
-
-    name = address.rsplit('.', 1)
-    img.save("{0}.processed.{1}".format(*name))
