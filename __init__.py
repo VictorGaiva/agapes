@@ -14,6 +14,11 @@ resultados obtidos com a imagem fornecida.
 import textwrap
 import argparse
 import sys
+import os
+
+sys.path.append(
+    os.path.dirname(__file__)
+)
 
 if __name__ == '__main__':
 
@@ -51,10 +56,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     if args.dist is None or args.image is None:
-        from gui import InitGUI
-        InitGUI()
+        pass
 
     else:
         from core import InitCommandLine
         InitCommandLine(args.image, args.dist)
-    

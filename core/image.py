@@ -169,14 +169,14 @@ class ImageWindow(object):
     uma tela menor que ela.
     """
     
-    def __init__(self, wname, image, wsize = (800, 600)):
+    def __init__(self, wname, image):
         """
         Inicializa e cria uma nova instância do objeto.
         :param wname Nome da janela a ser criada.
         :param image Imagem a ser exibida.
         :return Instância criada.
         """
-        self.size = wsize
+        self.size = config.wsize
         self.wname = "{0} #{1}".format(wname, config.wid)
         self.shape = image.shape
         self.closed = False
