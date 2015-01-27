@@ -11,6 +11,7 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
+
 class Map(object):
     """
     Objeto responsável pelo armazenamento e intermediação

@@ -12,9 +12,9 @@ programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
 from .image import *
-import config
 
 from sklearn.neighbors import KNeighborsClassifier
+import config
 import numpy
 
 class Segmentator(object):

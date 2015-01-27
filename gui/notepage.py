@@ -20,16 +20,18 @@ class NotePage(wx.Panel):
     página do notebook.
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent, enable = True):
         """
         Cria uma nova instância do objeto.
         :param parent Janela-pai da janela atual.
+        :param enable Permitir movimentação da imagem-alvo?
         """
         wx.Panel.__init__(
             self, parent, -1
         )
 
         self.parent = parent
+        self.enable = enable
         self.root = wx.Panel(self, size = (800, 483))
 
         wrapper = self.Init()
@@ -59,7 +61,7 @@ class NotePage(wx.Panel):
         aba, com todas as suas estruturas.
         :return BoxSizer
         """
-        self.dropfield = DropField(self.root)
+        self.dropfield = DropField(self.root, enable = self.enable)
 
         root = wx.BoxSizer(wx.VERTICAL)
         root.Add(self.dropfield, 0, wx.EXPAND | wx.BOTTOM, 5)
@@ -139,28 +141,6 @@ class NotePage(wx.Panel):
             min = 20, max = 90, initial = 50
         )
 
-        self.origbt = wx.ToggleButton(self.root, -1, "O", size = (25, 25))
-        self.segmbt = wx.ToggleButton(self.root, -1, "S", size = (25, 25))
-        self.linebt = wx.ToggleButton(self.root, -1, "L", size = (25, 25))
-
-        self.origbt.Disable()
-        self.segmbt.Disable()
-        self.linebt.Disable()
-
-        def event(e, id, a, b, c):
-            e.Skip()
-            self.dropfield.imgindex = id
-            self.dropfield.bmp = self.dropfield.imglist[self.dropfield.imgindex][0]
-            self.dropfield.Refresh()
-            a.SetValue(False)
-            b.SetValue(False)
-            c.SetValue(True)
-
-        self.origbt.Bind(wx.EVT_TOGGLEBUTTON, lambda e: event(e, 1, self.segmbt, self.linebt, self.origbt))
-        self.segmbt.Bind(wx.EVT_TOGGLEBUTTON, lambda e: event(e, 2, self.linebt, self.origbt, self.segmbt))
-        self.linebt.Bind(wx.EVT_TOGGLEBUTTON, lambda e: event(e, 3, self.segmbt, self.origbt, self.linebt))
-
-
         amostratx = wx.StaticText(self.root, -1, "Amostras:")
         porcenttx = wx.StaticText(self.root, -1, "%")
 
@@ -169,8 +149,40 @@ class NotePage(wx.Panel):
         root.Add(self.sample, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
         root.Add(porcenttx, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
         root.Add((10,10), 1, wx.EXPAND)
-        root.Add(self.origbt, 0, wx.ALIGN_RIGHT | wx.LEFT, 4)
-        root.Add(self.segmbt, 0, wx.ALIGN_RIGHT | wx.LEFT, 4)
-        root.Add(self.linebt, 0, wx.ALIGN_RIGHT | wx.LEFT, 4)
+
+        root.AddMany([
+            (button, 0, wx.ALIGN_RIGHT | wx.LEFT, 4)
+                for button in self.InitPhaseButtons()
+        ])
 
         return root
+
+    def InitPhaseButtons(self):
+        """
+        Inicializa os botões de visualização de passos do algoritmo,
+        localizados na parte inferior central da janela.
+        :return list
+        """
+        self.phase = [
+            wx.ToggleButton(self.root, 1, "O", size = (25, 25)),
+            wx.ToggleButton(self.root, 2, "S", size = (25, 25)),
+            wx.ToggleButton(self.root, 3, "L", size = (25, 25))
+        ]
+
+        for i, button in enumerate(self.phase):
+            button.Bind(wx.EVT_TOGGLEBUTTON, self.OnPhaseButton)
+            button.Disable()
+
+        return self.phase
+
+    def OnPhaseButton(self, event):
+        """
+        Método executado em reação ao evento ToggleButton de algum
+        dos botões de visualização de passos do algoritmo.
+        :param event Dados do evento.
+        """
+        for button in self.phase:
+            button.SetValue(button.GetId() == event.GetId())
+
+        self.dropfield.ShowIndex(event.GetId())
+        event.Skip()

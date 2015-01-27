@@ -12,10 +12,10 @@ programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
 from .point import *
-import config
 
 from threading import Thread
 import cv2 as cv
+import config
 import numpy
 import copy
 
@@ -26,14 +26,14 @@ class Image(object):
     requisitadas a uma das versões da imagem.
     """
     
-    def __init__(self, source):
+    def __init__(self, source, inverted = False):
         """
         Inicializa e cria uma nova instância do objeto.
         :param source Imagem alvo do objeto.
         :return Nova instância do objeto de imagem.
         """
         self.shape = Point(*source.shape[:2]).swap
-        self.inverted = False
+        self.inverted = inverted
         self.raw = source
     
     def __getitem__(self, index):
@@ -84,7 +84,7 @@ class Image(object):
             )
 
         raw = cv.resize(self.raw, None, fx = proportion, fy = proportion)
-        return Image(raw)
+        return Image(raw, self.inverted)
     
     def binarize(self):
         """
@@ -93,7 +93,7 @@ class Image(object):
         """
         raw = cv.cvtColor(self.raw, cv.COLOR_BGR2GRAY)
         _, raw = cv.threshold(raw, 127, 255, cv.THRESH_BINARY)
-        return Image(raw)
+        return Image(raw, self.inverted)
     
     def colorize(self):
         """
@@ -101,7 +101,7 @@ class Image(object):
         :return Imagem colorida gerada.
         """
         raw = cv.cvtColor(self.raw, cv.COLOR_GRAY2BGR)
-        return Image(raw)
+        return Image(raw, self.inverted)
 
     def normalize(self):
         """
@@ -109,7 +109,9 @@ class Image(object):
         :return Imagem colorida gerada.
         """
         raw = cv.cvtColor(self.raw, cv.COLOR_BGR2RGB)
-        return Image(raw)
+        img = Image(raw) if not self.inverted else Image(raw, True).transpose()
+        print img.shape, img.inverted
+        return img
 
     def tolab(self):
         """
@@ -117,7 +119,7 @@ class Image(object):
         :return Imagem gerada no formato L*a*b*.
         """
         raw = cv.cvtColor(self.raw, cv.COLOR_BGR2LAB)
-        return Image(raw)
+        return Image(raw, self.inverted)
     
     def show(self, wname = "image"):
         """
@@ -143,7 +145,7 @@ class Image(object):
         e é necessário inverter as coordenadas de um ponto para
         resgatar um mesmo pixel da imagem anterior.
         """
-        self.shape = self.shape.swap
+        #self.shape = self.shape.swap
         self.raw = cv.transpose(self.raw)
         self.inverted = not self.inverted
 
@@ -185,7 +187,7 @@ class ImageWindow(object):
         :param image Imagem a ser exibida.
         :return Instância criada.
         """
-        self.size = config.wsize
+        self.size = Point(*config.wsize)
         self.wname = "{0} #{1}".format(wname, config.wid)
         self.shape = image.shape
         self.closed = False
@@ -201,7 +203,7 @@ class ImageWindow(object):
 
         thread = Thread(target = ImageWindow.show, args = (self,))
         thread.start()
-            
+
     def mouse(self, event, x, y, flag, *param):
         """
         Método responsável pelo controle do mouse.
@@ -221,8 +223,8 @@ class ImageWindow(object):
             _x = _x if _x > 0 else 0
             _y = _y if _y > 0 else 0
             
-            _x = _x if _x <= self.shape.x - self.size[0] else self.shape.x - self.size[0]
-            _y = _y if _y <= self.shape.y - self.size[1] else self.shape.y - self.size[1]
+            _x = _x if _x <= self.shape.x - self.size.x else self.shape.x - self.size.x
+            _y = _y if _y <= self.shape.y - self.size.y else self.shape.y - self.size.y
 
             self._mousep = Point(x, y)
             self.anchor  = Point(_x, _y)

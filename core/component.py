@@ -96,7 +96,8 @@ class ComponentList(object):
         comps = [comp for comp in lcomp if comp.belief > 1]
 
         retv = cls.mapped(comps, img.shape)
-        retv = retv if not _once and not img.check(retv[0]) else cls.load(img, True)
+        retv = retv     \
+            if not _once and not img.check(retv[0]) else cls.load(img, True)
 
         return retv
     

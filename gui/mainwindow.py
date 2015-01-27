@@ -11,11 +11,11 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
+from .event import PostEvent
 from .statusbar import *
 from .notepage import *
 from .menu import *
 
-import controller
 import config
 import wx
 
@@ -61,15 +61,15 @@ class MainWindow(wx.Frame):
         self.root.SetSizer(wrapper)
 
         self.nbook.AddPage(NotePage(self.nbook), u"Planilha")
-        self.nbook.AddPage(NotePage(self.nbook), u"Talhões")
+        self.nbook.AddPage(NotePage(self.nbook, enable = False), u"Talhões")
         self.nbook.ChangeSelection(1)
 
-    def OnQuit(self, *args):
+    def BindEvents(self):
         """
-        Método a ser executado quando o programa estiver sendo fechado.
+        Víncula métodos do objeto a eventos que podem ser disparados.
         :return None
         """
-        self.Close()
+        BindEvent("DropFiles", self.OnDropFiles)
 
     def OnDropFiles(self, filenames):
         """
@@ -80,14 +80,14 @@ class MainWindow(wx.Frame):
         """
         for filename in filenames:
             newpage = NotePage(self.nbook)
-            controller.ExecutePage(newpage, filename)
+            PostEvent("NewPage", newpage, filename)
 
             self.nbook.AddPage(newpage, "#{0}".format(config.wid))
             config.wid = config.wid + 1
 
-    def BindEvents(self):
+    def OnQuit(self, *args):
         """
-        Víncula métodos do objeto a eventos que podem ser disparados.
+        Método a ser executado quando o programa estiver sendo fechado.
         :return None
         """
-        BindEvent("DropFiles", self.OnDropFiles)
+        self.Close()

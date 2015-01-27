@@ -54,11 +54,6 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
-    
-    if args.dist is None or args.image is None:
-        from controller import ExecuteGUI
-        ExecuteGUI()
 
-    else:
-        from controller import ExecuteCommandLine
-        ExecuteCommandLine(args.image, args.dist)
+    from controller import Execute
+    Execute(args.image, args.dist)

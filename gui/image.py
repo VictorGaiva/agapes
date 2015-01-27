@@ -11,7 +11,8 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .util import *
+from .util import Jar
+
 import os.path as path
 import config
 import wx

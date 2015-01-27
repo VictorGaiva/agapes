@@ -12,6 +12,7 @@ programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
 from .mainwindow import *
+
 import config
 import wx
 

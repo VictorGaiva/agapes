@@ -11,14 +11,15 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .util import *
 from .appmain import *
+from .util import *
+
 import threading
 
 __all__ = [
     "util",
     "event",
-    "InitGUI",
+    "InitUI",
 ]
 
 def ThreadWrapper(function):
@@ -32,7 +33,7 @@ def ThreadWrapper(function):
 
     return threadf
 
-def InitGUI():
+def InitUI():
     """
     Inicializa a interface gráfica do usuário, o que
     permite que o programa seja utilizado sem a
