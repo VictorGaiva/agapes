@@ -11,7 +11,7 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .event import *
+from .event import BindEvent
 import wx
 
 class StatusBar(wx.StatusBar):
@@ -33,9 +33,9 @@ class StatusBar(wx.StatusBar):
 
         self.parent = parent
         self.SetFieldsCount(1)
-        self.PushStatusText(u"Carregamento concluído.", 0)
 
         parent.SetStatusBar(self)
+        self.BindEvents()
 
     def Push(self, message):
         """

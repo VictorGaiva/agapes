@@ -144,6 +144,8 @@ class DropField(wx.Panel, wx.FileDropTarget):
         self.bmp = self.iover.bitmap
         self.Refresh()
 
+        PostEvent("PushStatus", u"Solte a imagem e clique em \"Processar\" para processá-la.")
+
         return 1
 
     def OnDropFiles(self, x, y, filenames):
@@ -156,6 +158,7 @@ class DropField(wx.Panel, wx.FileDropTarget):
         self.bmp = self.ilist[self.index].bitmap
         self.Refresh()
 
+        PostEvent("PopStatus")
         PostEvent("DropFiles", filenames)
 
         return True
@@ -169,6 +172,8 @@ class DropField(wx.Panel, wx.FileDropTarget):
         self.hover = False
         self.bmp = self.ilist[self.index].bitmap
         self.Refresh()
+
+        PostEvent("PopStatus")
 
     def OnMouseDown(self, event):
         """
