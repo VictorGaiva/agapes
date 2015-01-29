@@ -11,7 +11,9 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
+from multiprocessing import Queue, Pipe
 from gui.event import PostEvent
+import threading
 import core
 
 __all__ = [
@@ -36,6 +38,17 @@ def Execute(*args):
     else:
         from .cmd import ControlCommandLine
         ControlCommandLine(*args)
+
+def ThreadWrapper(function):
+    """
+    Invólucro de funções a serem executadas em um thread.
+    :param function Função a ser envolvida.
+    """
+    def threadf(*args, **kwargs):
+        t = threading.Thread(target = function, args = args, kwargs = kwargs)
+        t.start()
+
+    return threadf
 
 def LoadImage(address, context = None):
     """

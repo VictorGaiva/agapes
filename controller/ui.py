@@ -13,7 +13,7 @@ resultados obtidos com a imagem fornecida.
 """
 from core import SaveImage
 from gui.event import EventBinder
-from gui import InitUI, ThreadWrapper
+from gui import InitUI
 import controller as ct
 
 @EventBinder("ImageLoaded")
@@ -55,7 +55,7 @@ def OnImageProcessed(img, pcent, meter, context):
     context.phase[2].Enable()
 
 @EventBinder("NewPage")
-@ThreadWrapper
+@ct.ThreadWrapper
 def OnNewPage(page, filename):
     """
     Função invocada em reação ao evento NewPage.
@@ -67,6 +67,7 @@ def OnNewPage(page, filename):
     img, lines, pcent, meter = ct.ProcessImage(cmap, 1.5, context = page)
 
     SaveImage(filename, img)
+    exit()
 
 def ControlUI():
     """

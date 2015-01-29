@@ -22,17 +22,6 @@ __all__ = [
     "InitUI",
 ]
 
-def ThreadWrapper(function):
-    """
-    Invólucro de funções a serem executadas em um thread.
-    :param function Função a ser envolvida.
-    """
-    def threadf(*args, **kwargs):
-        t = threading.Thread(target = function, args = args, kwargs = kwargs)
-        t.start()
-
-    return threadf
-
 def InitUI():
     """
     Inicializa a interface gráfica do usuário, o que
