@@ -381,13 +381,13 @@ class LineList(object):
         Mostra em uma imagem, todas as linhas presentes na lista.
         @return Image
         """
-        img = Image.new(self.shape)
+        img = Image.new(self.shape, inverted = inverted)
 
         for line in self.lines:
             line.draw(img, (255, 255, 255))
 
-        if inverted:
-            img.transpose()
+        if img.inverted:
+            img = img.transpose()
 
         return img
         

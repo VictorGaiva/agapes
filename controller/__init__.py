@@ -11,8 +11,6 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .cmd import ControlCommandLine
-from .ui import ControlUI
 from gui.event import PostEvent
 import core
 
@@ -31,7 +29,13 @@ def Execute(*args):
     uma GUI ou a partir da linha de comando.
     :param args Argumentos passados à função.
     """
-    ControlUI() if None in args else ControlCommandLine(*args)
+    if None in args:
+        from .ui import ControlUI
+        ControlUI()
+
+    else:
+        from .cmd import ControlCommandLine
+        ControlCommandLine(*args)
 
 def LoadImage(address, context = None):
     """
@@ -55,17 +59,16 @@ def SegmentImage(img, context = None):
 
     return img, comp, cmap
 
-def ProcessImage(img, cmap, distance, context = None):
+def ProcessImage(cmap, distance, context = None):
     """
     Processa a imagem e procura por linhas de plantação
     de cana-de-açúcar; e desenha sobre a imagem as linhas
     encontradas.
-    :param img Imagem alvo do processo.
     :param cmap Mapa de componentes da imagem.
     :param distance Distância entre linhas da plantação.
     :return Image, float, float Porcentagem e metragem de falhas.
     """
-    img, lines, pcent, meter = core.ProcessImage(img, cmap, distance)
+    img, lines, pcent, meter = core.ProcessImage(cmap, distance)
     PostEvent("ImageProcessed", img, pcent, meter, context = context)
 
     return img, lines, pcent, meter

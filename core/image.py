@@ -30,6 +30,7 @@ class Image(object):
         """
         Inicializa e cria uma nova instância do objeto.
         :param source Imagem alvo do objeto.
+        :param inverted A imagem está invertida?
         :return Nova instância do objeto de imagem.
         """
         self.shape = Point(*source.shape[:2]).swap
@@ -56,17 +57,18 @@ class Image(object):
         return cls(raw)
     
     @classmethod
-    def new(cls, shape, dtype = numpy.uint8, channels = 3):
+    def new(cls, shape, dtype = numpy.uint8, channels = 3, inverted = False):
         """
         Cria uma nova imagem totalmente vazia.
         :param shape Formato da imagem.
         :param dtype Tipo de cada elemento da imagem.
         :param channels Número de canais da imagem.
+        :param inverted A imagem está invertida?
         :return Imagem vazia criada.
         """
         shape = (channels,) + shape if channels > 1 else shape
         blank = numpy.zeros(shape[::-1], dtype)
-        return cls(blank)
+        return cls(blank, inverted)
     
     def resize(self, proportion, min = Point(1,1)):
         """
@@ -92,7 +94,7 @@ class Image(object):
         :return Imagem binária gerada.
         """
         raw = cv.cvtColor(self.raw, cv.COLOR_BGR2GRAY)
-        _, raw = cv.threshold(raw, 127, 255, cv.THRESH_BINARY)
+        raw = cv.threshold(raw, 127, 255, cv.THRESH_BINARY)[1]
         return Image(raw, self.inverted)
     
     def colorize(self):
@@ -103,16 +105,6 @@ class Image(object):
         raw = cv.cvtColor(self.raw, cv.COLOR_GRAY2BGR)
         return Image(raw, self.inverted)
 
-    def normalize(self):
-        """
-        Normaliza a ordem dos canais no padrão RGB.
-        :return Imagem colorida gerada.
-        """
-        raw = cv.cvtColor(self.raw, cv.COLOR_BGR2RGB)
-        img = Image(raw) if not self.inverted else Image(raw, True).transpose()
-        print img.shape, img.inverted
-        return img
-
     def tolab(self):
         """
         Transforma a imagem atual para o tipo L*a*b*.
@@ -120,7 +112,27 @@ class Image(object):
         """
         raw = cv.cvtColor(self.raw, cv.COLOR_BGR2LAB)
         return Image(raw, self.inverted)
-    
+
+    def normalize(self):
+        """
+        Normaliza a ordem dos canais no padrão RGB.
+        :return Imagem colorida gerada.
+        """
+        raw = cv.cvtColor(self.raw, cv.COLOR_BGR2RGB)
+        img = Image(raw) if not self.inverted else Image(raw, True).transpose()
+
+        return img
+
+    def transpose(self):
+        """
+        Inverte a imagem atual. Assim, as dimensões se inventem
+        e é necessário inverter as coordenadas de um ponto para
+        resgatar um mesmo pixel da imagem anterior.
+        :return Imagem transposta.
+        """
+        raw = cv.transpose(self.raw)
+        return Image(raw, not self.inverted)
+
     def show(self, wname = "image"):
         """
         Mostra a imagem armazenada pelo objeto e espera até que
@@ -136,41 +148,8 @@ class Image(object):
         """
         cv.imwrite(
             filename,
-            self.raw if not self.inverted else cv.transpose(self.raw)
+            self.raw if not self.inverted else self.transpose().raw
         )
-
-    def transpose(self):
-        """
-        Inverte a imagem atual. Assim, as dimensões se inventem
-        e é necessário inverter as coordenadas de um ponto para
-        resgatar um mesmo pixel da imagem anterior.
-        """
-        #self.shape = self.shape.swap
-        self.raw = cv.transpose(self.raw)
-        self.inverted = not self.inverted
-
-        return self
-
-    def check(self, comps):
-        """
-        Verifica a necessidade de rotação da imagem e o faz
-        de acordo com o verificado.
-        :param comps Componentes de verificação de rotação.
-        """
-        count = 0
-        
-        for i in xrange(1, 9):
-            x, y = zip(*comps[i].points)
-            line = numpy.poly1d(numpy.polyfit(x, y, deg = 1))
-                
-            if abs(line[1]) < 1:
-                count += 1
-
-        if not count < 5:
-            self.transpose()
-            return False
-
-        return True
 
 class ImageWindow(object):
     """
@@ -194,7 +173,7 @@ class ImageWindow(object):
         self.word = None
         config.wid += 1
 
-        self.image = [image if not image.inverted else Image(cv.transpose(image.raw))]
+        self.image = [image if not image.inverted else image.transpose()]
         self.index = 0
 
         self._mousep = None
@@ -235,7 +214,7 @@ class ImageWindow(object):
         Adiciona uma imagem à lista de imagens a serem exibidas.
         :param image Imagem a ser adiciona à lista.
         """
-        self.image.append(image if not image.inverted else Image(cv.transpose(image.raw)))
+        self.image.append(image if not image.inverted else image.transpose())
         self.index = len(self.image) - 1
         self.frame()
         
@@ -260,7 +239,7 @@ class ImageWindow(object):
         Método responsável por gerir a exibição da imagem.
         """
         self.mid = Point(self.shape.x / 2, self.shape.y / 2)
-        self.anchor = Point(self.mid.x - self.size[0] / 2, self.mid.y - self.size[1] / 2)
+        self.anchor = Point(self.mid.x - self.size.x / 2, self.mid.y - self.size.y / 2)
                 
         cv.namedWindow(self.wname, cv.WINDOW_AUTOSIZE)
         cv.setMouseCallback(self.wname, self.mouse)
@@ -287,8 +266,8 @@ class ImageWindow(object):
         Cria e exibe a imagem da janela.
         """
         wframe = copy.deepcopy(self.image[self.index][
-            self.anchor.x : self.anchor.x + self.size[0],
-            self.anchor.y : self.anchor.y + self.size[1]            
+            self.anchor.x : self.anchor.x + self.size.x,
+            self.anchor.y : self.anchor.y + self.size.y
         ])
         
         if self.word is not None:

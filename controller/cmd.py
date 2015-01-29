@@ -51,6 +51,6 @@ def ControlCommandLine(address, distance):
     win = ImageWindow(config.appname, img)
 
     img, comp, cmap = ct.SegmentImage(img, context = win)
-    img, lines, pcent, meter = ct.ProcessImage(img, cmap, distance, context = win)
+    img, lines, pcent, meter = ct.ProcessImage(cmap, distance, context = win)
 
     SaveImage(address, img)

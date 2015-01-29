@@ -47,12 +47,11 @@ def SegmentImage(img):
     comps, cmap = ComponentList.load(img)
     return img, comps, cmap
 
-def ProcessImage(img, cmap, distance):
+def ProcessImage(cmap, distance):
     """
     Processa a imagem e procura por linhas de plantação
     de cana-de-açúcar; e desenha sobre a imagem as linhas
     encontradas.
-    :param img Imagem alvo do processo.
     :param cmap Mapa de componentes da imagem.
     :param distance Distância entre linhas da plantação.
     :return Image, float, float Porcentagem e metragem de falhas.
@@ -60,7 +59,7 @@ def ProcessImage(img, cmap, distance):
     lines = LineList.first(cmap, cmap.comp[1])
     lines.complete()
 
-    img = lines.display(img.inverted)
+    img = lines.display(cmap.inverted)
     pcent, meter = lines.error(distance)
 
     return img, lines, pcent, meter

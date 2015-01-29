@@ -11,7 +11,6 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .image import *
 from .point import *
 from .map import *
 
@@ -29,10 +28,10 @@ class Component(object):
     def __init__(self, contour):
         """
         Inicializa e cria uma nova instância do objeto.
-        @param list contour Lista de pontos que descrevem os contornos do componente.
-        @return Component
+        :param contour Lista de pontos que descrevem os contornos do componente.
+        :return Component
         """
-        self.points = [Point(*pnt[0]) for pnt in contour]
+        self.points = map(lambda p: Point(*p[0]), contour)
         self.contour = contour
                 
         self.up = min(self.points, key = lambda pnt: pnt.y).y
@@ -44,8 +43,8 @@ class Component(object):
     def draw(self, image, color):
         """
         Desenha os contornos do componente em uma imagem com a cor determinada.
-        @param Image image Imagem alvo para o desenho da linha.
-        @param tuple|int color Cor a ser usada.
+        :param image Imagem alvo para o desenho da linha.
+        :param color Cor a ser usada.
         """
         cv.drawContours(image.raw, [self.contour], 0, color, -1)
         
@@ -59,8 +58,8 @@ class ComponentList(object):
     def __init__(self, lcomp):
         """
         Inicializa e cria uma nova instância do objeto.
-        @param list lcomp Lista de componentes.
-        @return ComponentList
+        :param lcomp Lista de componentes.
+        :return ComponentList
         """
         self.comps = list(lcomp)
         
@@ -68,8 +67,8 @@ class ComponentList(object):
         """
         Acessa a lista e retorna o Component encontrado na posição dada.
         Caso o parâmetro seja uma slice, uma lista de Component é retornada.
-        @param int|slice index Índice do elemento a ser retornado.
-        @return Component|list
+        :param index Índice do elemento a ser retornado.
+        :return Component|list
         """
         return ([None] + self.comps)[index]
     
@@ -77,68 +76,93 @@ class ComponentList(object):
         """
         Transforma o objeto em um iterável para permitir a fácil iteração
         entre os componentes armazenados.
-        @yields Component
+        :yield Component
         """
         for component in self.comps:
             yield component
 
     @classmethod
-    def load(cls, img, _once = False):
+    def load(cls, img):
         """
         Encontra todos os componentes presentes na imagem dada, e
         retorna a lista de todos os componentes.
         :param img Imagem alvo da operação.
         :return ComponentList, Map
         """
-        raw = copy.deepcopy(img.raw)
-        cnts, _ = cv.findContours(raw, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
-        lcomp = [Component(contour) for contour in cnts]
-        comps = [comp for comp in lcomp if comp.belief > 1]
+        def generate():
+            yield img
+            yield img.transpose()
 
-        retv = cls.mapped(comps, img.shape)
-        retv = retv     \
-            if not _once and not img.check(retv[0]) else cls.load(img, True)
+        slopes = []
 
-        return retv
-    
-    @classmethod
-    def mapped(cls, lcomp, shape):
-        """
-        Inicializa o objeto com componentes já instanciados e
-        cria o mapa de localização desses componentes.
-        :param lcomp Componentes instanciados.
-        :param shape Formato da imagem alvo.
-        :return ComponentList, Map
-        """
-        new = cls(lcomp)
-        new.sort()
-                
-        cmap = Image.new(shape, numpy.uint16, 1)
-        [comp.draw(cmap, i + 1) for i, comp in enumerate(new.comps)]
+        for inv, image in enumerate(generate()):
+            raw = copy.deepcopy(image.raw)
+            cts = cv.findContours(raw, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)[0]
 
-        return new, Map(cmap, new.comps)
+            lcomp = map(Component, cts)
+            lcomp = filter(lambda comp: comp.belief > 1, lcomp)
+            lcomp = cls(lcomp).sort()
+
+            slopev = lcomp.slope()
+            slopes.append([slopev, lcomp, image.shape, inv])
+
+            if slopev > 1:
+                break
+
+        lcomp, shape, inverted = max(slopes, key = lambda el: el[0])[1:]
+        cmap = lcomp.map(shape, inverted)
+
+        return lcomp, cmap
     
     @property
     def count(self):
         """
         Contagem de componentes na lista.
-        @return int Quantidade de elementos.
+        :return Quantidade de elementos.
         """
         return len(self.comps)
+
+    def map(self, shape, inverted):
+        """
+        Inicializa o objeto com componentes já instanciados e
+        cria o mapa de localização desses componentes.
+        :param shape Formato da imagem alvo.
+        :param inverted O mapa estará invertido?
+        :return Map
+        """
+        cmap = Map(self.comps, shape, inverted)
+        return cmap
+
+    def slope(self, count = 10):
+        """
+        Verifica a necessidade de rotação da imagem.
+        :param count Quantidade de componentes a serem analizados.
+        :return float Média de inclinação dos componentes.
+        """
+        func = lambda comp: numpy.poly1d(
+            numpy.polyfit(
+                *zip(*comp.points), deg = 1
+            )
+        )[1]
+
+        value = map(func, self.comps[1:count + 1])
+        return sum(value) / float(count)
     
     def sort(self, key = lambda c: c.belief, reverse = False):
         """
         Ordena os componentes de acordo com a confiança individual de cada
         componente presente na imagem.
-        @param lambda key Função para a ordenação dos componentes.
+        :param key Função para a ordenação dos componentes.
+        :param reverse Os componentes devem estar na ordem contrária?
         """
         self.comps = sorted(self.comps, key = key, reverse = not reverse)
+        return self
         
     def draw(self, image, color):
         """
         Desenha todos os componentes em uma imagem com a cor determinada.
-        @param Image image Imagem alvo para o desenho da linha.
-        @param tuple|int color Cor a ser usada.
+        :param image Imagem alvo para o desenho da linha.
+        :param color Cor a ser usada.
         """
         for comp in self:
             comp.draw(image, color)

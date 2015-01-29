@@ -64,7 +64,7 @@ def OnNewPage(page, filename):
     """
     img = ct.LoadImage(filename, context = page)
     img, comp, cmap = ct.SegmentImage(img, context = page)
-    img, lines, pcent, meter = ct.ProcessImage(img, cmap, 1.5, context = page)
+    img, lines, pcent, meter = ct.ProcessImage(cmap, 1.5, context = page)
 
     SaveImage(filename, img)
 
