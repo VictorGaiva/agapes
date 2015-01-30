@@ -11,10 +11,11 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
+from controller import ThreadWrapper
+from controller import *
 from core import SaveImage
-from gui.event import EventBinder
+from gui.event import EventBinder, PostEvent
 from gui import InitUI
-import controller as ct
 
 @EventBinder("ImageLoaded")
 def OnImageLoaded(img, context):
@@ -55,19 +56,23 @@ def OnImageProcessed(img, pcent, meter, context):
     context.phase[2].Enable()
 
 @EventBinder("NewPage")
-@ct.ThreadWrapper
+@ThreadWrapper
 def OnNewPage(page, filename):
     """
     Função invocada em reação ao evento NewPage.
     :param page Página recém-criada.
     :param filename Arquivo de imagem a ser processada.
     """
-    img = ct.LoadImage(filename, context = page)
-    img, comp, cmap = ct.SegmentImage(img, context = page)
-    img, lines, pcent, meter = ct.ProcessImage(cmap, 1.5, context = page)
+    img = LoadImage(filename)
+    PostEvent("ImageLoaded", img, context = page)
+
+    img, comp, cmap = SegmentImage(img)
+    PostEvent("ImageSegmented", img, context = page)
+
+    img, lines, pcent, meter = ProcessImage(cmap, 1.5)
+    PostEvent("ImageProcessed", img, pcent, meter, context = page)
 
     SaveImage(filename, img)
-    exit()
 
 def ControlUI():
     """

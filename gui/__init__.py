@@ -12,12 +12,8 @@ programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
 from .appmain import *
-from .util import *
-
-import threading
 
 __all__ = [
-    "util",
     "event",
     "InitUI",
 ]

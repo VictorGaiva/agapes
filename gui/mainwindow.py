@@ -11,7 +11,6 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .event import PostEvent
 from .statusbar import *
 from .notepage import *
 from .menu import *

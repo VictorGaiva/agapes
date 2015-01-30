@@ -57,3 +57,5 @@ if __name__ == '__main__':
 
     from controller import Execute
     Execute(args.image, args.dist)
+
+    sys.exit()

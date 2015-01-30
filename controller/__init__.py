@@ -11,9 +11,7 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from multiprocessing import Queue, Pipe
-from gui.event import PostEvent
-import threading
+from threading import Thread
 import core
 
 __all__ = [
@@ -31,13 +29,17 @@ def Execute(*args):
     uma GUI ou a partir da linha de comando.
     :param args Argumentos passados à função.
     """
-    if None in args:
-        from .ui import ControlUI
-        ControlUI()
+    from .pipeline import InitPipeline, StopPipeline
 
+    if None in args:
+        from .ui import ControlUI as Control
+        args = ()
     else:
-        from .cmd import ControlCommandLine
-        ControlCommandLine(*args)
+        from .cmd import ControlCommandLine as Control
+
+    InitPipeline()
+    Control(*args)
+    StopPipeline()
 
 def ThreadWrapper(function):
     """
@@ -45,7 +47,7 @@ def ThreadWrapper(function):
     :param function Função a ser envolvida.
     """
     def threadf(*args, **kwargs):
-        t = threading.Thread(target = function, args = args, kwargs = kwargs)
+        t = Thread(target = function, args = args, kwargs = kwargs)
         t.start()
 
     return threadf
@@ -57,8 +59,6 @@ def LoadImage(address, context = None):
     :return core.Image Imagem carregada.
     """
     img = core.LoadImage(address)
-    PostEvent("ImageLoaded", img, context = context)
-
     return img
 
 def SegmentImage(img, context = None):
@@ -68,8 +68,6 @@ def SegmentImage(img, context = None):
     :return Image, ComponentList, Map Lista de componentes.
     """
     img, comp, cmap = core.SegmentImage(img)
-    PostEvent("ImageSegmented", img, context = context)
-
     return img, comp, cmap
 
 def ProcessImage(cmap, distance, context = None):
@@ -82,7 +80,5 @@ def ProcessImage(cmap, distance, context = None):
     :return Image, float, float Porcentagem e metragem de falhas.
     """
     img, lines, pcent, meter = core.ProcessImage(cmap, distance)
-    PostEvent("ImageProcessed", img, pcent, meter, context = context)
-
     return img, lines, pcent, meter
 
