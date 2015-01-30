@@ -51,34 +51,3 @@ def ThreadWrapper(function):
         t.start()
 
     return threadf
-
-def LoadImage(address, context = None):
-    """
-    Carrega uma imagem.
-    :param address Endereço da imagem a ser carregada.
-    :return core.Image Imagem carregada.
-    """
-    img = core.LoadImage(address)
-    return img
-
-def SegmentImage(img, context = None):
-    """
-    Executa a segmentação da imagem.
-    :param img Imagem a ser segmentada.
-    :return Image, ComponentList, Map Lista de componentes.
-    """
-    img, comp, cmap = core.SegmentImage(img)
-    return img, comp, cmap
-
-def ProcessImage(cmap, distance, context = None):
-    """
-    Processa a imagem e procura por linhas de plantação
-    de cana-de-açúcar; e desenha sobre a imagem as linhas
-    encontradas.
-    :param cmap Mapa de componentes da imagem.
-    :param distance Distância entre linhas da plantação.
-    :return Image, float, float Porcentagem e metragem de falhas.
-    """
-    img, lines, pcent, meter = core.ProcessImage(cmap, distance)
-    return img, lines, pcent, meter
-

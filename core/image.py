@@ -25,7 +25,7 @@ class Image(object):
     aberta. Também analiza e aplica quaisquer alterações
     requisitadas a uma das versões da imagem.
     """
-    
+
     def __init__(self, source, inverted = False):
         """
         Inicializa e cria uma nova instância do objeto.

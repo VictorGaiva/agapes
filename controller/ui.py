@@ -11,8 +11,8 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from controller import ThreadWrapper
-from controller import *
+from . import ThreadWrapper
+from . import pipeline as pl
 from core import SaveImage
 from gui.event import EventBinder, PostEvent
 from gui import InitUI
@@ -63,13 +63,18 @@ def OnNewPage(page, filename):
     :param page Página recém-criada.
     :param filename Arquivo de imagem a ser processada.
     """
-    img = LoadImage(filename)
+    comm = pl.Communication()
+
+    comm.PushToStage(pl.LOAD, pl.NORMAL, args = (filename,))
+    img = comm.PopResponse()[1]
     PostEvent("ImageLoaded", img, context = page)
 
-    img, comp, cmap = SegmentImage(img)
+    comm.PushToStage(pl.SEGMENT, pl.NORMAL, args = (img,))
+    img, comp, cmap = comm.PopResponse()[1]
     PostEvent("ImageSegmented", img, context = page)
 
-    img, lines, pcent, meter = ProcessImage(cmap, 1.5)
+    comm.PushToStage(pl.PROCESS, pl.NORMAL, args = (cmap, 1.5,))
+    img, lines, pcent, meter = comm.PopResponse()[1]
     PostEvent("ImageProcessed", img, pcent, meter, context = page)
 
     SaveImage(filename, img)

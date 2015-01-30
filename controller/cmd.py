@@ -11,10 +11,10 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from controller import *
 from gui.event import EventBinder, PostEvent
 from core.image import ImageWindow
 from core import SaveImage
+from . import pipeline as pl
 
 import config
 
@@ -47,13 +47,18 @@ def ControlCommandLine(address, distance):
     :param address Endereço da imagem alvo do processamento.
     :param distance Distância entre as linhas de plantação.
     """
-    img = LoadImage(address)
+    comm = pl.Communication()
+
+    comm.PushToStage(pl.LOAD, pl.NORMAL, args = (address,))
+    img = comm.PopResponse()[1]
     win = ImageWindow(config.appname, img)
 
-    img, comp, cmap = SegmentImage(img)
+    comm.PushToStage(pl.SEGMENT, pl.NORMAL, args = (img,))
+    img, comp, cmap = comm.PopResponse()[1]
     PostEvent("ImageSegmented", img, context = win)
 
-    img, lines, pcent, meter = ProcessImage(cmap, distance)
+    comm.PushToStage(pl.PROCESS, pl.NORMAL, args = (cmap, distance,))
+    img, lines, pcent, meter = comm.PopResponse()[1]
     PostEvent("ImageProcessed", img, pcent, meter, context = win)
 
     SaveImage(address, img)

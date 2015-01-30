@@ -11,12 +11,11 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from multiprocessing import Queue, Pipe, Lock
 from . import ThreadWrapper
+from Queue import Queue
 import core
 import time
 
-_alive = True
 _queues = [
     [Queue(), Queue(), Queue()],
     [Queue(), Queue(), Queue()],
@@ -25,6 +24,7 @@ _queues = [
 
 LOW, NORMAL, HIGH = range(3)
 LOAD, SEGMENT, PROCESS = range(3)
+_alive = True
 
 class Communication(object):
     """
@@ -37,18 +37,8 @@ class Communication(object):
         Inicializa uma nova instância do objeto.
         :return Communication
         """
-        self.lock = Lock()
-        self.reader, self.writer = Pipe(False)
+        self.queue = Queue()
         self.sent, self.received = 0, 0
-
-    def __del__(self):
-        """
-        Finaliza a comunicação com o pipeline.
-        É recomendável invocar esse método após o término
-        da execução de tarefas.
-        """
-        self.writer.close()
-        self.reader.close()
 
     def PushToStage(self, stage, priority = NORMAL, args = (), **context):
         """
@@ -60,7 +50,7 @@ class Communication(object):
         :param kwargs Argumentos nominais da tarefa.
         :param context Dados de contexto.
         """
-        _queues[stage][priority].put((self.writer, self.lock, args, context))
+        _queues[stage][priority].put((self.queue, args, context))
         self.sent = self.sent + 1
 
     def PopResponse(self):
@@ -74,10 +64,10 @@ class Communication(object):
         if self.sent == self.received:
             return None
 
-        retv = self.reader.recv()
+        response = self.queue.get()
         self.received = self.received + 1
 
-        return retv
+        return response
 
 @ThreadWrapper
 def PipelineStage(idn, function):
@@ -96,12 +86,11 @@ def PipelineStage(idn, function):
             time.sleep(.2)
             continue
 
-        writer, lock, args, context = lqueue[priority].get()
-        retv = function(*args)
+        output, args, context = lqueue[priority].get()
+        response = function(*args)
 
-        lock.acquire()
-        writer.send((idn, retv, context))
-        lock.release()
+        print "Pipeline stage #{0}".format(idn)
+        output.put((idn, response, context))
 
 def InitPipeline():
     """
