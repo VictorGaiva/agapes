@@ -11,9 +11,9 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
+from controller import ThreadWrapper
 from .point import *
 
-from threading import Thread
 import cv2 as cv
 import config
 import numpy
@@ -39,11 +39,20 @@ class Image(object):
     
     def __getitem__(self, index):
         """
-        Localiza e retorna um item, no caso um pixel, da imagem.
+        Localiza e retorna um pixel ou uma região da imagem.
         :param index Índice ou fatia a ser acessada.
-        :return Pixel ou fatia de pixels selecionados.
+        :return Pixel ou região selecionada.
         """
         return self.raw[index[1], index[0]]
+
+    def __setitem__(self, index, value):
+        """
+        Modifica o valor de um pixel ou de uma região de
+        interesse da imagem.
+        :param index Índice ou fatia a ser acessada.
+        :param value Novo valor a ocupar os elementos selecionados.
+        """
+        self.raw[index[1], index[0]] = value
     
     @classmethod
     def load(cls, filename):
@@ -78,23 +87,48 @@ class Image(object):
         :param min Tamanho mínimo da imagem após redimensionamento.
         :return Imagem redimensionada.
         """
-        if self.shape.x * proportion < min.x \
-        or self.shape.y * proportion < min.y:
+        if self.shape.x * proportion < min[0] \
+        or self.shape.y * proportion < min[1]:
             proportion = max(
-                min.x / float(self.shape.x),
-                min.y / float(self.shape.y)
+                min[0] / float(self.shape.x),
+                min[1] / float(self.shape.y)
             )
 
         raw = cv.resize(self.raw, None, fx = proportion, fy = proportion)
         return Image(raw, self.inverted)
-    
-    def binarize(self):
+
+    def region(self, pos, size):
+        """
+        Retorna uma subimagem, ou seja, apenas um recorte
+        da área total da imagem.
+        :param pos Canto superior esquerdo do recorte.
+        :param size Tamanho do recorte.
+        :return Recorte de imagem.
+        """
+        raw = self[pos[0] : pos[0] + size[0], pos[1] : pos[1] + size[1]]
+        return Image(raw, self.inverted)
+
+    def glue(self, pos, size, image):
+        """
+        Cola uma imagem sobre a região indicada.
+        :param pos Ponto esquerdo superior da região.
+        :param size dimensões da região de colagem.
+        :param image Imagem a ser colada.
+        """
+        self[
+            pos.x : pos.x + size.x,
+            pos.y : pos.y + size.y
+        ] = image.raw
+
+    def binarize(self, thresh = 127, value = 255):
         """
         Transforma a imagem atual em uma imagem binária.
+        :param thresh Limiar de separação.
+        :param value Novo valor para pixels com valor acima de  thresh  .
         :return Imagem binária gerada.
         """
         raw = cv.cvtColor(self.raw, cv.COLOR_BGR2GRAY)
-        raw = cv.threshold(raw, 127, 255, cv.THRESH_BINARY)[1]
+        raw = cv.threshold(raw, thresh, value, cv.THRESH_BINARY)[1]
         return Image(raw, self.inverted)
     
     def colorize(self):
@@ -159,29 +193,81 @@ class ImageWindow(object):
     uma tela menor que ela.
     """
     
-    def __init__(self, wname, image):
+    def __init__(self, wname, img, quantity = 1, index = None):
         """
         Inicializa e cria uma nova instância do objeto.
         :param wname Nome da janela a ser criada.
-        :param image Imagem a ser exibida.
+        :param img Imagem a ser exibida.
+        :param quantity Quantidade de vezes  image  deve ser empilhado.
         :return Instância criada.
         """
-        self.size = Point(*config.wsize)
+        self.wsize = Point(*config.wsize)
         self.wname = "{0} #{1}".format(wname, config.wid)
-        self.shape = image.shape
-        self.closed = False
-        self.word = None
         config.wid += 1
 
-        self.image = [image if not image.inverted else image.transpose()]
-        self.index = 0
+        self.index = (quantity - 1) if index is None else index
+        self.shape = img.shape
+        self.word = None
 
+        self.image = [
+            Image(copy.deepcopy(
+                img.raw if not img.inverted else img.transpose().raw
+            )) for i in xrange(quantity)
+        ]
+
+        self.show()
+
+    def __getitem__(self, index):
+        """
+        Permite o acesso exterior às imagens armazenadas na janela.
+        :param index Índice da imagem a ser retornada.
+        :return Image
+        """
+        return self.image[index]
+
+    def append(self, image):
+        """
+        Adiciona uma imagem à lista de imagens a serem exibidas.
+        :param image Imagem a ser adiciona à lista.
+        """
+        self.image.append(image if not image.inverted else image.transpose())
+        self.index = len(self.image) - 1
+        self.frame()
+        
+    @ThreadWrapper
+    def show(self):
+        """
+        Método responsável por gerir a exibição da imagem.
+        """
+        mid = Point(self.shape.x / 2, self.shape.y / 2)
+        self.anchor = Point(mid.x - self.wsize.x / 2, mid.y - self.wsize.y / 2)
         self._mousep = None
-        self.anchor = None
-        self.mid = None
 
-        thread = Thread(target = ImageWindow.show, args = (self,))
-        thread.start()
+        cv.namedWindow(self.wname, cv.WINDOW_AUTOSIZE)
+        self.updateloop()
+
+        cv.destroyWindow(self.wname)
+        exit()
+
+    def updateloop(self):
+        """
+        Método responsável pela atualização constante do frame
+        de imagem, encerrando somente quando o critério de parada
+        """
+        cv.setMouseCallback(self.wname, self.mouse)
+        key = cv.waitKey(10) % 256
+
+        while key != 27:
+            self.frame()
+            cv.setMouseCallback(self.wname, self.mouse)
+            key = cv.waitKey(10) % 256
+
+            if key in [ord('w'), ord('W')]:
+                self.index = self.index + 1 \
+                    if self.index < len(self.image) - 1 else 0
+            elif key in [ord('s'), ord('S')]:
+                self.index = self.index - 1 \
+                    if self.index > 0 else len(self.image) - 1
 
     def mouse(self, event, x, y, flag, *param):
         """
@@ -194,30 +280,22 @@ class ImageWindow(object):
         """
         if event == cv.EVENT_LBUTTONDOWN:
             self._mousep = Point(x, y)
-        elif event == cv.EVENT_LBUTTONUP:
-            del self._mousep
-        elif event == cv.EVENT_MOUSEMOVE and flag & cv.EVENT_FLAG_LBUTTON:       
+        elif event == cv.EVENT_MOUSEMOVE and flag & cv.EVENT_FLAG_LBUTTON:
             _x, _y = self.anchor + (self._mousep - (x, y))
-            
+
             _x = _x if _x > 0 else 0
             _y = _y if _y > 0 else 0
-            
-            _x = _x if _x <= self.shape.x - self.size.x else self.shape.x - self.size.x
-            _y = _y if _y <= self.shape.y - self.size.y else self.shape.y - self.size.y
+
+            _x = _x if _x <= self.shape.x - self.wsize.x    \
+                else self.shape.x - self.wsize.x
+
+            _y = _y if _y <= self.shape.y - self.wsize.y    \
+                else self.shape.y - self.wsize.y
 
             self._mousep = Point(x, y)
-            self.anchor  = Point(_x, _y)
+            self.anchor = Point(_x, _y)
             self.frame()
-    
-    def append(self, image):
-        """
-        Adiciona uma imagem à lista de imagens a serem exibidas.
-        :param image Imagem a ser adiciona à lista.
-        """
-        self.image.append(image if not image.inverted else image.transpose())
-        self.index = len(self.image) - 1
-        self.frame()
-        
+
     def text(self, txt, pos, color = (255, 255, 0)):
         """
         Insere um texto estático na janela.
@@ -226,48 +304,23 @@ class ImageWindow(object):
         :param color Cor do texto.
         """
         pos = tuple([
-            (pos[i] if pos[i] >= 0 else self.size[i] + pos[i])
+            (pos[i] if pos[i] >= 0 else self.wsize[i] + pos[i])
                 for i in xrange(2)
         ])
-        
-        self.word = type('', (object,), {
-            'word': txt, 'pos': pos, 'color': color
-        })
-    
-    def show(self):
-        """
-        Método responsável por gerir a exibição da imagem.
-        """
-        self.mid = Point(self.shape.x / 2, self.shape.y / 2)
-        self.anchor = Point(self.mid.x - self.size.x / 2, self.mid.y - self.size.y / 2)
-                
-        cv.namedWindow(self.wname, cv.WINDOW_AUTOSIZE)
-        cv.setMouseCallback(self.wname, self.mouse)
-        self.frame()
-        
-        key = cv.waitKey(10) % 256
-    
-        while key != 27:
-            cv.setMouseCallback(self.wname, self.mouse)
-            key = cv.waitKey(10) % 256
-            
-            if key in [ord('w'), ord('W')]:
-                self.index = self.index + 1 if self.index < len(self.image) - 1 else 0
-            elif key in [ord('s'), ord('S')]:
-                self.index = self.index - 1 if self.index > 0 else len(self.image) - 1
 
-            self.frame()
-            
-        cv.destroyWindow(self.wname)
-        exit()
-        
+        self.word = type('', (object,), {
+            'word': txt,
+            'pos': pos,
+            'color': color
+        })
+
     def frame(self):
         """
         Cria e exibe a imagem da janela.
         """
         wframe = copy.deepcopy(self.image[self.index][
-            self.anchor.x : self.anchor.x + self.size.x,
-            self.anchor.y : self.anchor.y + self.size.y
+            self.anchor.x : self.anchor.x + self.wsize.x,
+            self.anchor.y : self.anchor.y + self.wsize.y
         ])
         
         if self.word is not None:

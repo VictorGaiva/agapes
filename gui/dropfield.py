@@ -11,10 +11,13 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
+from core.patch import PatchWork
+from core.image import Image
 from core.point import *
 from .event import PostEvent
 from . import image
 
+from copy import deepcopy
 import wx
 
 class DropField(wx.Panel, wx.FileDropTarget):
@@ -51,16 +54,16 @@ class DropField(wx.Panel, wx.FileDropTarget):
             return cls(bitmap)
 
         @classmethod
-        def FromBuffer(cls, buffer, width, height):
+        def FromBuffer(cls, buf, width, height):
             """
             Cria uma nova instância a partir de um objeto
             de imagem.
-            :param buffer Buffer a ser transformado em bitmap.
+            :param buf Buffer a ser transformado em bitmap.
             :param width Largura dos dados contidos no buffer.
             :param height Altura dos dados contidos no buffer.
             :return ImageElement
             """
-            bitmap = wx.BitmapFromBuffer(width, height, buffer)
+            bitmap = wx.BitmapFromBuffer(width, height, buf)
             return cls(bitmap, (width, height))
 
     def __init__(self, parent, size = (568, 453), enable = True):
@@ -85,6 +88,7 @@ class DropField(wx.Panel, wx.FileDropTarget):
 
         self.iover =  self.ImageElement.FromImage(image.drag.over)
         self.ilist = [self.ImageElement.FromImage(image.drag.init)]
+        self.original = []
         self.index = 0
 
         self.mousepos = None
@@ -97,29 +101,53 @@ class DropField(wx.Panel, wx.FileDropTarget):
         self.SetDropTarget(self)
         self.BindEvents()
 
-    def AppendImage(self, img, width, height):
+    def SetImage(self, img, width, height):
         """
         Adiciona uma imagem à lista de imagens para exibição.
         :param img Imagem a ser adicionada.
         :param width Largura da imagem a ser adicionada.
         :param height Largura da imagem a ser adicionada.
         """
-        self.ilist.append(
-            DropField.ImageElement.FromBuffer(img, width, height)
-        )
+        self.ilist.extend([
+            DropField.ImageElement.FromBuffer(img, width, height),
+            DropField.ImageElement.FromBuffer(img, width, height),
+            DropField.ImageElement.FromBuffer(img, width, height),
+        ])
 
-        self.bmp = self.ilist[self.index + 1].bitmap \
+        self.original = [
+            PatchWork(Image(deepcopy(img)), 200, 200),
+            PatchWork(Image(deepcopy(img)), 200, 200),
+        ]
+
+        self.bmp = self.ilist[1].bitmap \
             if not self.hover else self.iover.bitmap
 
-        self.index = self.index + 1
+        self.index = 1
         self.Refresh()
 
-    def ShowIndex(self, id):
+    def ChangeImage(self, index, img, width, height):
+        """
+        Modifica a imagem presente em um dos índices da lista
+        de imagens para exibição.
+        :param index Índice alvo para da mudança.
+        :param img Imagem a ser adiciona na posição da anterior.
+        :param width Largura da imagem a ser adicionada.
+        :param height Largura da imagem a ser adicionada.
+        """
+        self.ilist[index] = \
+            DropField.ImageElement.FromBuffer(img, width, height)
+
+        self.bmp = self.ilist[index].bitmap \
+            if self.index == index and not self.hover else self.bmp
+
+        self.Refresh()
+
+    def ShowIndex(self, sid):
         """
         Muda a imagem a ser exibida.
-        :param id Índice da imagem a ser mostrada.
+        :param sid Índice da imagem a ser mostrada.
         """
-        self.index = id if id < len(self.ilist) else self.index
+        self.index = sid if sid < len(self.ilist) else self.index
         self.bmp = self.ilist[self.index].bitmap
 
         self.Refresh()
@@ -144,7 +172,7 @@ class DropField(wx.Panel, wx.FileDropTarget):
         self.bmp = self.iover.bitmap
         self.Refresh()
 
-        PostEvent("PushStatus", u"Solte a imagem e clique em \"Processar\" para processá-la.")
+        PostEvent("PushStatus", u'Solte a imagem e clique em "Processar" para processá-la.')
 
         return 1
 

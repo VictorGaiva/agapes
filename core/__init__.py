@@ -31,8 +31,6 @@ def LoadImage(address):
     :return Image Imagem carregada.
     """
     image = Image.load(address)
-    image = image.resize(.3, min = Point(1200, 900))
-
     return image
 
 def SegmentImage(img):
@@ -45,7 +43,7 @@ def SegmentImage(img):
     img = sgmtr.apply(img)
 
     comps, cmap = ComponentList.load(img)
-    return img, comps, cmap
+    return img, cmap
 
 def ProcessImage(cmap, distance):
     """
@@ -62,7 +60,7 @@ def ProcessImage(cmap, distance):
     img = lines.display(cmap.inverted)
     pcent, meter = lines.error(distance)
 
-    return img, lines, pcent, meter
+    return img, pcent, meter
 
 def SaveImage(original, image):
     """

@@ -53,7 +53,34 @@ if __name__ == '__main__':
         help = "distância entre as linhas de plantação".decode('latin1')
     )
 
+    parser.add_argument(
+        'width',
+        metavar = 'width',
+        type = int,
+        nargs = '?',
+        default = 200,
+        help = "largura das amostras de recorte (default = 200)".decode('latin1')
+    )
+
+    parser.add_argument(
+        'height',
+        metavar = 'height',
+        type = int,
+        nargs = '?',
+        default = 200,
+        help = "altura das amostras de recorte (default = 200)".decode('latin1')
+    )
+
+    parser.add_argument(
+        'rate',
+        metavar = 'rate',
+        type = float,
+        nargs = '?',
+        default = 0.6,
+        help = "porcentagem de amostras a serem contabilizadas (default = 0.6)".decode('latin1')
+    )
+
     args = parser.parse_args()
 
     from controller import Execute
-    Execute(args.image, args.dist)
+    Execute(args.image, args.dist, args.width, args.height, args.rate)

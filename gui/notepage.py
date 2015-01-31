@@ -169,9 +169,12 @@ class NotePage(wx.Panel):
             wx.ToggleButton(self.root, 3, "L", size = (25, 25))
         ]
 
+        self.phase[0].SetValue(True)
+        self.phase[1].SetValue(False)
+        self.phase[2].SetValue(False)
+
         for i, button in enumerate(self.phase):
             button.Bind(wx.EVT_TOGGLEBUTTON, self.OnPhaseButton)
-            button.Disable()
 
         return self.phase
 

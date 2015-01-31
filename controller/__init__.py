@@ -12,13 +12,10 @@ programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
 from threading import Thread
-import core
 
 __all__ = [
     "Execute",
-    "LoadImage",
-    "SegmentImage",
-    "ProcessImage",
+    "ThreadWrapper",
 ]
 
 def Execute(*args):

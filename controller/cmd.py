@@ -11,54 +11,68 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from gui.event import EventBinder, PostEvent
+from core.patch import PatchWork
 from core.image import ImageWindow
-from core import SaveImage
-from . import pipeline as pl
+from gui.event import EventBinder, PostEvent
+from .pipeline import *
 
 import config
 
 @EventBinder("ImageSegmented")
-def OnImageSegmented(img, context):
+def OnImageSegmented(image, context):
     """
     Função invocada em reação ao evento ImageSegmented.
-    :param img Imagem segmentada.
+    :param image Imagem segmentada.
     :param context Contexto de execução.
     """
-    context.append(img)
+    win, patch = context
+    win[1].glue(patch.pos, patch.size, image.colorize())
+    win[2].glue(patch.pos, patch.size, image.colorize())
 
 @EventBinder("ImageProcessed")
-def OnImageProcessed(img, pcent, meter, context):
+def OnImageProcessed(image, pcent, meter, context):
     """
     Função invocada em reação ao evento ImageProcessed.
-    :param img Imagem processada.
-    :param pcent Porcentagem de falhas.
+    :param image Imagem resultante do processamento.
+    :param pcent Porcentagem de falhas encontradas.
     :param meter Metros de falhas encontrados.
-    :param context Contexto de execução.
     """
-    context.text("Falhas: %.2f metros (%d%%)" % (meter, pcent), (20, -50))
-    context.append(img)
+    win, patch = context
+    win[2].glue(patch.pos, patch.size, image)
+    win.text("Falhas: %.2f metros (%d%%)" % (meter, pcent), (20, -50))
 
-def ControlCommandLine(address, distance):
+def ControlCommandLine(address, distance, width, height, rate):
     """
     Executar o programa a partir da linha de comando, permitindo
     assim, o uso em plataformas diferenciadas onde a GUI não
     está disponível ou é incompatível.
     :param address Endereço da imagem alvo do processamento.
     :param distance Distância entre as linhas de plantação.
+    :param width Largura das amostras.
+    :param height Altura das amostras.
+    :param rate Porcentagem de amostras a serem selecionadas.
     """
-    comm = pl.Communication()
+    comm = Communication()
+    comm.push(load, normal, args = (address,))
 
-    comm.PushToStage(pl.LOAD, pl.NORMAL, args = (address,))
-    img = comm.PopResponse()[1]
-    win = ImageWindow(config.appname, img)
+    img, = comm.response()
+    patchw = PatchWork(img, width, height)
+    win = ImageWindow(config.appname, patchw, 3)
 
-    comm.PushToStage(pl.SEGMENT, pl.NORMAL, args = (img,))
-    img, comp, cmap = comm.PopResponse()[1]
-    PostEvent("ImageSegmented", img, context = win)
+    yes, no = patchw.chop().choose(rate)
+    comm.pushmany(segment, normal, [[(p.image,), (p,)] for p in yes])
+    comm.pushmany(segment,    low, [[(p.image,), (p,)] for p in no])
 
-    comm.PushToStage(pl.PROCESS, pl.NORMAL, args = (cmap, distance,))
-    img, lines, pcent, meter = comm.PopResponse()[1]
-    PostEvent("ImageProcessed", img, pcent, meter, context = win)
+    while comm.pendent():
+        response = comm.response()
 
-    SaveImage(address, img)
+        if response.stage == segment:
+            image, cmap = response
+            context = (win,) + response.context
+            PostEvent("ImageSegmented", image, context = context)
+            comm.push(process, response.priority, args = (cmap, distance), context = response.context)
+
+        elif response.stage == process:
+            image, pcent, meter = response
+            context = (win,) + response.context
+            PostEvent("ImageProcessed", image, pcent, meter, context = context)
