@@ -18,7 +18,7 @@ __all__ = [
     "ThreadWrapper",
 ]
 
-def Execute(*args):
+def Execute(args):
     """
     Executa o algoritmo com os dados parâmetros. Eventos são
     disparados e podem ter tratamentos diferenciados dependendo
@@ -28,11 +28,12 @@ def Execute(*args):
     """
     from .pipeline import InitPipeline, StopPipeline
 
-    if None in args:
+    if args.gui:
         from .ui import ControlUI as Control
         args = ()
     else:
         from .cmd import ControlCommandLine as Control
+        args = (args.image, args.distance, args.size[0], args.size[1], args.rate)
 
     InitPipeline()
     Control(*args)
