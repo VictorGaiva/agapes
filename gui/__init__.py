@@ -15,14 +15,15 @@ from .appmain import *
 
 __all__ = [
     "event",
-    "InitUI",
+    "Init",
 ]
 
-def InitUI():
+def Init(control):
     """
     Inicializa a interface gráfica do usuário, o que
     permite que o programa seja utilizado sem a
     necessidade do uso de uma linha de comando.
+    :param control Objeto de controle de execução.
     """
-    app = AppMain()
+    app = AppMain(control)
     app.MainLoop()

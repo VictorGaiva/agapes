@@ -11,16 +11,14 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from core.patch import PatchWork
-from core.image import Image
 from core.point import *
 from .event import PostEvent
 from . import image
 
-from copy import deepcopy
+from internal import FloatCanvas, GUIMode
 import wx
 
-class DropField(wx.Panel, wx.FileDropTarget):
+class DropField(FloatCanvas.FloatCanvas, wx.FileDropTarget):
     """
     Objeto responsável pela criação, administração de
     campos de drag and drop.
@@ -43,14 +41,14 @@ class DropField(wx.Panel, wx.FileDropTarget):
             self.shape = Point(*shape)
 
         @classmethod
-        def FromImage(cls, image):
+        def FromImage(cls, img):
             """
             Cria uma nova instância a partir de um objeto
             de imagem.
-            :param image Imagem a ser transformada em bitmap.
+            :param img Imagem a ser transformada em bitmap.
             :return ImageElement
             """
-            bitmap = wx.BitmapFromImage(image)
+            bitmap = wx.BitmapFromImage(img)
             return cls(bitmap)
 
         @classmethod
@@ -66,91 +64,39 @@ class DropField(wx.Panel, wx.FileDropTarget):
             bitmap = wx.BitmapFromBuffer(width, height, buf)
             return cls(bitmap, (width, height))
 
-    def __init__(self, parent, size = (568, 453), enable = True):
+    def __init__(self, parent, etarget, placeholder = False, size = (568, 453)):
         """
         Cria uma nova instância do objeto.
         :param parent Janela-pai da janela atual.
         :param size Tamanho a ser ocupado pelo widget.
-        :param enable Permite movimento da imagem com mouse?
+        :param placeholder Janela sem imagem?
         """
         self.size = Point(*size)
         self.parent = parent
-        self.enable = enable
+        self.placeholder = placeholder
+        self.etarget = etarget
+        self.index = None
+        self.list = []
 
-        wx.Panel.__init__(
-            self, parent, -1,
-            size = size
-        )
+        self.incount = []
+        self.outcount = []
+        self.total = 0.0
 
-        wx.FileDropTarget.__init__(
-            self
-        )
+        FloatCanvas.FloatCanvas.__init__(self, parent, -1, size, None, "Black")
+        wx.FileDropTarget.__init__(self)
 
-        self.iover =  self.ImageElement.FromImage(image.drag.over)
-        self.ilist = [self.ImageElement.FromImage(image.drag.init)]
-        self.original = []
-        self.index = 0
+        init = self.ImageElement.FromImage(image.drag.init)
+        over = self.ImageElement.FromImage(image.drag.over)
 
-        self.mousepos = None
-        self.hover = False
+        self.init =\
+            self.AddBitmap(init.bitmap, (0,0), 'cc', False) if placeholder else\
+            self.AddText("Carregando...", (0,0), 10, "White", Position = 'cc')
 
-        self.bmp = self.ilist[self.index].bitmap
-        self.pos = Point(0,0)
+        self.over = self.AddBitmap(over.bitmap, (0,0), 'cc', True)
+        self.over.Hide()
 
-        self.SetBackgroundColour("#CCCCCC")
         self.SetDropTarget(self)
-        self.BindEvents()
-
-    def SetImage(self, img, width, height):
-        """
-        Adiciona uma imagem à lista de imagens para exibição.
-        :param img Imagem a ser adicionada.
-        :param width Largura da imagem a ser adicionada.
-        :param height Largura da imagem a ser adicionada.
-        """
-        self.ilist.extend([
-            DropField.ImageElement.FromBuffer(img, width, height),
-            DropField.ImageElement.FromBuffer(img, width, height),
-            DropField.ImageElement.FromBuffer(img, width, height),
-        ])
-
-        self.original = [
-            PatchWork(Image(deepcopy(img)), 200, 200),
-            PatchWork(Image(deepcopy(img)), 200, 200),
-        ]
-
-        self.bmp = self.ilist[1].bitmap \
-            if not self.hover else self.iover.bitmap
-
-        self.index = 1
-        self.Refresh()
-
-    def ChangeImage(self, index, img, width, height):
-        """
-        Modifica a imagem presente em um dos índices da lista
-        de imagens para exibição.
-        :param index Índice alvo para da mudança.
-        :param img Imagem a ser adiciona na posição da anterior.
-        :param width Largura da imagem a ser adicionada.
-        :param height Largura da imagem a ser adicionada.
-        """
-        self.ilist[index] = \
-            DropField.ImageElement.FromBuffer(img, width, height)
-
-        self.bmp = self.ilist[index].bitmap \
-            if self.index == index and not self.hover else self.bmp
-
-        self.Refresh()
-
-    def ShowIndex(self, sid):
-        """
-        Muda a imagem a ser exibida.
-        :param sid Índice da imagem a ser mostrada.
-        """
-        self.index = sid if sid < len(self.ilist) else self.index
-        self.bmp = self.ilist[self.index].bitmap
-
-        self.Refresh()
+        #self.BindEvents()
 
     def BindEvents(self):
         """
@@ -162,15 +108,168 @@ class DropField(wx.Panel, wx.FileDropTarget):
         self.Bind(wx.EVT_MOTION, self.OnMotion)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
 
+    def SetImage(self, img, width, height):
+        """
+        Adiciona uma imagem à lista de imagens para exibição.
+        :param img Imagem a ser adicionada.
+        :param width Largura da imagem a ser adicionada.
+        :param height Largura da imagem a ser adicionada.
+        """
+        self.list.extend([
+            self.ImageElement.FromBuffer(img.raw, width, height),
+            self.ImageElement.FromBuffer(img.raw, width, height),
+            self.ImageElement.FromBuffer(img.raw, width, height),
+        ])
+
+        self.init.Hide()
+        self.height = height
+        self.bitmap = self.AddScaledBitmap(self.list[2].bitmap, (0,0), height, 'cc', False)
+        self.DrawGrid(img.shape, 200, 200)
+        self.ShowGrid(False)
+        self.SetMode(GUIMode.GUIMove())
+        self.index = 2
+
+        self.Draw(True)
+
+    def DrawGrid(self, imgsize, width, height):
+        """
+        Desenha a grade de retalhos da imagen.
+        :param imgsize Tamanho total da imagem.
+        :param width Largura de cada retalho.
+        :param height Altura de cada retalho.
+        """
+        tl = Point(-imgsize.x / 2, imgsize.y / 2)
+        e = []
+
+        for x in xrange(0, imgsize.x, width):
+            e.append(self.AddLine((tl + (x, 0), tl + (x, -imgsize.y)), "Green"))
+
+        for y in xrange(0, imgsize.y, height):
+            e.append(self.AddLine((tl - (0, y), tl - (-imgsize.x, y)), "Green"))
+
+        e.append(self.AddLine((tl + (imgsize.x, 0), tl + (imgsize.x, -imgsize.y)), "Green"))
+        e.append(self.AddLine((tl - (0, imgsize.y), tl - (-imgsize.x, imgsize.y)), "Green"))
+
+        self.grid = e
+
+    def ShowGrid(self, show):
+        """
+        Método responsável por controlar a exibição ou
+        não da grade de retalhos.
+        :param show Controle de exibição da grade.
+        """
+        if show:
+            for e in self.grid: e.Show()
+        else:
+            for e in self.grid: e.Hide()
+
+        self.Draw(True)
+
+    def ShowLocalResult(self, patch, pcent, contagem):
+        """
+        Exibe a porcentagem de falhas encontradas em um
+        retalho da imagem.
+        :param patch Informações sobre o retalho.
+        :param pcent Porcentagem de falhas encontradas.
+        :param contagem Faz parte da contagem total?
+        """
+        imgsize = self.list[0].shape
+        tl = Point(-imgsize.x / 2, imgsize.y / 2)
+
+        t = self.AddScaledTextBox(
+            "{0}%".format(pcent),
+            (tl.x + patch.pos.x + (patch.size.x / 2), tl.y - patch.pos.y - (patch.size.y / 2)),
+            25, "Green" if contagem else "Red",
+            Position = 'cc',
+            Alignment = 'center',
+            Weight = wx.BOLD,
+            LineColor = None
+        )
+
+        R = self.AddRectangle( (tl.x + patch.pos.x + 5, tl.y - patch.pos.y - 5), (patch.size.x - 10, -patch.size.y + 10),
+            LineColor = None, FillColor = None
+        )
+        R.Name = t
+        R.Bind(FloatCanvas.EVT_FC_LEFT_DCLICK, self.DeleteFromCount)
+
+        if contagem:
+            self.incount.append(t)
+            self.UpdateContagem()
+        else:
+            self.outcount.append(t)
+
+    def DeleteFromCount(self, obj):
+        """
+        Deleta um retalho da contagem de falhas.
+        :param obj Retalho clicado.
+        """
+        t = obj.Name
+
+        if t.Color == "Green":
+            self.incount.remove(t)
+            self.outcount.append(t)
+            t.Color = "Red"
+        else:
+            self.outcount.remove(t)
+            self.incount.append(t)
+            t.Color = "Green"
+
+        self.UpdateContagem()
+        self.Draw(True)
+
+    def UpdateContagem(self):
+        """
+        Calcula a porcentagem de falhas de acordo com os retalhos
+        selecionados.
+        """
+        count = 0.0
+        for t in self.incount:
+            count += float(t.String[:-1])
+        count /= len(self.incount)
+
+        PostEvent("UpdateContagem", self.etarget, count, len(self.incount))
+
+    def ChangeImage(self, index, patch, img):
+        """
+        Modifica a imagem presente em um dos índices da lista
+        de imagens para exibição.
+        :param index Índice alvo para da mudança.
+        :param patch Recorte de imagem e dados de clipagem.
+        :param img Imagem a ser costurada
+        """
+        dc = wx.BufferedDC(None, self.list[index].bitmap)
+
+        dc.DrawBitmap(
+            self.ImageElement.FromBuffer(img.raw, *img.shape).bitmap,
+            patch.pos.x, patch.pos.y, True
+        )
+
+        del dc
+
+        if index == self.index:
+            try:
+                self.bitmap.__init__(self.list[index].bitmap, (0,0), self.height, 'cc', False)
+                self.Draw(True)
+            except:
+                return
+
+    def ShowIndex(self, sid):
+        """
+        Muda a imagem a ser exibida.
+        :param sid Índice da imagem a ser mostrada.
+        """
+        self.index = sid if sid < len(self.list) else self.index
+        self.bitmap.__init__(self.list[self.index].bitmap, (0,0), self.height, 'cc', False)
+        self.Draw(True)
+
     def OnEnter(self, *args):
         """
         Método executado em reação ao evento Enter de
         wx.FileDropTarget .
         :return int
         """
-        self.hover = True
-        self.bmp = self.iover.bitmap
-        self.Refresh()
+        self.over.Show()
+        self.Draw(True)
 
         PostEvent("PushStatus", u'Solte a imagem e clique em "Processar" para processá-la.')
 
@@ -182,9 +281,8 @@ class DropField(wx.Panel, wx.FileDropTarget):
         wx.FileDropTarget .
         :return bool
         """
-        self.hover = False
-        self.bmp = self.ilist[self.index].bitmap
-        self.Refresh()
+        self.over.Hide()
+        self.Draw(True)
 
         PostEvent("PopStatus")
         PostEvent("DropFiles", filenames)
@@ -197,9 +295,8 @@ class DropField(wx.Panel, wx.FileDropTarget):
         wx.FileDropTarget .
         :return None
         """
-        self.hover = False
-        self.bmp = self.ilist[self.index].bitmap
-        self.Refresh()
+        self.over.Hide()
+        self.Draw(True)
 
         PostEvent("PopStatus")
 
@@ -243,5 +340,5 @@ class DropField(wx.Panel, wx.FileDropTarget):
         Método executado em reação ao evento OnPaint.
         :return None
         """
-        dc = wx.BufferedPaintDC(self)
-        dc.DrawBitmap(self.bmp, *self.pos if not self.hover else (0,0))
+        #dc = wx.BufferedPaintDC(self)
+        #dc.DrawBitmap(self.bmp, *self.pos if not self.hover else (0,0))

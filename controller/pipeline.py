@@ -134,6 +134,7 @@ def PipelineStage(idn, function):
             if not lqueue[priority].empty():
                 break
         else:
+            time.sleep(.5)
             continue
 
         output, args, context = lqueue[priority].get()
@@ -159,3 +160,146 @@ def StopPipeline():
     """
     global _alive
     _alive = False
+
+
+
+#from . import ThreadWrapper
+#from gui.event import PostEvent
+#from Queue import Queue as Q, Empty
+#import core
+#
+#low, normal, high = range(3)
+#load, segment, process = range(3)
+#ename = ["ImageLoad", "ImageSegment", "ImageProcess"]
+#
+#class Communication(object):
+#    """
+#    Objeto responsável pelo controle da comunicação
+#    de um thread com o Pipeline.
+#    """
+#
+#    def __init__(self, priority, first = load, last = process, context = {}):
+#        """
+#        Inicializa uma nova instância do objeto.
+#        :return Communication
+#        """
+#        self.priority = priority
+#        self.first, self.last = first, last
+#        self.context = context
+#        self.event = True
+#
+#        self.ready = Q()
+#        self.sent, self.rcvd = 0, 0
+#
+#    def Push(self, **args):
+#        """
+#        Adiciona uma tarefa a ser executada por um
+#        dos estágios do pipeline.
+#        :param args Argumentos a serem passados ao pipeline.
+#        """
+#        if load <= self.first <= self.last <= process:
+#            if low <= self.priority <= high:
+#                Pipeline.Push(self.first, self.priority, self, args or {})
+#                self.sent = self.sent + 1
+#
+#    def Notify(self, stage, args = {}, response = ()):
+#        """
+#        Recebe a resposta de um estágio do pipeline e
+#        trata a resposta de acordo com o necessário para
+#        a execução da tarefa. Esse método será sempre
+#        executado pelos threads do pipeline.
+#        :param stage Estágio responsável pela resposta.
+#        :param args Argumentos passados ao estágio de pipeline.
+#        :param response Resposta produzida pelo estágio.
+#        """
+#        if self.event:
+#            PostEvent(ename[stage], response, self.context)
+#
+#        if stage < self.last:
+#            args.update(response)
+#            Pipeline.Push(stage + 1, self.priority, self, args)
+#
+#        else:
+#            self.ready.put(response)
+#
+#    def Pop(self):
+#        """
+#        Resgata da pilha, valores retornados pelos
+#        estágios de execução do pipeline. Caso não hajam
+#        valores retornados ainda, esse método aguardará
+#        até que um valor seja retornado.
+#        :return mixed
+#        """
+#        if not self.Pendent():
+#            return None
+#
+#        response = self.ready.get()
+#        self.rcvd = self.rcvd + 1
+#
+#        return response
+#
+#    def Pendent(self):
+#        """
+#        Verifica se há alguma solicitação pendente para ser
+#        resgatada como resposta.
+#        :return bool Há solicitação pendente?
+#        """
+#        return self.sent != self.rcvd
+#
+#class Pipeline(object):
+#    """
+#    Objeto responsável pelo controle e administração do
+#    Pipeline que é executado em segundo plano pelo software.
+#    É necessário a utilização de uma instância de
+#    Communication para interagir com os threads do pipeline.
+#    """
+#    alive = True
+#    inq = [[Q(), Q(), Q()], [Q(), Q(), Q()], [Q(), Q(), Q()]]
+#
+#    @classmethod
+#    def Init(cls):
+#        """
+#        Inicializa a execução do pipeline de tarefas para
+#        o processamento seguro das imagens.
+#        """
+#        cls.Start(load, core.LoadImage)
+#        cls.Start(segment, core.SegmentImage)
+#        cls.Start(process, core.ProcessImage)
+#
+#    @classmethod
+#    def Stop(cls):
+#        """
+#        Finaliza a execução do pipeline de tarefas para
+#        o processamento de imagens.
+#        """
+#        cls.alive = False
+#
+#    @classmethod
+#    @ThreadWrapper
+#    def Start(cls, stage, function):
+#        """
+#        Inicializa um estágio do pipeline.
+#        :param stage Identificador do estágio.
+#        :param function Função a ser executada no estágio.
+#        """
+#        while cls.alive:
+#            for priority in [high, normal, low]:
+#                try:
+#                    outq, args = cls.inq[stage][priority].get(False)
+#                    outq.Notify(stage, args, function(**args))
+#                except Empty:
+#                    continue
+#                except:
+#                    outq.Notify(stage)
+#
+#    @classmethod
+#    def Push(cls, stage, priority, outq, args):
+#        """
+#        Adiciona uma tarefa a ser executada por um
+#        dos estágios do pipeline.
+#        :param stage Estágio alvo das tarefas.
+#        :param priority Prioridade de execução da tarefa.
+#        :param outq Instância de comunicação de Pipeline.
+#        :param args Lista de argumentos a serem passados ao pipeline.
+#        """
+#        cls.inq[stage][priority].put((outq, args))

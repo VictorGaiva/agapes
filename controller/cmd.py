@@ -41,36 +41,32 @@ def OnImageProcessed(image, pcent, meter, context):
     win[2].glue(patch.pos, patch.size, image)
     win.text("Falhas: %.2f metros (%d%%)" % (meter, pcent), (20, -50))
 
-def ControlCommandLine(address, distance, width, height, rate):
+def Init(args):
     """
     Executar o programa a partir da linha de comando, permitindo
     assim, o uso em plataformas diferenciadas onde a GUI não
     está disponível ou é incompatível.
-    :param address Endereço da imagem alvo do processamento.
-    :param distance Distância entre as linhas de plantação.
-    :param width Largura das amostras.
-    :param height Altura das amostras.
-    :param rate Porcentagem de amostras a serem selecionadas.
+    :param args Argumentos passados pela linha de comando.
     """
     comm = Communication()
-    comm.push(load, normal, args = (address,))
+    comm.Push(load, normal, args = (args.image,))
 
     img, = comm.response()
-    patchw = PatchWork(img, width, height)
+    patchw = PatchWork(img, args.size[0], args.size[1])
     win = ImageWindow(config.appname, patchw, 3)
 
-    yes, no = patchw.chop().choose(rate)
+    yes, no = patchw.chop().choose(args.rate)
     comm.pushmany(segment, normal, [[(p.image,), (p,)] for p in yes])
     comm.pushmany(segment,    low, [[(p.image,), (p,)] for p in no])
 
-    while comm.pendent():
+    while comm.Pendent():
         response = comm.response()
 
         if response.stage == segment:
             image, cmap = response
             context = (win,) + response.context
             PostEvent("ImageSegmented", image, context = context)
-            comm.push(process, response.priority, args = (cmap, distance), context = response.context)
+            comm.Push(process, response.priority, args = (cmap, args.distance), context = response.context)
 
         elif response.stage == process:
             image, pcent, meter = response

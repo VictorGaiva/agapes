@@ -22,12 +22,20 @@ class AppMain(wx.App):
     ações aplicadas por e realizadas sobre a janela.
     """
 
+    def __init__(self, control):
+        """
+        Cria uma nova instância do objeto.
+        :param control Objeto de controle de execução.
+        """
+        self.control = control
+        wx.App.__init__(self)
+
     def OnInit(self):
         """
         Inicializa exibição da GUI.
         :return None
         """
-        self.main = MainWindow(None, -1, config.appname)
+        self.main = MainWindow(self.control, -1, config.appname)
         self.SetTopWindow(self.main)
 
         return True

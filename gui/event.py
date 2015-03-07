@@ -157,6 +157,17 @@ def BindEvent(ename, function):
     """
     Event.listen(ename, function)
 
+def LinkEvent(obj, event, ename, args = ()):
+    """
+    Liga um evento built-in disparado em um objeto a um
+    evento tratado por esse módulo.
+    :param obj Objeto alvo do evento.
+    :param event Evento disparado no objeto.
+    :param ename Nome do evento a ser vinculado.
+    :param args Parâmetros de contexto.
+    """
+    obj.Bind(event, lambda *arg: PostEvent(ename, *(args + arg)))
+
 def PostEvent(ename, *args, **kwargs):
     """
     Dispara e executa um evento, passando os parâmetros

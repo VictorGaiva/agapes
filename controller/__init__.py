@@ -26,17 +26,14 @@ def Execute(args):
     uma GUI ou a partir da linha de comando.
     :param args Argumentos passados à função.
     """
+    #from .pipeline import Pipeline
     from .pipeline import InitPipeline, StopPipeline
+    md = __import__("ui" if args.gui else "cmd", globals(), locals(), [], -1)
 
-    if args.gui:
-        from .ui import ControlUI as Control
-        args = ()
-    else:
-        from .cmd import ControlCommandLine as Control
-        args = (args.image, args.distance, args.size[0], args.size[1], args.rate)
-
+    #Pipeline.Init()
     InitPipeline()
-    Control(*args)
+    md.Init(args)
+    #Pipeline.Stop()
     StopPipeline()
 
 def ThreadWrapper(function):
