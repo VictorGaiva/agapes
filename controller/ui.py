@@ -17,6 +17,8 @@ from threading import Condition
 from core.patch import PatchWork
 from gui.event import EventBinder, PostEvent, BindEvent
 from gui import Init as Start
+import os.path as path
+import os
 
 @EventBinder("ImageLoaded")
 def OnImageLoaded(img, context):
@@ -130,11 +132,22 @@ class Controller(object):
         img, = page.comm.response()
         page.patchw = PatchWork(img, 200, 200)
         PostEvent("ImageLoaded", page.patchw, context = (page,))
+        page.path = path.splitext(filename)[0]
+
+        try:
+            os.makedirs(page.path + path.sep + "segmented")
+            os.makedirs(page.path + path.sep + "processed")
+        except:
+            pass
+
         page.lock.wait()
 
         yes, no = page.patchw.chop().choose(0.6)
         page.comm.pushmany(segment, normal, [[(p.image,), (p,)] for p in yes])
         page.comm.pushmany(segment,    low, [[(p.image,), (p,)] for p in no])
+
+        scount = 0
+        pcount = 0
 
         while page.comm.pendent():
             response = page.comm.response()
@@ -142,12 +155,16 @@ class Controller(object):
             if response.stage == segment:
                 image, cmap = response
                 context = (page,) + response.context
+                image.save(page.path + path.sep + "segmented" + path.sep + "{0}.png".format(scount))
+                scount = scount + 1
                 PostEvent("ImageSegmented", image, context = context)
                 page.comm.push(process, response.priority, args = (cmap, page.dnum.Value), context = response.context)
 
             elif response.stage == process:
                 image, pcent, meter = response
                 context = (page,) + response.context
+                image.save(page.path + path.sep + "processed" + path.sep + "{0}.png".format(pcount))
+                pcount = pcount + 1
                 PostEvent("ImageProcessed", image, pcent, response.priority, context = context)
 
         page.lock.release()

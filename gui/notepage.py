@@ -34,6 +34,7 @@ class NotePage(wx.Panel):
         self.lock = None
         self.comm = None
         self.patch = None
+        self.path = None
 
         self.parent = parent
         self.enable = enable
