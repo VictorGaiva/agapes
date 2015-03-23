@@ -11,52 +11,69 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .pipeline import *
-from . import ThreadWrapper
 from threading import Condition
 from core.patch import PatchWork
 from gui.event import EventBinder, PostEvent, BindEvent
 from gui import Init as Start
+from .pipeline.communication import Communication
+from .pipeline.multistage import MultiStage
+from .pipeline.singlestage import SingleStage
+from .pipeline import *
+from . import ThreadWrapper
 import os.path as path
+import shutil
 import os
 
 @EventBinder("ImageLoaded")
-def OnImageLoaded(img, context):
+def OnImageLoaded(data, context):
     """
     Função invocada em reação ao evento ImageLoaded.
-    :param img Imagem carregada.
+    :param data Dados de execução.
     :param context Contexto de execução.
     """
-    page, = context
+    img = data.image
+    page = context.page
+
+    page.patchw = PatchWork(img, 200, 200)
+    page.path = path.splitext(data.address)[0]
+
+    if path.isdir(page.path):
+        shutil.rmtree(page.path)
+
+    os.makedirs(page.path + path.sep + "segmented")
+    os.makedirs(page.path + path.sep + "processed")
+
     page.drop.SetImage(img.normalize(), *img.shape)
 
 @EventBinder("ImageSegmented")
-def OnImageSegmented(img, context):
+def OnImageSegmented(data, context):
     """
     Função invocada em reação ao evento ImageSegmented.
-    :param img Imagem segmentada.
+    :param data Dados de execução.
     :param context Contexto de execução.
     """
-    page, patch = context
-    image = img.colorize().normalize()
+    page = context.page
+    image, nm = data.image, data.id
+    image = image.colorize().normalize()
 
-    page.drop.ChangeImage(1, patch, image)
-    page.drop.ChangeImage(2, patch, image)
+    page.drop.ChangeImage(1, data.patch, image)
+    page.drop.ChangeImage(2, data.patch, image)
+    image.save(page.path + path.sep + "segmented" + path.sep + str(nm) + ".png")
 
 @EventBinder("ImageProcessed")
-def OnImageProcessed(img, pcent, count, context):
+def OnImageProcessed(data, context):
     """
     Função invocada em reação ao evento ImageProcessed.
-    :param img Imagem processada.
-    :param pcent Porcentagem de falhas.
-    :param count É uma amostra aleatória selecionada?
+    :param data Dados de execução.
     :param context Contexto de execução.
     """
-    page, patch = context
-    image = img.normalize()
+    page = context.page
+    image, nm = data.image, data.id
+    image = image.normalize()
 
-    page.drop.ShowLocalResult(patch, pcent, count >= normal)
-    page.drop.ChangeImage(2, patch, image)
+    page.drop.ChangeImage(2, data.patch, image)
+    page.drop.ShowLocalResult(data.patch, data.percent, True)
+    image.save(page.path + path.sep + "processed" + path.sep + str(nm) + ".png")
 
 class Controller(object):
     """
@@ -126,47 +143,19 @@ class Controller(object):
         page.lock = Condition()
         page.lock.acquire()
 
-        page.comm = Communication()
-        page.comm.push(load, normal, args = (filename,))
+        page.comm = SingleStage(normal, load, page = page)
+        page.comm.push(address = filename)
 
-        img, = page.comm.response()
-        page.patchw = PatchWork(img, 200, 200)
-        PostEvent("ImageLoaded", page.patchw, context = (page,))
-        page.path = path.splitext(filename)[0]
-
-        try:
-            os.makedirs(page.path + path.sep + "segmented")
-            os.makedirs(page.path + path.sep + "processed")
-        except:
-            pass
-
+        img = page.comm.pop().image
         page.lock.wait()
 
-        yes, no = page.patchw.chop().choose(0.6)
-        page.comm.pushmany(segment, normal, [[(p.image,), (p,)] for p in yes])
-        page.comm.pushmany(segment,    low, [[(p.image,), (p,)] for p in no])
+        page.comm = MultiStage(normal, segment, process, page = page)
+        yes, no = page.patchw.chop().choose(1)
 
-        scount = 0
-        pcount = 0
+        for i, p in enumerate(yes):
+            page.comm.push(patch = p, distance = 1.5, id = i)
 
-        while page.comm.pendent():
-            response = page.comm.response()
-
-            if response.stage == segment:
-                image, cmap = response
-                context = (page,) + response.context
-                image.save(page.path + path.sep + "segmented" + path.sep + "{0}.png".format(scount))
-                scount = scount + 1
-                PostEvent("ImageSegmented", image, context = context)
-                page.comm.push(process, response.priority, args = (cmap, page.dnum.Value), context = response.context)
-
-            elif response.stage == process:
-                image, pcent, meter = response
-                context = (page,) + response.context
-                image.save(page.path + path.sep + "processed" + path.sep + "{0}.png".format(pcount))
-                pcount = pcount + 1
-                PostEvent("ImageProcessed", image, pcent, response.priority, context = context)
-
+        page.comm.consume()
         page.lock.release()
 
     def OnPageChanged(self, e):

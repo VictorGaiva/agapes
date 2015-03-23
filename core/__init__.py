@@ -21,46 +21,44 @@ __all__ = [
     "SegmentImage",
     "ProcessImage",
     "SaveImage",
-    "image"
 ]
 
-def LoadImage(address):
+def LoadImage(data):
     """
     Carrega uma imagem.
-    :param address Endereço da imagem a ser carregada.
+    :param data Dados de execução.
     :return Image Imagem carregada.
     """
-    image = Image.load(address)
-    return image
+    image = Image.load(data.address)
+    return dict(image = image)
 
-def SegmentImage(img):
+def SegmentImage(data):
     """
     Executa a segmentação da imagem.
-    :param img Imagem a ser segmentada.
-    :return Image, ComponentList, Map Lista de componentes.
+    :param data Dados de execução.
+    :return Image, Map Lista de componentes.
     """
-    sgmtr = Segmentator.train()
-    img = sgmtr.apply(img)
+    segment = Segmentator.train()
+    image = segment.apply(data.patch.image)
+    comp, compmap = ComponentList.load(image)
 
-    comps, cmap = ComponentList.load(img)
-    return img, cmap
+    return dict(image = image, compmap = compmap)
 
-def ProcessImage(cmap, distance):
+def ProcessImage(data):
     """
     Processa a imagem e procura por linhas de plantação
     de cana-de-açúcar; e desenha sobre a imagem as linhas
     encontradas.
-    :param cmap Mapa de componentes da imagem.
-    :param distance Distância entre linhas da plantação.
+    :param data Dados de execução.
     :return Image, float, float Porcentagem e metragem de falhas.
     """
-    lines = LineList.first(cmap, cmap.comp[1])
+    lines = LineList.first(data.compmap, data.compmap.comp[1])
     lines.complete()
 
-    img = lines.display(cmap.inverted)
-    pcent, meter = lines.error(distance)
+    image = lines.display(data.compmap.inverted)
+    pct, mtrs = lines.error(data.distance)
 
-    return img, pcent, meter
+    return dict(image = image, percent = pct, meters = mtrs)
 
 def SaveImage(original, image):
     """
