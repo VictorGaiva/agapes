@@ -61,7 +61,7 @@ class NotePage(wx.Panel):
         npg.plot.SetValue(opg.plot.GetValue())
         npg.dnum.SetValue(opg.dnum.GetValue())
         npg.dmtr.SetSelection(opg.dmtr.GetSelection())
-        npg.sample.SetValue(opg.sample.GetValue())
+        #npg.sample.SetValue(opg.sample.GetValue())
 
         return npg
 
@@ -101,20 +101,53 @@ class NotePage(wx.Panel):
         lado inferior esquerdo da aba.
         :return BoxSizer
         """
-        self.sample = wx.SpinCtrl(
-            self.root, -1, "", size = (60, 25),
-            min = 20, max = 90, initial = 50
-        )
-
-        amostratx = wx.StaticText(self.root, -1, "Amostras:")
-        porcenttx = wx.StaticText(self.root, -1, "%")
+        #self.sample = wx.SpinCtrl(
+        #    self.root, -1, "", size = (60, 25),
+        #    min = 20, max = 90, initial = 50
+        #)
+        #
+        #amostratx = wx.StaticText(self.root, -1, "Amostras:")
+        #porcenttx = wx.StaticText(self.root, -1, "%")
 
         root = wx.BoxSizer(wx.HORIZONTAL)
-        root.Add(amostratx, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
-        root.Add(self.sample, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
-        root.Add(porcenttx, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
+        #root.Add(amostratx, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
+        #root.Add(self.sample, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
+        #root.Add(porcenttx, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
+        root.Add(self.InitSelectionButtons(), 0, wx.ALIGN_RIGHT)
         root.Add((10,10), 1, wx.EXPAND)
         root.Add(self.InitPhaseButtons(), 0, wx.ALIGN_RIGHT)
+
+        return root
+
+    def InitSelectionButtons(self):
+        """
+        Inicializa os botões de controle de seleção e ferramentas
+        a serem utilizadas.
+        :return BoxSizer
+        """
+        self.sokay = wx.Button(self.root, -1, "OK", size = (25,25))
+        self.studo = wx.Button(self.root, -1, "TD", size = (25,25))
+        self.sadd = wx.Button(self.root, -1, "+", size = (25, 25))
+        self.sremove = wx.Button(self.root, -1, "-", size = (25,25))
+        self.sseg = wx.Button(self.root, -1, "SG", size = (25, 25))
+        self.stxt = wx.StaticText(self.root, -1, "")
+
+        self.sokay.Disable()
+        if not self.enable:
+            self.studo.Disable()
+        self.sadd.Disable()
+        self.sremove.Disable()
+        self.sseg.Disable()
+
+        root = wx.BoxSizer(wx.HORIZONTAL)
+        root.Add(self.sokay, 0, wx.RIGHT, 4)
+        root.Add(self.studo, 0, wx.RIGHT, 4)
+        root.Add(wx.StaticLine(self.root, style = wx.LI_VERTICAL), 0, wx.EXPAND)
+        root.Add(self.sadd, 0, wx.LEFT, 4)
+        root.Add(self.sremove, 0, wx.RIGHT | wx.LEFT, 4)
+        root.Add(wx.StaticLine(self.root, style = wx.LI_VERTICAL), 0, wx.EXPAND)
+        root.Add(self.sseg, 0, wx.LEFT, 4)
+        root.Add(self.stxt, 0, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 6)
 
         return root
 
@@ -122,7 +155,7 @@ class NotePage(wx.Panel):
         """
         Inicializa os botões de visualização de passos do algoritmo,
         localizados na parte inferior central da janela.
-        :return list
+        :return BoxSizer
         """
         self.phase = [
             wx.ToggleButton(self.root, 1, "O", size = (25, 25)),

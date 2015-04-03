@@ -55,7 +55,6 @@ class MainWindow(wx.Frame):
         """
         self.root = wx.Panel(self)
         self.book = wx.Notebook(self.root, -1, style = wx.BK_TOP | wx.NB_MULTILINE)
-        self.control.book = self.book
 
         wrapper = wx.BoxSizer()
         wrapper.Add(self.book, 1, wx.EXPAND | wx.ALL, 5)

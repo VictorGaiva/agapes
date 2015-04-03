@@ -36,6 +36,7 @@ class AppMain(wx.App):
         :return None
         """
         self.main = MainWindow(self.control, -1, config.appname)
+        self.control.bind(self.main)
         self.SetTopWindow(self.main)
 
         return True

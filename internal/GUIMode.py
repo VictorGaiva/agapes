@@ -202,14 +202,25 @@ class GUIMove(ZoomWithMouseWheel, GUIBase):
         self.Canvas.CaptureMouse()
         self.StartMove = N.array( event.GetPosition() )
         self.MidMove = self.StartMove
+        self.DownPoint = self.StartMove
         self.PrevMoveXY = (0,0)
 
     def OnLeftUp(self, event):
         #self.Canvas.SetCursor(self.Cursor)
         if self.StartMove is not None:
             self.EndMove = N.array(event.GetPosition())
+            diff = self.DownPoint == self.EndMove
+
+            if diff[0] and diff[1]:
+                self.OnClick(event)
+                return
+
             DiffMove = self.MidMove-self.EndMove
             self.Canvas.MoveImage(DiffMove, 'Pixel', ReDraw=True)
+
+    def OnClick(self, event):
+        if not self.Canvas.HitTest(event, FloatCanvas.EVT_FC_LEFT_DOWN):
+            self.Canvas._RaiseMouseEvent(event, FloatCanvas.EVT_FC_LEFT_DOWN)
 
     def OnLeftDouble(self, event):
         EventType = FloatCanvas.EVT_FC_LEFT_DCLICK
