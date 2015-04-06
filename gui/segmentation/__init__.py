@@ -175,7 +175,7 @@ class Window(wx.Frame):
         comm2.event, comm.event = False, False
 
         for i, e in enumerate(self.selection._elems):
-            comm.push(patch = e.patch, distance = 1.5, id = i)
+            comm.push(patch = e.patch, distance = 1.5, id = i, train = [x, y])
 
         while comm.pendent:
             data = comm.pop()
