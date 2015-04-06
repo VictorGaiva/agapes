@@ -38,7 +38,10 @@ def SegmentImage(data):
     :param data Dados de execução.
     :return Image, Map Lista de componentes.
     """
-    segment = Segmentator.train()
+    try:
+        segment = Segmentator.train(train = data.train)
+    except:
+        segment = Segmentator.train()
     image = segment.apply(data.patch.image)
     comp, compmap = ComponentList.load(image)
 

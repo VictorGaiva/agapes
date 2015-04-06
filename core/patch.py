@@ -17,6 +17,10 @@ from .image import Image
 import cv2 as cv
 import random
 
+#TODO: Utilizar como base um grafo, onde cada vértice é um retalho.
+#TODO: Utilizar esse grafo para facilitar a interação e navegação entre os retalhos.
+#TODO: Fazer um sistema de camadas em cada retalho. Onde cada camada é um passo do algoritmo.
+
 class Patch(object):
     """
     Objeto responsável por representar uma porção da imagem,

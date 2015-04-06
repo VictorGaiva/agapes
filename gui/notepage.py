@@ -126,22 +126,23 @@ class NotePage(wx.Panel):
         :return BoxSizer
         """
         self.sokay = wx.Button(self.root, -1, "OK", size = (25,25))
-        self.studo = wx.Button(self.root, -1, "TD", size = (25,25))
         self.sadd = wx.Button(self.root, -1, "+", size = (25, 25))
         self.sremove = wx.Button(self.root, -1, "-", size = (25,25))
         self.sseg = wx.Button(self.root, -1, "SG", size = (25, 25))
         self.stxt = wx.StaticText(self.root, -1, "")
 
         self.sokay.Disable()
-        if not self.enable:
-            self.studo.Disable()
         self.sadd.Disable()
         self.sremove.Disable()
         self.sseg.Disable()
 
+        LinkEvent(self.sokay, wx.EVT_BUTTON, "ButtonSOK", (self,))
+        LinkEvent(self.sadd, wx.EVT_BUTTON, "ButtonSAdd", (self,))
+        LinkEvent(self.sremove, wx.EVT_BUTTON, "ButtonSRemove", (self,))
+        LinkEvent(self.sseg, wx.EVT_BUTTON, "ButtonSSegment", (self,))
+
         root = wx.BoxSizer(wx.HORIZONTAL)
         root.Add(self.sokay, 0, wx.RIGHT, 4)
-        root.Add(self.studo, 0, wx.RIGHT, 4)
         root.Add(wx.StaticLine(self.root, style = wx.LI_VERTICAL), 0, wx.EXPAND)
         root.Add(self.sadd, 0, wx.LEFT, 4)
         root.Add(self.sremove, 0, wx.RIGHT | wx.LEFT, 4)

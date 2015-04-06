@@ -19,7 +19,7 @@ class Selection(object):
     seleção de retalhos.
     """
 
-    def __init__(self):
+    def __init__(self, page):
 
         """
         Cria uma nova instância do objeto.
@@ -28,6 +28,8 @@ class Selection(object):
         self._elems = []
         self._count = 0
         self._active = False
+
+        self.page = page
 
     def add(self, elem):
         """
@@ -58,12 +60,10 @@ class Selection(object):
         """
         if elem in self._elems:
             self.remove(elem)
-            print self._elems
             return False
 
         else:
             self.add(elem)
-            print self._elems
             return True
 
     def clean(self):

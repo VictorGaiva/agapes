@@ -82,7 +82,7 @@ class DropField(FloatCanvas.FloatCanvas, wx.FileDropTarget):
         self.total = 0.0
         self.incount = []
         self.outcount = []
-        self.selection = Selection()
+        self.selection = Selection(self.etarget)
 
         FloatCanvas.FloatCanvas.__init__(self, parent, -1, size, None, "Black")
         wx.FileDropTarget.__init__(self)
@@ -125,6 +125,8 @@ class DropField(FloatCanvas.FloatCanvas, wx.FileDropTarget):
 
         self.init.Hide()
         self.height = height
+        self.width = width
+        self.img = img
         self.bitmap = self.AddScaledBitmap(self.list[2].bitmap, (0,0), height, 'cc', False)
         self.DrawGrid(img.shape, 200, 200)
         self.ShowGrid(False)
@@ -181,7 +183,7 @@ class DropField(FloatCanvas.FloatCanvas, wx.FileDropTarget):
         t = self.AddScaledTextBox(
             "{0}%".format(pcent),
             (tl.x + patch.pos.x + (patch.size.x / 2), tl.y - patch.pos.y - (patch.size.y / 2)),
-            25, "Green" if contagem else "Red",
+            40, "Green" if contagem else "Red",
             Position = 'cc',
             Alignment = 'center',
             Weight = wx.BOLD,
@@ -198,6 +200,7 @@ class DropField(FloatCanvas.FloatCanvas, wx.FileDropTarget):
 
         S.Hide()
         R.Name = t
+        R.patch = patch
         R.S = S
 
         R.Bind(FloatCanvas.EVT_FC_LEFT_DOWN, self.SelectPatch)
@@ -251,7 +254,7 @@ class DropField(FloatCanvas.FloatCanvas, wx.FileDropTarget):
         count = 0.0
         for t in self.incount:
             count += float(t.String[:-1])
-        count /= len(self.incount)
+        count /= len(self.incount) or 1
 
         PostEvent("UpdateContagem", self.etarget, count, len(self.incount))
 

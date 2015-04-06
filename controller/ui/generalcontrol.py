@@ -46,7 +46,6 @@ class GeneralControl(object):
         BindEvent("PageChanged", self.OnPageChanged)
         self._window = window
 
-
         #Page events below
         self.book = self._window.book
         BindEvent("GridButton", self.OnGridButton)
@@ -55,6 +54,14 @@ class GeneralControl(object):
         BindEvent("ClosePage", self.OnClosePage)
         BindEvent("UpdateContagem", self.OnUpdateContagem)
 
+        BindEvent("ButtonSOK", self.OnButtonSOK)
+        BindEvent("ButtonSAdd", self.OnButtonSAdd)
+        BindEvent("ButtonSRemove", self.OnButtonSRemove)
+        BindEvent("ButtonSSegment", self.OnButtonSSegment)
+
+        BindEvent("SelectionAdd", self.OnSelectionAdd)
+        BindEvent("SelectionRemove", self.OnSelectionRemove)
+        BindEvent("SelectionClean", self.OnSelectionClean)
 
     def OnDropFiles(self, filenames):
         """
@@ -87,9 +94,9 @@ class GeneralControl(object):
         page.lock.wait()
 
         page.comm = MultiStage(normal, segment, process, page = page)
-        yes, no = page.patchw.chop().choose(1)
+        yes, no = page.patchw.chop().choose(0)
 
-        for i, p in enumerate(yes):
+        for i, p in enumerate(no):
             page.comm.push(patch = p, distance = 1.5, id = i)
 
         page.comm.consume()
@@ -158,3 +165,90 @@ class GeneralControl(object):
         target.result.SetLabel(u"{0}%".format(total))
         target.count.SetLabel(u"{0} amostras".format(count))
 
+    def OnButtonSOK(self, page, event):
+        """
+        Método executado em resposta ao evento ButtonSOK
+        """
+        while page.drop.selection._count > 0:
+            for elem in page.drop.selection._elems:
+                elem.S.Hide()
+                elem.Name.Show()
+                page.drop.selection.remove(elem)
+
+        page.drop.selection.clean()
+        page.drop.Draw(True)
+
+    def OnButtonSAdd(self, page, event):
+        """
+        Método executado em resposta ao evento ButtonSAdd
+        """
+        for elem in page.drop.selection._elems:
+            if elem.Name not in page.drop.incount:
+                page.drop.outcount.remove(elem.Name)
+                page.drop.incount.append(elem.Name)
+                elem.Name.Color = "Green"
+
+        page.drop.UpdateContagem()
+        page.drop.Draw(True)
+
+    def OnButtonSRemove(self, page, event):
+        """
+        Método executado em resposta ao evento ButtonSRemove
+        """
+        for elem in page.drop.selection._elems:
+            if elem.Name in page.drop.incount:
+                page.drop.incount.remove(elem.Name)
+                page.drop.outcount.append(elem.Name)
+                elem.Name.Color = "Red"
+
+        page.drop.UpdateContagem()
+        page.drop.Draw(True)
+
+    def OnButtonSSegment(self, page, event):
+        """
+        Método executado em resposta ao evento ButtonSSegment
+        """
+        from gui.segmentation import Window
+        self.__win = Window(page, page.drop.selection, -1, u"Controle de segmentação")
+
+    def OnSelectionAdd(self, selection):
+        """
+        Método executado em resposta ao evento SelectionAdd
+        """
+        selection.page.sokay.Enable()
+        selection.page.sadd.Enable()
+        selection.page.sremove.Enable()
+        selection.page.sseg.Enable()
+        selection.page.stxt.SetLabel(
+            "{0} retalho{1} selecionado{1}.".format(
+                selection._count, "s" if selection._count > 1 else ""
+            )
+        )
+
+    def OnSelectionRemove(self, selection):
+        """
+        Método executado em resposta ao evento SelectionRemove
+        """
+        if selection._count == 0:
+            selection.page.sokay.Disable()
+            selection.page.sadd.Disable()
+            selection.page.sremove.Disable()
+            selection.page.sseg.Disable()
+            selection.page.stxt.SetLabel("")
+
+        else:
+            selection.page.stxt.SetLabel(
+                "{0} retalho{1} selecionado{1}.".format(
+                    selection._count, "s" if selection._count > 1 else ""
+                )
+            )
+
+    def OnSelectionClean(self, selection):
+        """
+        Método executado em resposta ao evento SelectionClean
+        """
+        selection.page.sokay.Disable()
+        selection.page.sadd.Disable()
+        selection.page.sremove.Disable()
+        selection.page.sseg.Disable()
+        selection.page.stxt.SetLabel("")

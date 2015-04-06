@@ -147,12 +147,16 @@ class Image(object):
         raw = cv.cvtColor(self.raw, cv.COLOR_BGR2LAB)
         return Image(raw, self.inverted)
 
-    def normalize(self):
+    def normalize(self, color = True):
         """
         Normaliza a ordem dos canais no padrão RGB.
+        :param color Corrigir canais de cor?
         :return Imagem colorida gerada.
         """
-        raw = cv.cvtColor(self.raw, cv.COLOR_BGR2RGB)
+        if color:
+            raw = cv.cvtColor(self.raw, cv.COLOR_BGR2RGB)
+        else:
+            raw = self.raw
         img = Image(raw) if not self.inverted else Image(raw, True).transpose()
 
         return img
@@ -208,6 +212,9 @@ class ImageWindow(object):
         self.index = (quantity - 1) if index is None else index
         self.shape = img.shape
         self.word = None
+        self.mousecontrol = True
+        self.anchor = Point(0,0)
+        self.keep = True
 
         self.image = [
             Image(copy.deepcopy(
@@ -257,7 +264,7 @@ class ImageWindow(object):
         cv.setMouseCallback(self.wname, self.mouse)
         key = cv.waitKey(10) % 256
 
-        while key != 27:
+        while key != 27 and self.keep:
             self.frame()
             cv.setMouseCallback(self.wname, self.mouse)
             key = cv.waitKey(10) % 256
@@ -278,23 +285,27 @@ class ImageWindow(object):
         :param flag Flags do evento.
         :param param Parâmetros adicionais.
         """
-        if event == cv.EVENT_LBUTTONDOWN:
-            self._mousep = Point(x, y)
-        elif event == cv.EVENT_MOUSEMOVE and flag & cv.EVENT_FLAG_LBUTTON:
-            _x, _y = self.anchor + (self._mousep - (x, y))
+        if self.mousecontrol == True:
+            if event == cv.EVENT_LBUTTONDOWN:
+                self._mousep = Point(x, y)
+            elif event == cv.EVENT_MOUSEMOVE and flag & cv.EVENT_FLAG_LBUTTON:
+                _x, _y = self.anchor + (self._mousep - (x, y))
 
-            _x = _x if _x > 0 else 0
-            _y = _y if _y > 0 else 0
+                _x = _x if _x > 0 else 0
+                _y = _y if _y > 0 else 0
 
-            _x = _x if _x <= self.shape.x - self.wsize.x    \
-                else self.shape.x - self.wsize.x
+                _x = _x if _x <= self.shape.x - self.wsize.x    \
+                    else self.shape.x - self.wsize.x
 
-            _y = _y if _y <= self.shape.y - self.wsize.y    \
-                else self.shape.y - self.wsize.y
+                _y = _y if _y <= self.shape.y - self.wsize.y    \
+                    else self.shape.y - self.wsize.y
 
-            self._mousep = Point(x, y)
-            self.anchor = Point(_x, _y)
-            self.frame()
+                self._mousep = Point(x, y)
+                self.anchor = Point(_x, _y)
+                self.frame()
+
+        elif self.mousecontrol != False:
+            self.mousecontrol(event, x, y, flag, *param)
 
     def text(self, txt, pos, color = (255, 255, 0)):
         """

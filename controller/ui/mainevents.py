@@ -65,6 +65,6 @@ def OnImageProcessed(data, context):
     image = image.normalize()
 
     page.drop.ChangeImage(2, data.patch, image)
-    page.drop.ShowLocalResult(data.patch, data.percent, True)
+    page.drop.ShowLocalResult(data.patch, data.percent, False)
     image.save(page.path + path.sep + "processed" + path.sep + str(nm) + ".png")
 
