@@ -39,13 +39,16 @@ class Segmentator(object):
         self.knn.fit(x, y)
 
     @classmethod
-    def train(cls, trainfile = config.path + "/trainset.txt"):
+    def train(cls, trainfile = config.path + "/trainset.txt", train = None):
         """
         Treina uma instância de Segmentator para aplicação
         do algoritmo de segmentação.
         :param trainfile Arquivo de casos de teste.
         :return Segmentator Nova instância
         """
+        if train is not None:
+            return cls(*train)
+
         x, y = [], []
 
         with open(trainfile, "r") as trainl:

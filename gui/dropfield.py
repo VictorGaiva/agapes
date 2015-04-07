@@ -13,6 +13,7 @@ resultados obtidos com a imagem fornecida.
 """
 from core.point import *
 from .event import PostEvent
+from .selection import Selection
 from . import image
 
 from internal import FloatCanvas, GUIMode
@@ -78,9 +79,10 @@ class DropField(FloatCanvas.FloatCanvas, wx.FileDropTarget):
         self.index = None
         self.list = []
 
+        self.total = 0.0
         self.incount = []
         self.outcount = []
-        self.total = 0.0
+        self.selection = Selection(self.etarget)
 
         FloatCanvas.FloatCanvas.__init__(self, parent, -1, size, None, "Black")
         wx.FileDropTarget.__init__(self)
@@ -123,6 +125,8 @@ class DropField(FloatCanvas.FloatCanvas, wx.FileDropTarget):
 
         self.init.Hide()
         self.height = height
+        self.width = width
+        self.img = img
         self.bitmap = self.AddScaledBitmap(self.list[2].bitmap, (0,0), height, 'cc', False)
         self.DrawGrid(img.shape, 200, 200)
         self.ShowGrid(False)
@@ -179,18 +183,27 @@ class DropField(FloatCanvas.FloatCanvas, wx.FileDropTarget):
         t = self.AddScaledTextBox(
             "{0}%".format(pcent),
             (tl.x + patch.pos.x + (patch.size.x / 2), tl.y - patch.pos.y - (patch.size.y / 2)),
-            25, "Green" if contagem else "Red",
+            40, "Green" if contagem else "Red",
             Position = 'cc',
             Alignment = 'center',
             Weight = wx.BOLD,
             LineColor = None
         )
 
+        S = self.AddRectangle( (tl.x + patch.pos.x + 5, tl.y - patch.pos.y - 5), (patch.size.x - 10, -patch.size.y + 10),
+            LineColor = "Blue", LineWidth = 4, LineStyle = "LongDash", FillColor = None
+        )
+
         R = self.AddRectangle( (tl.x + patch.pos.x + 5, tl.y - patch.pos.y - 5), (patch.size.x - 10, -patch.size.y + 10),
             LineColor = None, FillColor = None
         )
+
+        S.Hide()
         R.Name = t
-        R.Bind(FloatCanvas.EVT_FC_LEFT_DCLICK, self.DeleteFromCount)
+        R.patch = patch
+        R.S = S
+
+        R.Bind(FloatCanvas.EVT_FC_LEFT_DOWN, self.SelectPatch)
 
         if contagem:
             self.incount.append(t)
@@ -217,6 +230,22 @@ class DropField(FloatCanvas.FloatCanvas, wx.FileDropTarget):
         self.UpdateContagem()
         self.Draw(True)
 
+    def SelectPatch(self, obj):
+        """
+        Cria uma janela para treinamento de um patch
+        específico para segmentação.
+        :param obj Retalho clicado.
+        """
+        if self.selection.toggle(obj):
+            obj.S.Show()
+            obj.Name.Hide()
+            self.Draw(True)
+
+        else:
+            obj.S.Hide()
+            obj.Name.Show()
+            self.Draw(True)
+
     def UpdateContagem(self):
         """
         Calcula a porcentagem de falhas de acordo com os retalhos
@@ -225,7 +254,7 @@ class DropField(FloatCanvas.FloatCanvas, wx.FileDropTarget):
         count = 0.0
         for t in self.incount:
             count += float(t.String[:-1])
-        count /= len(self.incount)
+        count /= len(self.incount) or 1
 
         PostEvent("UpdateContagem", self.etarget, count, len(self.incount))
 
