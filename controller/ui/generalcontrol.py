@@ -97,7 +97,7 @@ class GeneralControl(object):
         yes, no = page.patchw.chop().choose(0)
 
         for i, p in enumerate(no):
-            page.comm.push(patch = p, distance = 1.5, id = i)
+            page.comm.push(patch = p, distance = page.dnum.GetValue(), id = i)
 
         page.comm.consume()
         page.lock.release()

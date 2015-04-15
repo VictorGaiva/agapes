@@ -391,13 +391,16 @@ class LineList(object):
 
         return img
         
-    def error(self, distance):
+    def error(self, distance, inverted):
         """
         Contabiliza a porcentagem de erros nas linhas encontradas.
         @param distance Distância entre linhas em metros.
         @return float, int Porcentagem e metros de falhas encontradas.
+        @return inverted Imagem está invertida?
         """
-        img = Image.new(self.shape)
+        print "!!!!PATCH NOVO!!!!!"
+
+        img = Image.new(self.shape, inverted = inverted)
         red, blue = 0, 0
         distmedia = 0
         
@@ -409,36 +412,49 @@ class LineList(object):
             
             for comp in line.comps:
                 comp.draw(img, (255, 255, 255))
-            
+
+
             for y in xrange(line.up, line.down):
                 x = int(round(line.polynom(y)))
                 incomp = False
-                
-                for _x in xrange(x - 3, x + 3):
+
+                for _x in xrange(x - 5, x + 5):
                     if 0 <= _x < self.shape.x \
                     and self.map[_x, y] is not None and self.map[_x, y] in line.comps:
                         incomp = True
-                        
+                        break
+
                 if incomp:
+                    print len(points), ">", maxdist
                     if len(points) > maxdist:
-                        [cv.circle(img.raw, p, 0, (0, 0, 255), 2) for p in points]
+                        print "Entrei no gap azul"
+                        for p in points:
+                            cv.circle(img.raw, p, 0, (0,0,255),2)
                         red += len(points)
                     elif len(points) > 0:
-                        [cv.circle(img.raw, p, 0, (255, 0, 0), 2) for p in points]
+                        for p in points:
+                            cv.circle(img.raw, p, 0, (255,0,0),2)
                         blue += len(points)
-                    cv.circle(img.raw, (x, y), 0, (255, 0, 0), 2)
+
+                    cv.circle(img.raw, (x,y), 0, (255,0,0),2)
                     points = []
                     blue += 1
+
                 else:
-                    points.append(Point(x, y))
-                    
+                    points.append(Point(x,y))
+
             if len(points) > maxdist:
-                [cv.circle(img.raw, p, 0, (0, 0, 255), 2) for p in points]
+                for p in points:
+                    cv.circle(img.raw, p, 0, (0,0,255),2)
                 red += len(points)
             elif len(points) > 0:
-                [cv.circle(img.raw, p, 0, (255, 0, 0), 2) for p in points]
+                for p in points:
+                    cv.circle(img.raw, p, 0, (255,0,0),2)
                 blue += len(points)
+
+        if img.inverted:
+            img = img.transpose()
 
         total = red + blue
         metro = 2 * (distmedia / len(self.lines))
-        return (100 * red) / total, red / metro
+        return (100 * red) / total, red / metro, img

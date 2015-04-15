@@ -11,6 +11,7 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
+import cv2 as cv
 from gui.event import EventBinder
 from core.patch import PatchWork
 import os.path as path
@@ -66,5 +67,7 @@ def OnImageProcessed(data, context):
 
     page.drop.ChangeImage(2, data.patch, image)
     page.drop.ShowLocalResult(data.patch, data.percent, False)
+
+    image.raw = cv.cvtColor(image.raw, cv.COLOR_RGB2BGR)
     image.save(page.path + path.sep + "processed" + path.sep + str(nm) + ".png")
 
