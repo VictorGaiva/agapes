@@ -398,8 +398,6 @@ class LineList(object):
         @return float, int Porcentagem e metros de falhas encontradas.
         @return inverted Imagem está invertida?
         """
-        print "!!!!PATCH NOVO!!!!!"
-
         img = Image.new(self.shape, inverted = inverted)
         red, blue = 0, 0
         distmedia = 0
@@ -425,9 +423,7 @@ class LineList(object):
                         break
 
                 if incomp:
-                    print len(points), ">", maxdist
                     if len(points) > maxdist:
-                        print "Entrei no gap azul"
                         for p in points:
                             cv.circle(img.raw, p, 0, (0,0,255),2)
                         red += len(points)
