@@ -15,6 +15,7 @@ from controller.pipeline import high, segment
 from controller.pipeline.singlestage import SingleStage
 from core.image import Image, ImageWindow
 from core.patch import Patch, PatchWork
+from core.point import Point
 from ..event import LinkEvent, EventBinder, PostEvent
 from controller import ThreadWrapper
 from os import path
@@ -39,8 +40,10 @@ class Window(wx.Frame):
         self.page = parent
         self.__train = [[],[]]
 
+        self.parent = wx.Frame(parent)
+
         wx.Frame.__init__(
-            self, parent, wid, title,
+            self, self.parent, wid, title,
             size = (150, 170),
             style = wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER
         )
@@ -79,11 +82,12 @@ class Window(wx.Frame):
         self.root.SetSizer(root)
 
     @EventBinder("SegClose")
-    def OnSegClose(self, event):
+    def OnSegClose(self, event = None):
         """
         Fecha a janela.
         """
         self.win.keep = False
+        self.parent.Close()
 
     @EventBinder("ButtonTerra")
     def OnButtonTerra(self, event):
@@ -175,28 +179,29 @@ class Window(wx.Frame):
         comm2.event, comm.event = False, False
 
         for i, e in enumerate(self.selection._elems):
-            comm.push(patch = e.patch, distance = 1.5, id = i, train = [x, y])
+            comm.push(patch = e.patch, distance = 1.5, id = i, train = [x, y], e = e)
 
         while comm.pendent:
             data = comm.pop()
-            print "Pop segmented!, ", data.id
             img = data.image.colorize().normalize()
 
             self.page.drop.ChangeImage(1, data.patch, img)
             self.page.drop.ChangeImage(2, data.patch, img)
             img.save(self.page.path + path.sep + "segmented" + path.sep + str(data.id) + ".png")
-            comm2.push(patch = data.patch, image = data.image, distance = data.distance, id = data.id, compmap = data.compmap)
+            comm2.push(patch = data.patch, image = data.image, distance = data.distance, id = data.id, compmap = data.compmap, e = data.e)
 
         while comm2.pendent:
             data = comm2.pop()
-            print "Pop processed {0}! {1} ".format(data.id, data.percent)
             self.page.drop.ChangeImage(2, data.patch, data.image.normalize())
             print data.percent
-            e.Name.SetText("{0}%".format(data.percent))
-            img.save(self.page.path + path.sep + "processed" + path.sep + str(data.id) + ".png")
+            data.e.Name.SetText("{0}%".format(data.percent))
+            data.image.raw = cv.cvtColor(data.image.raw, cv.COLOR_RGB2BGR)
+            data.image.save(self.page.path + path.sep + "processed" + path.sep + str(data.id) + ".png")
             self.page.drop.Draw(True)
             self.page.drop.UpdateContagem()
 
+        self.win.keep = False
+        self.parent.Close()
         self.Close()
 
     def InitOpenCVWindow(self):
@@ -227,4 +232,5 @@ class Window(wx.Frame):
 
         self.win = ImageWindow("Segmentar", pwork, 2, 0)
         self.win.append(isegm)
+        self.win.anchor = Point(*self.selection._elems[0].patch.pos)
         self.win.index = 0
