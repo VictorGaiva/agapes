@@ -25,22 +25,12 @@ class Menu(wx.MenuBar):
         :param parent Janela-pai da janela atual.
         :return Menu
         """
-        wx.MenuBar.__init__(
-            self
-        )
+        wx.MenuBar.__init__(self)
 
-        self.file = wx.Menu()
         self.parent = parent
+        self.file = wx.Menu()
         self.quit = self.file.Append(wx.ID_EXIT, u"Sair", u"Sair da aplicação")
 
         self.Append(self.file, u"&Arquivo")
 
         parent.SetMenuBar(self)
-        self.BindEvents()
-
-    def BindEvents(self):
-        """
-        Víncula métodos do objeto a eventos que podem ser disparados.
-        :return None
-        """
-        self.parent.Bind(wx.EVT_MENU, self.parent.OnQuit, self.quit)

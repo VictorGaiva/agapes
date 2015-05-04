@@ -13,7 +13,7 @@ resultados obtidos com a imagem fornecida.
 """
 from os import path
 
-path = path.dirname(path.realpath(__file__))
+root = path.dirname(path.realpath(__file__))
 author = "Rodrigo Siqueira <rodriados@gmail.com>"
 appname = "PSG - Tecnologia Aplicada / LIA - FACOM - UFMS"
 version = "0.6"

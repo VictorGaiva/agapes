@@ -11,11 +11,13 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .point import Point
-from .image import Image
+import random
 
 import cv2 as cv
-import random
+
+from .util.point import Point
+from .image import Image
+
 
 #TODO: Utilizar como base um grafo, onde cada vértice é um retalho.
 #TODO: Utilizar esse grafo para facilitar a interação e navegação entre os retalhos.

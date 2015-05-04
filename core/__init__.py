@@ -11,10 +11,10 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .segmentator import *
-from .component import *
-from .image import *
-from .line import *
+from .segmentator import Segmentator
+from .component import ComponentList
+from .image import Image
+from .line import LineList
 
 __all__ = [
     "LoadImage",

@@ -11,12 +11,14 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .point import *
-from .map import *
+import copy
 
 import cv2 as cv
 import numpy
-import copy
+
+from .util import Point
+from .map import *
+
 
 class Component(object):
     """

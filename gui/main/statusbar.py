@@ -11,7 +11,7 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .event import BindEvent
+from controller.event import Event
 import wx
 
 class StatusBar(wx.StatusBar):
@@ -35,9 +35,9 @@ class StatusBar(wx.StatusBar):
         self.SetFieldsCount(1)
 
         parent.SetStatusBar(self)
-        self.BindEvents()
+        self.bind()
 
-    def Push(self, message):
+    def push(self, message):
         """
         Adiciona uma nova mensagem à pilha de mensagens da barra
         de status da janela atual.
@@ -45,17 +45,17 @@ class StatusBar(wx.StatusBar):
         """
         self.PushStatusText(message, 0)
 
-    def Pop(self):
+    def pop(self):
         """
         Remove uma mensagem da pilha de mensagens da barra
         de status da janela atual.
         """
         self.PopStatusText(0)
 
-    def BindEvents(self):
+    def bind(self):
         """
         Víncula métodos do objeto a eventos que podem ser disparados.
         :return None
         """
-        BindEvent("PopStatus", self.Pop)
-        BindEvent("PushStatus", self.Push)
+        Event("PopStatus").bind(self.pop)
+        Event("PushStatus").bind(self.push)

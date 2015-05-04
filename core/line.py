@@ -11,12 +11,14 @@ Este arquivo é responsével pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .component import *
-from .point import *
+import math
 
 import cv2 as cv
 import numpy
-import math
+
+from .component import *
+from .util.point import *
+
 
 class Line(ComponentList):
     """

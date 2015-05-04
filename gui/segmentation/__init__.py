@@ -11,16 +11,19 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
+from os import path
+
+import cv2 as cv
+import wx
+
 from controller.pipeline import high, segment
 from controller.pipeline.singlestage import SingleStage
 from core.image import Image, ImageWindow
 from core.patch import Patch, PatchWork
-from core.point import Point
-from ..event import LinkEvent, EventBinder, PostEvent
+from core.util.point import Point
+from ..event import LinkEvent, EventBinder
 from controller import ThreadWrapper
-from os import path
-import cv2 as cv
-import wx
+
 
 class Window(wx.Frame):
     """

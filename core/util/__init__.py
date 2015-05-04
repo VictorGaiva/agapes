@@ -11,14 +11,11 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .main import Control
-from gui import Init as Start
+from .point import Point
+from .vector import Vector
 
-def Init():
-    """
-    Inicializa a execução da interface gráfica de usuário.
-    Dessa forma, precisamos aguardar pelo usuário para que
-    algum processamento inicie.
-    """
-    control = Control()
-    Start(control)
+__all__ = [
+    "Point",
+    "Vector",
+    "Graph"
+]

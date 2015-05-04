@@ -14,11 +14,11 @@ resultados obtidos com a imagem fornecida.
 from threading import Thread
 
 __all__ = [
-    "Execute",
+    "execute",
     "ThreadWrapper",
 ]
 
-def Execute(args):
+def execute(args):
     """
     Executa o algoritmo com os dados parâmetros. Eventos são
     disparados e podem ter tratamentos diferenciados dependendo
@@ -30,7 +30,7 @@ def Execute(args):
     md = __import__("ui" if args.gui else "cmd", globals(), locals(), [], -1)
 
     Pipeline.init()
-    md.Init(args)
+    md.Init()
     Pipeline.stop()
 
 def ThreadWrapper(function):

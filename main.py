@@ -16,12 +16,10 @@ import argparse
 import sys
 import os
 
-sys.path.append(
-    os.path.dirname(__file__)
-)
+sys.path.append(os.path.dirname(__file__))
 
 if __name__ == '__main__':
-    from controller import Execute
+    from controller import execute
     import config
 
     while sys.argv[0] != __file__:
@@ -45,44 +43,11 @@ if __name__ == '__main__':
     )
 
     parser.add_argument(
-        "--size",
-        type = int,
-        nargs = 2,
-        default = (200, 200),
-        metavar = ("width", "height"),
-        help = u"largura e altura dos recortes para processamento"
-    )
-
-    parser.add_argument(
-        "--rate",
-        type = float,
-        default = 0.6,
-        metavar = "rate",
-        help = u"porcentagem de amostras a serem priorizadas"
-    )
-
-    parser.add_argument(
         "--no-gui",
         dest = "gui",
         action = "store_false",
         help = u"inicializa o programa em modo de linha de comando"
     )
 
-    parser.add_argument(
-        "image",
-        type = str,
-        nargs = "?",
-        action = "store",
-        help = u"imagem a ser processada e analisada"
-    )
-
-    parser.add_argument(
-        "distance",
-        type = float,
-        nargs = "?",
-        action = "store",
-        help = u"distância entre as linhas de plantação na região"
-    )
-
     args = parser.parse_args()
-    Execute(args)
+    execute(args)

@@ -11,7 +11,7 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from gui.event import PostEvent
+from ..event import Event
 from . import Pipeline, load, process, low, high, stagename
 from .communication import Communication
 from .container import Container
@@ -59,7 +59,7 @@ class MultiStage(Communication):
         data.update(**response)
 
         if self.event and stage > -1:
-            PostEvent(stagename[stage], data, self.context)
+            Event(stagename[stage]).post(data, self.context)
 
         if -1 < stage < self.last:
             Pipeline.push(stage + 1, self.priority, self, data)

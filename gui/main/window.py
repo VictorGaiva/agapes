@@ -11,11 +11,11 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .event import LinkEvent
-from .statusbar import *
-from .notepage import *
-from .menu import *
-
+from .notebook import Notebook
+from .notebook.report import ReportPage
+from .notebook.process import ProcessPage
+from .statusbar import StatusBar
+from .menu import Menu
 import config
 import wx
 
@@ -25,26 +25,23 @@ class MainWindow(wx.Frame):
     na janela principal da aplicação.
     """
 
-    def __init__(self, control, wid = wx.ID_ANY, title = ''):
+    def __init__(self, control, title = ''):
         """
         Cria uma nova instância do objeto.
-        :param control Objeto de controle de execução.
-        :param wid Identificador da nova janela a ser criada.
+        :param control Controlador da janela principal.
         :param title Título da nova janela.
+        :return MainWindow
         """
-        self.control = control
-        self.title = title
-
         wx.Frame.__init__(
-            self, None, wid, title,
+            self, None, -1, title,
             size = config.wsize,
             style = wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER
         )
 
-        self.InitUI()
-        self.menu = Menu(self)
-        self.status = StatusBar(self)
+        self.control = control
+        self.title = title
 
+        self.InitUI()
         self.Centre(wx.BOTH)
         self.Show()
 
@@ -54,21 +51,16 @@ class MainWindow(wx.Frame):
         locais corretos.
         """
         self.root = wx.Panel(self)
-        self.book = wx.Notebook(self.root, -1, style = wx.BK_TOP | wx.NB_MULTILINE)
+        self.book = Notebook(self, style = wx.BK_TOP | wx.NB_MULTILINE)
 
         wrapper = wx.BoxSizer()
         wrapper.Add(self.book, 1, wx.EXPAND | wx.ALL, 5)
+
         self.root.SetSizer(wrapper)
 
-        self.book.AddPage(NotePage(self.book), u"Planilha")
-        self.book.AddPage(NotePage(self.book, False), u"Talhões")
-        LinkEvent(self.book, wx.EVT_NOTEBOOK_PAGE_CHANGED, "PageChanged")
-
+        self.book.add(ReportPage, u"Planilha")
+        self.book.add(ProcessPage, u"Processar", True)
         self.book.ChangeSelection(1)
 
-    def OnQuit(self, *args):
-        """
-        Método a ser executado quando o programa estiver sendo fechado.
-        :return None
-        """
-        self.Close()
+        self.menu = Menu(self)
+        self.status = StatusBar(self)

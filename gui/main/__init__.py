@@ -11,8 +11,7 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .mainwindow import *
-
+from .window import MainWindow
 import config
 import wx
 
@@ -35,7 +34,7 @@ class AppMain(wx.App):
         Inicializa exibição da GUI.
         :return None
         """
-        self.main = MainWindow(self.control, -1, config.appname)
+        self.main = MainWindow(self.control, config.appname)
         self.control.bind(self.main)
         self.SetTopWindow(self.main)
 

@@ -11,7 +11,7 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .image import *
+from .image import Image
 
 from sklearn.neighbors import KNeighborsClassifier
 import config
@@ -39,7 +39,7 @@ class Segmentator(object):
         self.knn.fit(x, y)
 
     @classmethod
-    def train(cls, trainfile = config.path + "/trainset.txt", train = None):
+    def train(cls, trainfile = config.root + "/trainset.txt", train = None):
         """
         Treina uma instância de Segmentator para aplicação
         do algoritmo de segmentação.

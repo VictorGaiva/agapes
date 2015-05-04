@@ -12,7 +12,7 @@ programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
 from Queue import Queue
-from gui.event import PostEvent
+from ..event import Event
 from .container import Container
 from . import *
 
@@ -62,7 +62,7 @@ class Communication(object):
         data.update(**response)
 
         if self.event and stage > -1:
-            PostEvent(stagename[stage], data, self.context)
+            Event(stagename[stage]).post(data, self.context)
 
         self._ready.put( (stage, data) )
 

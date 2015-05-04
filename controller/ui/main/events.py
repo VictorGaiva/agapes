@@ -11,14 +11,10 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .main import Control
-from gui import Init as Start
 
-def Init():
+def PageChanged(book, e):
     """
-    Inicializa a execução da interface gráfica de usuário.
-    Dessa forma, precisamos aguardar pelo usuário para que
-    algum processamento inicie.
+    Callback para evento PageChanged.
+    :param book Objeto alvo do evento.
     """
-    control = Control()
-    Start(control)
+    pass
