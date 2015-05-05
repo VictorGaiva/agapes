@@ -12,7 +12,6 @@ programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
 from controller.event import Event
-from . import events as e
 import wx
 
 class Control(object):
@@ -55,4 +54,13 @@ class Control(object):
         """
         self.win = window
 
-        Event(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.win.book).bind(e.PageChanged)
+        Event("NewPage", self.win.book).bind(self.newpage)
+
+    def newpage(self, book, page):
+        """
+        Callback ao evento NewPage sobre win.book.
+        :param book Objeto alvo do evento.
+        :param page Página que disparou o evento.
+        :return Control[Page]
+        """
+        return book.add(page.__class__, u"#{0}".format(self.count - 2))

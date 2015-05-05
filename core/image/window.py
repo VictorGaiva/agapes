@@ -78,19 +78,19 @@ class Window(object):
         self.actual = Point(x, y)
 
         if event in [cv.EVENT_LBUTTONDOWN, cv.EVENT_RBUTTONDOWN]:
-            self.initial = self.actual
+            self.start = self.actual
             self.mark = self.spec.mark()
 
         elif event == cv.EVENT_MOUSEMOVE and flag & cv.EVENT_FLAG_LBUTTON:
-            diff = self.initial - self.actual
+            diff = self.start - self.actual
             self.spec.move(self.mark, *diff)
 
         elif event == cv.EVENT_MOUSEMOVE and flag & cv.EVENT_FLAG_RBUTTON:
-            diff = self.initial.vector - self.actual
+            diff = self.start.vector - self.actual
             self.spec.zoom(self.mark, diff.length * diff.versor[1] * 3)
 
         elif event in [cv.EVENT_LBUTTONUP, cv.EVENT_RBUTTONUP] \
-            and self.initial == self.actual:
+            and self.start == self.actual:
             Event("cvClick", self).post(self.actual, event)
 
         elif event in [cv.EVENT_LBUTTONDBLCLK, cv.EVENT_RBUTTONDBLCLK]:

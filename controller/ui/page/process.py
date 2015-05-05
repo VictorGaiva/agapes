@@ -12,9 +12,13 @@ programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
 from . import Control as BaseControl
+from controller import ThreadWrapper
 from controller.event import Event
+from core.image.spectator import Spectator
 from core.image import Image
+from core.util import Point
 from config import root
+import wx
 
 class Control(BaseControl):
     """
@@ -24,6 +28,7 @@ class Control(BaseControl):
     """
     _init = Image.load("{0}/img/dginit.png".format(root))
     _over = Image.load("{0}/img/dgover.png".format(root))
+    _wait = Image.load("{0}/img/dgwait.png".format(root))
 
     def __init__(self, parent, main = False):
         """
@@ -41,8 +46,13 @@ class Control(BaseControl):
         :param page Página a ser vinculada.
         """
         self.pg = page
-        #self.initmain() if self.first else self.waitprocess()
-        self.initmain()
+        self.initmain() if self.main else self.waitprocess()
+
+        if not self.main:
+            Event(wx.EVT_MOTION, self.pg.canvas).bind(self.mMotion)
+            Event(wx.EVT_MOUSEWHEEL, self.pg.canvas).bind(self.mWheel)
+            Event(wx.EVT_LEFT_DOWN, self.pg.canvas).bind(self.lDown)
+            Event(wx.EVT_LEFT_UP, self.pg.canvas).bind(self.lUp)
 
         Event("DropEnter", self.pg.canvas).bind(self.enter)
         Event("DropLeave", self.pg.canvas).bind(self.leave)
@@ -62,6 +72,24 @@ class Control(BaseControl):
 
         self.pg.canvas.set(self._init)
 
+    def waitprocess(self):
+        """
+        Mostra na página uma mensagem de aguardo. Essa imagem
+        somente será mudada quando uma imagem for enviada para
+        essa página.
+        """
+        self.pg.canvas.set(self._wait)
+
+    @ThreadWrapper
+    def initimage(self, fname):
+        """
+        Inicializa a imagem a ser processada por essa página.
+        :param fname Caminho do arquivo a ser aberto.
+        """
+        img = Image.load(fname).swap()
+        spec = Spectator(img, self.pg.canvas.size)
+        self.pg.canvas.set(spec)
+
     def enter(self, canvas):
         """
         Callback para o evento DropEnter.
@@ -76,11 +104,55 @@ class Control(BaseControl):
         """
         canvas.set(self._prev)
 
-    def drop(self, canvas, fname):
+    def drop(self, canvas, fnames):
         """
         Callback para o evento DropLeave.
         :param canvas Campo de drag-n-drop.
-        :param fname Arquivos a serem processados.
+        :param fnames Arquivos a serem processados.
         """
+        for fn in fnames:
+            newpg = Event("NewPage", self.parent.win.book).post(self.pg)
+            newpg.initimage(fn)
+
         self.leave(canvas)
-        print fname
+
+    def mMotion(self, canvas, e):
+        """
+        Callback para o evento de mouse MOTION.
+        :param canvas Campo de exibição de imagens
+        :param e Dados do evento.
+        """
+        if e.LeftIsDown():
+            diff = self._mstart - (e.x, e.y)
+            canvas.im.move(self._mark, *diff)
+            canvas.update()
+
+    def mWheel(self, canvas, e):
+        """
+        Callback para o evento de mouse MOUSEWHEEL.
+        :param canvas Campo de exibição de imagens
+        :param e Dados do evento.
+        """
+        self._mark = canvas.im.mark()
+        diff = e.GetWheelRotation() // e.GetWheelDelta()
+        canvas.im.zoom(self._mark, diff * 30)
+        canvas.update()
+
+    def lDown(self, canvas, e):
+        """
+        Callback para o evento de mouse LEFT_DOWN.
+        :param canvas Campo de exibição de imagens
+        :param e Dados do evento.
+        """
+        self._mstart = Point(e.GetX(), e.GetY())
+        self._mark = canvas.im.mark()
+        e.Skip()
+
+    def lUp(self, canvas, e):
+        """
+        Callback para o evento de mouse LEFT_UP.
+        :param canvas Campo de exibição de imagens
+        :param e Dados do evento.
+        """
+        if self._mstart == (e.x, e.y):
+            Event("Click", canvas).post((e.x, e.y), e)

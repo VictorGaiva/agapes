@@ -128,6 +128,14 @@ class Image(object):
         raw = cv.threshold(raw, thresh, value, cv.THRESH_BINARY)[1]
         return Image(raw)
 
+    def swap(self):
+        """
+        Inverte a ordem dos canais no padrão RGB.
+        :return Image
+        """
+        raw = cv.cvtColor(self.raw, cv.COLOR_BGR2RGB)
+        return Image(raw)
+
     def colorize(self):
         """
         Transforma uma imagem binária em uma imagem colorida.
@@ -142,14 +150,6 @@ class Image(object):
         :return Image
         """
         raw = cv.cvtColor(self.raw, cv.COLOR_BGR2LAB)
-        return Image(raw)
-
-    def normalize(self):
-        """
-        Normaliza a ordem dos canais no padrão RGB.
-        :return Image
-        """
-        raw = cv.cvtColor(self.raw, cv.COLOR_BGR2RGB)
         return Image(raw)
 
     def transpose(self):

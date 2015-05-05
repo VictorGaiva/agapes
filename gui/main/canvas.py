@@ -38,6 +38,7 @@ class Canvas(wx.Panel, wx.FileDropTarget):
         self.frames = 0
 
         Event(wx.EVT_PAINT, self).bind(Canvas.paint)
+        self.SetDoubleBuffered(True)
         self.SetDropTarget(self)
         self.init()
 
