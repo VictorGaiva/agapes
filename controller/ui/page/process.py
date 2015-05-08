@@ -79,6 +79,7 @@ class Control(BaseControl):
         essa página.
         """
         self.pg.canvas.set(self._wait)
+        self.pg.l_3.SetValue(True)
 
     @ThreadWrapper
     def initimage(self, fname):

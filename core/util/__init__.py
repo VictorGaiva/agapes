@@ -16,6 +16,5 @@ from .vector import Vector
 
 __all__ = [
     "Point",
-    "Vector",
-    "Graph"
+    "Vector"
 ]

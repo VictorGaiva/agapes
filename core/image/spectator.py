@@ -118,13 +118,17 @@ class Spectator(Image):
         :param value Quantidade de zoom a ser aplicado.
         """
         limits = (self.source.shape.x / 5, self.source.shape.x * 5)
-        before = mark.total.x
+        before = mark.total
 
-        value = min(max(200, limits[0], before + value), limits[1])
+        value = min(max(200, limits[0], before.x + value), limits[1])
 
         self.current = self.source.resize(0, (value, 200))
         self.total = self.current.shape
 
-        diff = self.total - mark.total
-        self.lt = mark.lt + diff // 2
-        self.rb = mark.rb + diff // 2
+        diff = self.total - before
+        media = (self.lt + self.rb) // 2
+        function = lambda dif, med, bef: dif * med // bef
+        correction = map(function, diff, media, before)
+
+        self.lt = mark.lt + correction
+        self.rb = mark.rb + correction
