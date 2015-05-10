@@ -24,18 +24,17 @@ class Grid(object):
     por armazenar e gerir as interações entre os elementos
     do gradeado.
     """
-    __slots__ = 'count', 'data'
 
-    def __init__(self, cols = 0, rows = 0):
+    def __init__(self, rows = 0, cols = 0):
         """
         Inicializa uma nova instância.
-        :param cols Quantidade de colunas iniciais.
         :param rows Quantidade de linhas iniciais.
+        :param cols Quantidade de colunas iniciais.
         :return Grid
         """
-        cols, rows = int(cols), int(rows)
+        rows, cols = int(rows), int(cols)
 
-        self.count = Point(cols, rows)
+        self.count = Point(rows, cols)
         self.data = [[None for i in xrange(cols + 1)] for j in xrange(rows + 1)]
 
     @property

@@ -11,40 +11,44 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from ..image import Image
-from ..grid import Grid
-from ..util import Point
-from .patch import Patch
+from core.grid import Grid
+from core.util import Point
+from core.image.list import List
+from .patch import LayeredPatch
+from .. import PatchWork
 from math import ceil
 
 __all__ = [
-    "PatchWork", "Patch"
+    "LayeredPatchWork", "LayeredPatch"
 ]
 
-class PatchWork(Image, Grid):
+class LayeredPatchWork(List, Grid):
     """
-    Colcha de retalhos de imagens. Representa a união de
-    vários retalhos que trabalham independentemente e, de
-    certa forma, unidos para a formação e modificação de uma
-    imagem.
+    Colcha de retalhos em camadas. Adiministra várias
+    colchas de retalhos de uma única vez. Para o correto
+    funcionamento, todas as colchas de retalhos devem
+    possuir o mesmo tamanho.
     """
 
-    def __init__(self, psize, image):
+    def __init__(self, psize, *image):
         """
         Inicializa uma nova instância do objeto.
         :param psize Tamanho dos retalhos.
-        :param image Imagem a ser recortada e manipulada por retalhos.
+        :param image Imagens a serem recortadas e manipuladas por retalhos.
         :return PatchWork
         """
         fpsz = float(psize[0]), float(psize[1])
 
-        Image.__init__(self, image.raw)
+        List.__init__(self, *image)
         Grid.__init__(self, ceil(self.shape.x / fpsz[0]), ceil(self.shape.y / fpsz[1]))
 
         self.psize = Point(*psize)
 
-    __getitem__ = Image.__getitem__
-    __setitem__ = Image.__setitem__
+    __getitem__ = List.__getitem__
+    __setitem__ = List.__setitem__
+
+    insert = Grid.insert
+    remove = Grid.remove
 
     def shred(self, least = 0.5):
         """
@@ -56,6 +60,19 @@ class PatchWork(Image, Grid):
         """
         for i, x in enumerate(xrange(0, self.shape.x, self.psize.x)):
             for j, y in enumerate(xrange(0, self.shape.y, self.psize.y)):
-                self.insert((i, j), Patch(self, (i, j), (x, y), self.psize))
+                self.insert((i,j), LayeredPatch(self, (i,j), (x,y), self.psize))
 
         self.filter(lambda p: p.fill > least)
+
+    def show(self, wname = "image"):
+        """
+        Mostra a imagem armazenada pelo objeto.
+        :return Window
+        """
+        from core.image.window import Window
+        from core.spectator.layered import LayeredSpectator
+
+        win = Window(self, wname, spec = LayeredSpectator)
+        win.show()
+
+        return win

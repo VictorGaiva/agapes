@@ -18,7 +18,6 @@ class Element(object):
     Representação de uma célula de uma tabela ou um
     sistema de grade.
     """
-    __slots__ = 'grid', 'pos', 'data'
 
     def __init__(self, grid, pos, data = None):
         """
@@ -38,7 +37,7 @@ class Element(object):
         Elemento localizado acima no gradeado.
         :return Element
         """
-        return self.grid.access(self.pos - (1, 0))
+        return self.grid.access(self.pos - (0, 1))
 
     @property
     def down(self):
@@ -46,7 +45,7 @@ class Element(object):
         Elemento localizado abaixo no gradeado.
         :return Element
         """
-        return self.grid.access(self.pos + (1, 0))
+        return self.grid.access(self.pos + (0, 1))
 
     @property
     def left(self):
@@ -54,7 +53,7 @@ class Element(object):
         Elemento localizado à esquerda no gradeado.
         :return Element
         """
-        return self.grid.access(self.pos - (0, 1))
+        return self.grid.access(self.pos - (1, 0))
 
     @property
     def right(self):
@@ -62,4 +61,4 @@ class Element(object):
         Elemento localizado à direita no gradeado.
         :return Element
         """
-        return self.grid.access(self.pos + (0, 1))
+        return self.grid.access(self.pos + (1, 0))

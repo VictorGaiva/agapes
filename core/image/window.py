@@ -12,7 +12,7 @@ programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
 from ..util import Point
-from .spectator import Spectator
+from ..spectator import Spectator
 from controller import ThreadWrapper
 from controller.event import Event
 import cv2 as cv
@@ -23,15 +23,16 @@ class Window(object):
     gráfica para mostrar e manipular uma imagem.
     """
 
-    def __init__(self, image, wname = 'image', shape = (800, 600)):
+    def __init__(self, image, wname = 'image', shape = (800, 600), spec = Spectator):
         """
         Inicializa e cria uma nova instância de objeto.
         :param image Imagem a ser exibida.
         :param wname Nome da janela a ser criada.
         :param shape Tamanho da janela de exibição.
+        :param spec Espectador a ser utilizado pela janela.
         :return Window
         """
-        self.spec = Spectator(image, shape)
+        self.spec = spec(image, shape)
         self.source = image
 
         self.shape = shape

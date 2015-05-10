@@ -143,6 +143,7 @@ class ProcessPage(Panel):
         self.l_1 = ToggleButton(self.root, 1, "O", size = (25,25))
         self.l_2 = ToggleButton(self.root, 2, "S", size = (25,25))
         self.l_3 = ToggleButton(self.root, 3, "L", size = (25,25))
+        self.l = [self.l_1, self.l_2, self.l_3]
 
         root = BoxSizer(HORIZONTAL)
         root.Add(self.l_g, 0, RIGHT, 4)

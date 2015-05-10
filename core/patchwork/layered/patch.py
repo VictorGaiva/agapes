@@ -11,28 +11,30 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from ..image import Image
-from ..util import Point
-from ..grid import Element
+from core.image.list import List
+from core.grid import Element
+from core.util import Point
+from ..patch import Patch
 import cv2 as cv
 
-class Patch(Image, Element):
+class LayeredPatch(List, Element):
     """
-    Representação de um retalho de imagem. Administra
-    e pode modificar um pedaço de uma imagem.
+    Representação de um retalho de imagem em camadas.
+    Administra e pode modificar um pedaço de uma lista
+    de imagens.
     """
 
-    def __init__(self, pwork, elem, pos, psize):
+    def __init__(self, lpwork, elem, pos, psize):
         """
         Inicializa uma nova instância do objeto.
-        :param pwork Colcha de retalhos que contém esse retalho.
+        :param lpwork Colcha de retalhos em camadas que contém esse retalho.
         :param elem Posição do elemento no gradeado.
         :param pos Posição do retalho sobre a imagem.
         :param psize Tamanho do retalho sobre a imagem.
         :return Patch
         """
-        Element.__init__(self, pwork, elem)
-        Image.__init__(self, pwork.region(pos, psize).raw)
+        List.__init__(self, *[Patch(im, elem, pos, psize) for im in lpwork])
+        Element.__init__(self, lpwork, elem)
 
         self.psize = Point(*psize)
 
@@ -48,11 +50,15 @@ class Patch(Image, Element):
 
         return value / float(self.psize.x * self.psize.y)
 
-    def sew(self, image):
+    def sew(self, image, start = None, end = None):
         """
-        Costura uma imagem na região coberta pelo retalho.
-        A imagem a ser costurada precisa possuir as mesmas
-        dimensões do retalho.
+        Costura uma imagem às regiões cobertas pelo retalhos
+        selecionados. A imagem a ser costurada precisa possuir
+        as mesmas dimensões dos retalhos.
+        :param start Índice inicial para costurar.
+        :param end Índice final
         :param image Imagem a ser costurada.
+        :return:
         """
-        self.raw[:,:] = image.raw[:,:]
+        for patch in self[start:end]:
+            patch.sew(image)

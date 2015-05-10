@@ -11,6 +11,7 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
+from copy import deepcopy
 from ..util import Point
 import cv2 as cv
 import numpy
@@ -95,6 +96,16 @@ class Image(object):
 
         return Image(raw)
 
+    def copy(self):
+        """
+        Produz uma cópia profunda do imagem armazenada.
+        Permite fazer alterações sobre essa imagem sem
+        alterar a cópia original.
+        :return Image
+        """
+        raw = deepcopy(self.raw)
+        return Image(raw)
+
     def rect(self, p1, p2):
         """
         Retorna uma subimagem, ou seja, apenas um recorte
@@ -103,7 +114,8 @@ class Image(object):
         :param p2 Canto inferior direito da região a ser recortada.
         :return Image
         """
-        raw = self[p1[0] : p2[0], p1[1] : p2[1]]
+        #raw = self[p1[0] : p2[0], p1[1] : p2[1]]
+        raw = self.raw[p1[1] : p2[1], p1[0] : p2[0]]
         return Image(raw)
 
     def region(self, pos, size):
@@ -114,7 +126,8 @@ class Image(object):
         :param size Tamanho da região a ser recortada.
         :return Image
         """
-        raw = self[pos[0] : pos[0] + size[0], pos[1] : pos[1] + size[1]]
+        #raw = self[pos[0] : pos[0] + size[0], pos[1] : pos[1] + size[1]]
+        raw = self.raw[pos[1] : pos[1] + size[1], pos[0] : pos[0] + size[0]]
         return Image(raw)
 
     def binarize(self, thresh = 127, value = 255):
@@ -165,11 +178,14 @@ class Image(object):
     def show(self, wname = "image"):
         """
         Mostra a imagem armazenada pelo objeto.
+        :return Window
         """
         from .window import Window
 
         win = Window(self, wname)
         win.show()
+
+        return win
 
     def save(self, filename = "image.png"):
         """

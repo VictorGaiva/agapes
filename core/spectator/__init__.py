@@ -11,8 +11,8 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from ..util import Point
-from . import Image
+from core.util import Point
+from core.image import Image
 import cv2 as cv
 
 class Spectator(Image):
@@ -53,13 +53,13 @@ class Spectator(Image):
         """
         Inicializa e cria uma nova instância do objeto.
         :param image Imagem a ser exibida.
-        :param shape Tamanho do campo de visão para a imagem.
+        :param shape Formato do campo de visão para a imagem.
         :return Spectator
         """
         self.shape = Point(*shape)
-        self.current = self.source = image
+        self.actual = self.im = image
 
-        self.total = image.shape
+        self.total = self.im.shape
         self.lt = (self.total - self.shape) // 2
         self.rb = (self.total + self.shape) // 2
 
@@ -78,7 +78,7 @@ class Spectator(Image):
         l, r = (self.shape.x, 0) if (l + r) > self.shape.x else (l, r)
         t, b = (self.shape.y, 0) if (t + b) > self.shape.y else (t, b)
 
-        raw = self.current.rect(map(f0, self.lt), map(f0, self.rb)).raw
+        raw = self.actual.rect(map(f0, self.lt), map(f0, self.rb)).raw
         return cv.copyMakeBorder(raw, t, b, l, r, cv.BORDER_CONSTANT, value = 0)
 
     def imgpos(self, px, py):
@@ -99,7 +99,7 @@ class Spectator(Image):
         Utilizado para as transformações de movimentação e
         zoom no campo de visão.
         """
-        return Spectator.Marker(self)
+        return self.Marker(self)
 
     def move(self, mark, dx, dy):
         """
@@ -117,18 +117,21 @@ class Spectator(Image):
         :param mark Estado de início do movimento.
         :param value Quantidade de zoom a ser aplicado.
         """
-        limits = (self.source.shape.x / 5, self.source.shape.x * 5)
+        limits = (self.im.shape.x / 10, self.im.shape.x * 5)
         before = mark.total
 
-        value = min(max(200, limits[0], before.x + value), limits[1])
+        value = min(max(50, limits[0], before.x + value), limits[1])
 
-        self.current = self.source.resize(0, (value, 200))
-        self.total = self.current.shape
+        self.actual = self.im.resize(0, (value, 50))
+        self.total = self.actual.shape
 
         diff = self.total - before
-        media = (self.lt + self.rb) // 2
-        function = lambda dif, med, bef: dif * med // bef
-        correction = map(function, diff, media, before)
+        self.lt = mark.lt + diff // 2
+        self.rb = mark.rb + diff // 2
 
-        self.lt = mark.lt + correction
-        self.rb = mark.rb + correction
+    def update(self):
+        """
+        Atualiza a imagem observada. Mostra as alterações
+        realizadas na imagem alvo de observação.
+        """
+        self.actual = self.im.resize(0, self.total)

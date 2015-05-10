@@ -11,12 +11,14 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
+from core.patchwork.layered import LayeredPatchWork
+from core.spectator.grid import GridSpectator
 from . import Control as BaseControl
 from controller import ThreadWrapper
 from controller.event import Event
-from core.image.spectator import Spectator
 from core.image import Image
 from core.util import Point
+from . import events as e
 from config import root
 import wx
 
@@ -48,15 +50,19 @@ class Control(BaseControl):
         self.pg = page
         self.initmain() if self.main else self.waitprocess()
 
+        Event("DropEnter", self.pg.canvas).bind(self.enter)
+        Event("DropLeave", self.pg.canvas).bind(self.leave)
+        Event("DropFiles", self.pg.canvas).bind(self.drop)
+
         if not self.main:
+            Event(wx.EVT_TOGGLEBUTTON, self.pg.l_g).bind(e.grid, self)
+            Event(wx.EVT_TOGGLEBUTTON, self.pg.l_1).bind(e.layer, self)
+            Event(wx.EVT_TOGGLEBUTTON, self.pg.l_2).bind(e.layer, self)
+            Event(wx.EVT_TOGGLEBUTTON, self.pg.l_3).bind(e.layer, self)
             Event(wx.EVT_MOTION, self.pg.canvas).bind(self.mMotion)
             Event(wx.EVT_MOUSEWHEEL, self.pg.canvas).bind(self.mWheel)
             Event(wx.EVT_LEFT_DOWN, self.pg.canvas).bind(self.lDown)
             Event(wx.EVT_LEFT_UP, self.pg.canvas).bind(self.lUp)
-
-        Event("DropEnter", self.pg.canvas).bind(self.enter)
-        Event("DropLeave", self.pg.canvas).bind(self.leave)
-        Event("DropFiles", self.pg.canvas).bind(self.drop)
 
     def initmain(self):
         """
@@ -87,9 +93,13 @@ class Control(BaseControl):
         Inicializa a imagem a ser processada por essa página.
         :param fname Caminho do arquivo a ser aberto.
         """
-        img = Image.load(fname).swap()
-        spec = Spectator(img, self.pg.canvas.size)
-        self.pg.canvas.set(spec)
+        img = Image.load(fname)
+
+        self.im = LayeredPatchWork((200,200), img, img.swap(), img.swap(), img.swap())
+        self.sp = GridSpectator(self.im, self.im.psize, self.pg.canvas.size)
+        self.pg.canvas.set(self.sp)
+
+        self.im.shred()
 
     def enter(self, canvas):
         """
@@ -136,7 +146,8 @@ class Control(BaseControl):
         """
         self._mark = canvas.im.mark()
         diff = e.GetWheelRotation() // e.GetWheelDelta()
-        canvas.im.zoom(self._mark, diff * 30)
+        canvas.im.zoom(self._mark, diff * 45)
+        canvas.im.update()
         canvas.update()
 
     def lDown(self, canvas, e):

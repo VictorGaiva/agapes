@@ -11,7 +11,6 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from core.util import Point
 from . import Image
 
 class List(Image, list):
@@ -29,7 +28,10 @@ class List(Image, list):
         list.__init__(self, source)
 
         self.i = self.length - 1
-        self.actual = self[self.i] if self.length > 0 else Image.new((100,100))
+        self.actual = self[self.i] if self.length else Image.new((100,100))
+
+    __getitem__ = list.__getitem__
+    __setitem__ = list.__setitem__
 
     @property
     def length(self):
