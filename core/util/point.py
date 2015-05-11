@@ -39,6 +39,16 @@ class Point(tuple):
         self.x = x
         self.y = y
 
+    def __call__(self, function):
+        """
+        Retorna um ponto em que os valores são os
+        valores de retorno da função aplicada em cada
+        coordenada.
+        :param function Função a ser aplicada.
+        :return Point
+        """
+        return Point(function(self.x), function(self.y))
+
     def __add__(self, other):
         """
         Implementa a soma de dois pontos.
@@ -77,7 +87,10 @@ class Point(tuple):
         :param value Escalar para a multiplicação.
         :return Point
         """
-        return Point(self.x * value, self.y * value)
+        if type(value) not in [tuple, list, Point]:
+            value = (value, value)
+
+        return Point(self.x * value[0], self.y * value[1])
 
     def __rmul__(self, value):
         """
@@ -85,7 +98,10 @@ class Point(tuple):
         :param value Escalar para a multiplicação.
         :return Point
         """
-        return Point(value * self.x, value * self.y)
+        if type(value) not in [tuple, list, Point]:
+            value = (value, value)
+
+        return Point(value[0] * self.x, value[1] * self.y)
 
     def __div__(self, value):
         """
@@ -93,7 +109,10 @@ class Point(tuple):
         :param value Escalar para a divisão.
         :return Point
         """
-        return Point(self.x / float(value), self.y / float(value))
+        if type(value) not in [tuple, list, Point]:
+            value = (value, value)
+
+        return Point(self.x / float(value[0]), self.y / float(value[1]))
 
     def __rdiv__(self, value):
         """
@@ -101,7 +120,10 @@ class Point(tuple):
         :param value Escalar para a divisão.
         :return Point
         """
-        return Point(value / float(self.x), value / float(self.y))
+        if type(value) not in [tuple, list, Point]:
+            value = (value, value)
+
+        return Point(value[0] / float(self.x), value[1] / float(self.y))
 
     def __floordiv__(self, value):
         """
@@ -109,7 +131,10 @@ class Point(tuple):
         :param value Escalar para a divisão.
         :return Point
         """
-        return Point(int(self.x // value), int(self.y // value))
+        if type(value) not in [tuple, list, Point]:
+            value = (value, value)
+
+        return Point(int(self.x // value[0]), int(self.y // value[1]))
 
     def __rfloordiv__(self, value):
         """
@@ -117,7 +142,10 @@ class Point(tuple):
         :param value Escalar para a divisão.
         :return Point
         """
-        return Point(int(value // self.x), int(value // self.y))
+        if type(value) not in [tuple, list, Point]:
+            value = (value, value)
+
+        return Point(int(value[0] // self.x), int(value[1] // self.y))
 
     def __abs__(self):
         """

@@ -29,12 +29,12 @@ class GridSpectator(Spectator):
         :param image Image a ser exibida.
         :param cellsize Tamanho de cada célula da grade.
         :param shape Formato do campo de visão para a imagem.
-        :return LayeredSpectator
+        :return GridSpectator
         """
         Spectator.__init__(self, image, shape)
 
         self.cellsize = Point(*cellsize)
-        self.active = False
+        self.grid = False
 
     def update(self):
         """
@@ -42,14 +42,14 @@ class GridSpectator(Spectator):
         realizadas na imagem alvo de observação.
         """
         super(GridSpectator, self).update()
-        self.drawgrid() if self.active else None
+        self.drawgrid() if self.grid else None
 
     def showgrid(self, value):
         """
         Interruptor de desenho de grade.
         :param value A grade deve ser mostrada?
         """
-        self.active = value
+        self.grid = value
         self.update()
 
     def drawgrid(self, color = (0, 255, 0)):
@@ -57,14 +57,13 @@ class GridSpectator(Spectator):
         Desenha a grade de retalhos sobre a imagem.
         :param color Cor das linhas de grade.
         """
-        rel = self.actual.shape.x / float(self.im.shape.x)
-        rsz = self.cellsize * rel
+        cell = self.cellsize * self.rel[0]
         img = self.actual
 
-        for x in interpolate(0, img.shape.x, rsz.x):
+        for x in interpolate(0, img.shape.x, cell.x):
             cv.line(img.raw, (x, 0), (x, img.shape.y - 1), color, 1)
 
-        for y in interpolate(0, img.shape.y, rsz.y):
+        for y in interpolate(0, img.shape.y, cell.y):
             cv.line(img.raw, (0, y), (img.shape.x - 1, y), color, 1)
 
         last = img.shape - (1,1)

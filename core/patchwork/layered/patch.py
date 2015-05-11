@@ -15,9 +15,8 @@ from core.image.list import List
 from core.grid import Element
 from core.util import Point
 from ..patch import Patch
-import cv2 as cv
 
-class LayeredPatch(List, Element):
+class LayeredPatch(Patch, List, Element):
     """
     Representação de um retalho de imagem em camadas.
     Administra e pode modificar um pedaço de uma lista
@@ -38,17 +37,8 @@ class LayeredPatch(List, Element):
 
         self.psize = Point(*psize)
 
-    @property
-    def fill(self):
-        """
-        Calcula a área não-vazia do retalho em relação ao
-        tamanho que o retalho deveria ter.
-        :return float
-        """
-        imgb = self.binarize(thresh = 25).raw
-        value = cv.countNonZero(imgb)
-
-        return value / float(self.psize.x * self.psize.y)
+    __getitem__ = List.__getitem__
+    __setitem__ = List.__setitem__
 
     def sew(self, image, start = None, end = None):
         """

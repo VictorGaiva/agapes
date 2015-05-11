@@ -59,7 +59,12 @@ class Spectator(Image):
         self.shape = Point(*shape)
         self.actual = self.im = image
 
+        # Relações de tamanhos.
+        # rel[0]: proporção tamanho original -> tamanho atual
+        # rel[1]: proporção tamanho atual -> tamanho original
+        self.rel = (1, 1)
         self.total = self.im.shape
+
         self.lt = (self.total - self.shape) // 2
         self.rb = (self.total + self.shape) // 2
 
@@ -91,7 +96,8 @@ class Spectator(Image):
         :param py Posição no eixo-y da janela.
         :return Point
         """
-        return self.lt + (px, py)
+        real = (self.lt + (px, py)) * self.rel[1]
+        return real(round)(int)
 
     def mark(self):
         """
@@ -121,9 +127,12 @@ class Spectator(Image):
         before = mark.total
 
         value = min(max(50, limits[0], before.x + value), limits[1])
-
         self.actual = self.im.resize(0, (value, 50))
         self.total = self.actual.shape
+
+        OtoA = self.total.x / float(self.im.shape.x)
+        AtoO = self.im.shape.x / float(self.total.x)
+        self.rel = (OtoA, AtoO)
 
         diff = self.total - before
         self.lt = mark.lt + diff // 2

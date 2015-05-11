@@ -15,7 +15,6 @@ from core.grid import Grid
 from core.util import Point
 from core.image.list import List
 from .patch import LayeredPatch
-from .. import PatchWork
 from math import ceil
 
 __all__ = [
@@ -40,7 +39,7 @@ class LayeredPatchWork(List, Grid):
         fpsz = float(psize[0]), float(psize[1])
 
         List.__init__(self, *image)
-        Grid.__init__(self, ceil(self.shape.x / fpsz[0]), ceil(self.shape.y / fpsz[1]))
+        Grid.__init__(self, *map(ceil, self.shape / fpsz))
 
         self.psize = Point(*psize)
 
@@ -70,9 +69,9 @@ class LayeredPatchWork(List, Grid):
         :return Window
         """
         from core.image.window import Window
-        from core.spectator.layered import LayeredSpectator
+        from core.spectator.grid import GridSpectator
 
-        win = Window(self, wname, spec = LayeredSpectator)
+        win = Window(self, wname, spec = GridSpectator)
         win.show()
 
         return win

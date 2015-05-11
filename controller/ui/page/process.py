@@ -12,7 +12,7 @@ programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
 from core.patchwork.layered import LayeredPatchWork
-from core.spectator.grid import GridSpectator
+from core.spectator.selection import SelectionSpectator
 from . import Control as BaseControl
 from controller import ThreadWrapper
 from controller.event import Event
@@ -59,10 +59,12 @@ class Control(BaseControl):
             Event(wx.EVT_TOGGLEBUTTON, self.pg.l_1).bind(e.layer, self)
             Event(wx.EVT_TOGGLEBUTTON, self.pg.l_2).bind(e.layer, self)
             Event(wx.EVT_TOGGLEBUTTON, self.pg.l_3).bind(e.layer, self)
+            Event(wx.EVT_BUTTON, self.pg.s_done).bind(e.deselect, self)
             Event(wx.EVT_MOTION, self.pg.canvas).bind(self.mMotion)
             Event(wx.EVT_MOUSEWHEEL, self.pg.canvas).bind(self.mWheel)
             Event(wx.EVT_LEFT_DOWN, self.pg.canvas).bind(self.lDown)
             Event(wx.EVT_LEFT_UP, self.pg.canvas).bind(self.lUp)
+            Event("Click", self.pg.canvas).bind(e.select, self)
 
     def initmain(self):
         """
@@ -96,7 +98,7 @@ class Control(BaseControl):
         img = Image.load(fname)
 
         self.im = LayeredPatchWork((200,200), img, img.swap(), img.swap(), img.swap())
-        self.sp = GridSpectator(self.im, self.im.psize, self.pg.canvas.size)
+        self.sp = SelectionSpectator(self.im, self.im.psize, self.pg.canvas.size)
         self.pg.canvas.set(self.sp)
 
         self.im.shred()
@@ -134,6 +136,7 @@ class Control(BaseControl):
         :param e Dados do evento.
         """
         if e.LeftIsDown():
+            self._move = self._move + 1
             diff = self._mstart - (e.x, e.y)
             canvas.im.move(self._mark, *diff)
             canvas.update()
@@ -158,6 +161,7 @@ class Control(BaseControl):
         """
         self._mstart = Point(e.GetX(), e.GetY())
         self._mark = canvas.im.mark()
+        self._move = 0
         e.Skip()
 
     def lUp(self, canvas, e):
@@ -166,5 +170,5 @@ class Control(BaseControl):
         :param canvas Campo de exibição de imagens
         :param e Dados do evento.
         """
-        if self._mstart == (e.x, e.y):
-            Event("Click", canvas).post((e.x, e.y), e)
+        if self._move <= 3:
+            Event("Click", canvas).post(self._mstart)

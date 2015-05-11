@@ -11,7 +11,14 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from core.image import Image
+def update(control):
+    """
+    Atualiza a imagem mostrada no campo de
+    visualização de uma página.
+    :param control Controlador da página.
+    """
+    control.sp.update()
+    control.pg.canvas.update()
 
 def layer(button, control, e):
     """
@@ -25,8 +32,7 @@ def layer(button, control, e):
         b.SetValue(b.Id == button.Id)
 
     control.im.select(button.Id)
-    control.sp.update()
-    control.pg.canvas.update()
+    update(control)
 
 def grid(button, control, e):
     """
@@ -37,5 +43,30 @@ def grid(button, control, e):
     :param e Dados do evento.
     """
     control.sp.showgrid(button.Value)
-    control.sp.update()
-    control.pg.canvas.update()
+    update(control)
+
+def select(canvas, control, pos):
+    """
+    Callback para o evento Click sobre o campo de
+    visualização de imagem.
+    :param canvas Campo de visualização de imagem.
+    :param control Controlador de página.
+    :param pos Posição de clique sobre a imagem.
+    """
+    control.sp.select(*pos)
+    update(control)
+
+    qtd = len(control.sp)
+    txt = "{0} retalhos selecionados."
+    control.pg.s_txt.SetLabel(txt.format(qtd) if qtd else "")
+
+def deselect(button, control, e):
+    """
+    Callback para o evento BUTTON de desseleção.
+    :param button Botão responsável pelo evento.
+    :param control Controlador de página.
+    :param e Dados do evento.
+    """
+    control.pg.s_txt.SetLabel("")
+    control.sp.deselect()
+    update(control)

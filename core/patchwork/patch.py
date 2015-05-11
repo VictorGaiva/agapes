@@ -48,6 +48,18 @@ class Patch(Image, Element):
 
         return value / float(self.psize.x * self.psize.y)
 
+    def border(self):
+        """
+        Calcula os pontos extremos do retalho. Os pontos
+        calculados formam um quadrado perfeito, cujas
+        bordas correspondem aos limites do retalho.
+        :return list
+        """
+        tl = self.psize * self.pos
+        br = tl + self.shape
+
+        return tl, br
+
     def sew(self, image):
         """
         Costura uma imagem na região coberta pelo retalho.

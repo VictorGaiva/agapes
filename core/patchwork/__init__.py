@@ -39,7 +39,7 @@ class PatchWork(Image, Grid):
         fpsz = float(psize[0]), float(psize[1])
 
         Image.__init__(self, image.raw)
-        Grid.__init__(self, ceil(self.shape.x / fpsz[0]), ceil(self.shape.y / fpsz[1]))
+        Grid.__init__(self, *map(ceil, self.shape / fpsz))
 
         self.psize = Point(*psize)
 
