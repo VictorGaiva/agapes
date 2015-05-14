@@ -15,6 +15,8 @@ from core.util import Point
 from .grid import GridSpectator
 import cv2 as cv
 
+#TODO: Aprimorar métodos de escritura de textos sobre o espectador.
+
 class SelectionSpectator(GridSpectator):
     """
     Manipula uma imagem gradeada e permite selecionar

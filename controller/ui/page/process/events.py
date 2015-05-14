@@ -11,6 +11,9 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
+
+#TODO: Organizar as funções em grupos de funções correlacionadas.
+
 def update(control):
     """
     Atualiza a imagem mostrada no campo de

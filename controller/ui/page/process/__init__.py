@@ -23,6 +23,9 @@ from . import events as e
 from config import root
 import wx
 
+#TODO: Melhorar linkagem de eventos.
+#TODO: Organizar funções de callback de eventos.
+
 class Control(BaseControl):
     """
     Controla e administra a execução de uma

@@ -21,6 +21,9 @@ __all__ = [
     "load", "segment", "process",
 ]
 
+#TODO: Transformar os estágios do pipeline em processos e não threads.
+#TODO: Implementar protocolo de pacotes para comunicação entre processos.
+
 low, normal, high = range(3)
 load, segment, process = range(3)
 stagename = ["ImageLoaded", "ImageSegmented", "ImageProcessed"]
