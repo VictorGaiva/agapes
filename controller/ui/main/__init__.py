@@ -12,7 +12,6 @@ programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
 from controller.event import Event
-import wx
 
 class Control(object):
     """

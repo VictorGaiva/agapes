@@ -61,7 +61,7 @@ class LayeredPatchWork(List, Grid):
             for j, y in enumerate(xrange(0, self.shape.y, self.psize.y)):
                 self.insert((i,j), LayeredPatch(self, (i,j), (x,y), self.psize))
 
-        self.filter(lambda p: p.fill > least)
+        return self.filter(lambda p: p.fill > least)
 
     def show(self, wname = "image"):
         """

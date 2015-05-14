@@ -82,8 +82,15 @@ class Grid(object):
         Mantém ao gradeado apenas os elementos que
         satisfizerem a condição dada pela função.
         :param function Função de filtragem.
+        :return list
         """
+        okay = []
+
         for i in xrange(self.count.x):
             for j in xrange(self.count.y):
                 if not function(self.data[i][j]):
                     self.remove((i, j))
+                else:
+                    okay.append(self.data[i][j])
+
+        return okay

@@ -28,7 +28,7 @@ class Map(object):
         :param inverted O mapa está invertido?
         :return Mapa de componentes inicializado.
         """
-        self.img = Image.new(shape, numpy.uint16, 1)
+        self.img = Image.new(shape, 1, numpy.uint16)
         self.comp = [None] + comps
         self.inverted = inverted
         self.shape = shape

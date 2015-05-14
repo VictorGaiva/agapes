@@ -11,7 +11,7 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from core.image import Image
+from core.util import Point
 from .grid import GridSpectator
 import cv2 as cv
 
@@ -35,6 +35,8 @@ class SelectionSpectator(GridSpectator):
         self.color = color
 
         self.selection = []
+        self.tcolor = {}
+        self.text = {}
 
     def __len__(self):
         """
@@ -49,7 +51,8 @@ class SelectionSpectator(GridSpectator):
         realizadas na imagem alvo de observação.
         """
         super(SelectionSpectator, self).update()
-        self.drawselection() if self.selection else None
+        self.drawselection()
+        self.drawtext()
 
     def select(self, px, py):
         """
@@ -65,7 +68,7 @@ class SelectionSpectator(GridSpectator):
             self.toggle(elem) if elem else None
 
         except:
-            return
+            pass
 
     def deselect(self):
         """
@@ -85,15 +88,67 @@ class SelectionSpectator(GridSpectator):
         rem = elem in self.selection
         self.selection.remove(elem) if rem else self.selection.append(elem)
 
+    def settextcolor(self, cell, color):
+        """
+        Indica a cor que deve ser utilizada no texto de uma célula.
+        :param cell Identificador de célula.
+        :param color Cor do texto.
+        """
+        self.tcolor[cell] = color
+
+    def addtext(self, cell, text, color):
+        """
+        Adiciona um texto a ser desenhado sobre uma célula do
+        gradeado quando a célula não está selecionada.
+        :param cell Identificador da célula alvo.
+        :param text Texto a ser exibido.
+        :param color Cor do texto.
+        """
+        self.text[cell] = text
+        self.tcolor[cell] = self.tcolor.get(cell, color)
+
+    def remtext(self, cell, text, color):
+        """
+        Remove um texto a ser desenhado sobre uma célula do
+        gradeado quando a célula não está selecionada.
+        :param cell Identificador da célula alvo.
+        """
+        del self.text[cell]
+
     def drawselection(self):
         """
-        Desenha a seleção de elementos sobre a
-        imagem sendo exibida.
+        Desenha a seleção de elementos ou os textos adicionados
+        sobre a imagem alvo do espectador.
         """
         for elem in self.selection:
             tl, br = elem.border()
-
-            p0 = (tl * self.rel[0])(round)(int) + (10,10)
-            p1 = (br * self.rel[0])(round)(int) - (10,10)
+            p0 = (tl * self.rel[0])(round)(int) + (5,5)
+            p1 = (br * self.rel[0])(round)(int) - (5,5)
 
             cv.rectangle(self.actual.raw, p0, p1, self.color, 3)
+
+    def drawtext(self):
+        """
+        Desenha os textos informados sobre os elementos
+        indicados anteriormente.
+        :return:
+        """
+        xsize = (self.cellsize * self.rel[0]).x
+        fsz = min(.75, (xsize / 80) * .75)
+
+        if xsize < 45:
+            return
+
+        for elem, text in self.text.iteritems():
+            elem = self.im.access(elem)
+
+            if elem in self.selection:
+                continue
+
+            tl, br = elem.border()
+            p0 = (tl * self.rel[0])(round)(int)
+            p1 = (br * self.rel[0])(round)(int)
+            pf = Point(p0.x, p1.y) + (10, -10)
+
+            color = self.tcolor[elem.pos]
+            cv.putText(self.actual.raw, text, pf, cv.FONT_HERSHEY_SIMPLEX, fsz, color, 2, cv.CV_AA)

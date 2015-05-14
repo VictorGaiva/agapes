@@ -13,8 +13,9 @@ resultados obtidos com a imagem fornecida.
 """
 from core.patchwork.layered import LayeredPatchWork
 from core.spectator.selection import SelectionSpectator
-from . import Control as BaseControl
+from .. import Control as BaseControl
 from controller import ThreadWrapper
+from core.algorithm import Algorithm
 from controller.event import Event
 from core.image import Image
 from core.util import Point
@@ -42,6 +43,9 @@ class Control(BaseControl):
         BaseControl.__init__(self, parent)
         self.main = main
 
+        self.selected = set()
+        self.result = {}
+
     def bind(self, page):
         """
         Vincula uma página ao controlador.
@@ -60,11 +64,17 @@ class Control(BaseControl):
             Event(wx.EVT_TOGGLEBUTTON, self.pg.l_2).bind(e.layer, self)
             Event(wx.EVT_TOGGLEBUTTON, self.pg.l_3).bind(e.layer, self)
             Event(wx.EVT_BUTTON, self.pg.s_done).bind(e.deselect, self)
+            Event(wx.EVT_BUTTON, self.pg.s_add).bind(e.addresult, self)
+            Event(wx.EVT_BUTTON, self.pg.s_del).bind(e.delresult, self)
+            Event(wx.EVT_BUTTON, self.pg.s_fsg).bind(e.patchsegment, self)
+            Event(wx.EVT_BUTTON, self.pg.a_run).bind(e.run, self)
             Event(wx.EVT_MOTION, self.pg.canvas).bind(self.mMotion)
             Event(wx.EVT_MOUSEWHEEL, self.pg.canvas).bind(self.mWheel)
             Event(wx.EVT_LEFT_DOWN, self.pg.canvas).bind(self.lDown)
             Event(wx.EVT_LEFT_UP, self.pg.canvas).bind(self.lUp)
             Event("Click", self.pg.canvas).bind(e.select, self)
+            Event("ImageSegmented").bind(e.segmented)
+            Event("ImageProcessed").bind(e.processed)
 
     def initmain(self):
         """
@@ -99,9 +109,12 @@ class Control(BaseControl):
 
         self.im = LayeredPatchWork((200,200), img, img.swap(), img.swap(), img.swap())
         self.sp = SelectionSpectator(self.im, self.im.psize, self.pg.canvas.size)
-        self.pg.canvas.set(self.sp)
 
-        self.im.shred()
+        self.pg.canvas.set(self.sp)
+        self.sp.update()
+        self.pg.canvas.update()
+
+        self.ex = Algorithm(self.im)
 
     def enter(self, canvas):
         """

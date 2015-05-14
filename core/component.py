@@ -114,7 +114,7 @@ class ComponentList(object):
         lcomp, shape, inverted = max(slopes, key = lambda el: el[0])[1:]
         cmap = lcomp.map(shape, inverted)
 
-        return lcomp, cmap
+        return lcomp, cmap, inverted
     
     @property
     def count(self):

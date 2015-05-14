@@ -120,6 +120,7 @@ class ProcessPage(Panel):
         self.s_del = Button(self.root, -1, "-", size = (25,25))
         self.s_fsg = Button(self.root, -1, "SG", size = (25, 25))
         self.s_txt = StaticText(self.root, -1, "")
+        self.s_fsg.Disable()
 
         root = BoxSizer(HORIZONTAL)
         root.Add(self.s_done, 0, LEFT, -1)
@@ -160,17 +161,15 @@ class ProcessPage(Panel):
         calculados pela página.
         :return BoxSizer
         """
-        self.r_pcent = StaticText(self.root, -1, "0")
+        self.r_pcent = StaticText(self.root, -1, "0", style = ALIGN_RIGHT, size = (84,68))
         self.r_pcent.SetFont(Font(45, DEFAULT, NORMAL, NORMAL))
         self.r_patch = StaticText(self.root, -1, "0/0")
         self.r_cmtrs = StaticText(self.root, -1, "0 m")
         self.r_fmtrs = StaticText(self.root, -1, "0 m")
 
         mainr = BoxSizer(HORIZONTAL)
-        mainr.Add((1,1), 1, EXPAND)
-        mainr.Add(self.r_pcent, 0, EXPAND | RIGHT, 5)
-        mainr.Add(StaticText(self.root, -1, "%\nfalhas"), 0, EXPAND | TOP, 20)
-        mainr.Add((1,1), 1, EXPAND)
+        mainr.Add(self.r_pcent, 1, RIGHT | ALIGN_RIGHT, 5)
+        mainr.Add(StaticText(self.root, -1, "%\nfalhas"), 1, TOP, 20)
 
         other = FlexGridSizer(3, 2,5,5)
         other.AddGrowableCol(0, 2)
@@ -202,6 +201,9 @@ class ProcessPage(Panel):
         self.i_dscl = Choice(self.root, -1, choices=[u"centímetros", u"metros", u"polegadas", u"pés", u"jardas"],size=(92, 23))
         self.i_pgrp = CheckBox(self.root, -1, u"Agrupar com outras abas com\nos mesmos identificadores", size=(184,50))
         self.i_pgrp.Disable()
+
+        self.i_dval.SetValue(1.5)
+        self.i_dscl.SetStringSelection(u"metros")
 
         distsz = BoxSizer(HORIZONTAL)
         distsz.Add(self.i_dval, 0, EXPAND | RIGHT, 5)

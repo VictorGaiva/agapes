@@ -69,7 +69,7 @@ class Image(object):
         :param dtype Tipo de cada elemento da imagem.
         :return Image
         """
-        shape = (channels,) + shape if channels > 1 else shape
+        shape = (channels,) + shape[:] if channels > 1 else shape
         blank = numpy.zeros(shape[::-1], dtype)
         return Image(blank)
 
