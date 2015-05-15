@@ -13,6 +13,8 @@ resultados obtidos com a imagem fornecida.
 """
 import wx
 
+#TODO: Reconstruir objeto de Menu. Versão muito antiga.
+
 class Menu(wx.MenuBar):
     """
     Objeto responsável pela criação, controle e administração

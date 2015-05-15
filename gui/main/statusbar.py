@@ -14,6 +14,8 @@ resultados obtidos com a imagem fornecida.
 from controller.event import Event
 import wx
 
+#TODO: Reconstruir objeto de StatusBar. Versão muito antiga.
+
 class StatusBar(wx.StatusBar):
     """
     Objeto responsável pela criação, controle e administração

@@ -132,7 +132,17 @@ def delresult(button, control, e):
     updateresult(control)
 
 def patchsegment(button, control, e):
-    pass
+    """
+    Callback para o evento BUTTON de segmentação avulsa.
+    :param button Botão responsável pelo evento.
+    :param control Controlador de página.
+    :param e Dados do evento.
+    """
+    from controller.ui.segment import Control
+    from gui.segmentation import Init
+
+    control = Control(control, control.sp.selection)
+    Init(control)
 
 def run(button, control, e):
     """

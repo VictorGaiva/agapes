@@ -53,9 +53,10 @@ class PatchWork(Image, Grid):
         que estão acima da porcentagem mínima de preenchimento
         do retalho.
         :param least Porcentagem mínima de preenchimento.
+        :param filter O resultado deve ser filtrado?
         """
         for i, x in enumerate(xrange(0, self.shape.x, self.psize.x)):
             for j, y in enumerate(xrange(0, self.shape.y, self.psize.y)):
                 self.insert((i, j), Patch(self, (i, j), (x, y), self.psize))
 
-        return self.filter(lambda p: p.fill > least)
+        return self.filter(lambda p: p.fill >= least)

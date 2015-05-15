@@ -109,7 +109,7 @@ class SelectionSpectator(GridSpectator):
         self.text[cell] = text
         self.tcolor[cell] = self.tcolor.get(cell, color)
 
-    def remtext(self, cell, text, color):
+    def remtext(self, cell):
         """
         Remove um texto a ser desenhado sobre uma célula do
         gradeado quando a célula não está selecionada.

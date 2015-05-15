@@ -13,6 +13,8 @@ resultados obtidos com a imagem fornecida.
 """
 from os import path
 
+#TODO: Criar objeto de configuração, que lê de arquivos as opções selecionadas.
+
 root = path.dirname(path.realpath(__file__))
 author = "Rodrigo Siqueira <rodriados@gmail.com>"
 appname = "PSG - Tecnologia Aplicada / LIA - FACOM - UFMS"
