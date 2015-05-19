@@ -11,12 +11,7 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .appmain import *
-
-__all__ = [
-    "event",
-    "Init",
-]
+from main import AppMain
 
 def Init(control):
     """

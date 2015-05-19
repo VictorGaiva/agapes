@@ -11,14 +11,14 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .main import Control
-from gui import Init as Start
+#from .terminal import Terminal
 
 def Init():
     """
-    Inicializa a execução da interface gráfica de usuário.
-    Dessa forma, precisamos aguardar pelo usuário para que
-    algum processamento inicie.
+    Inicializa a execução em modo de linha de comando.
+    Dessa forma, precisamos que o usuário entre com os
+    comandos desejados em forma de linha de comando.
     """
-    control = Control()
-    Start(control)
+    print "Not Implemented Yet!"
+    #term = Terminal()
+    #term.run()

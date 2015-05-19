@@ -11,10 +11,10 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .segmentator import *
-from .component import *
-from .image import *
-from .line import *
+from .segmentator import Segmentator
+from .component import ComponentList
+from .image import Image
+from .line import LineList
 
 __all__ = [
     "LoadImage",
@@ -39,13 +39,13 @@ def SegmentImage(data):
     :return Image, Map Lista de componentes.
     """
     try:
-        segment = Segmentator.train(train = data.train)
+        seg = Segmentator.train(train = data.train)
     except:
-        segment = Segmentator.train()
-    image = segment.apply(data.patch.image)
-    comp, compmap = ComponentList.load(image)
+        seg = Segmentator.train()
+    image = seg.apply(data.patch)
+    comp, compmap, inverted = ComponentList.load(image)
 
-    return dict(image = image, compmap = compmap)
+    return dict(image = image, compmap = compmap, inverted = inverted)
 
 def ProcessImage(data):
     """

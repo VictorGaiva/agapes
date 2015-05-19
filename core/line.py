@@ -11,12 +11,14 @@ Este arquivo é responsével pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .component import *
-from .point import *
+import math
 
 import cv2 as cv
 import numpy
-import math
+
+from .component import *
+from .util.point import *
+
 
 class Line(ComponentList):
     """
@@ -73,7 +75,7 @@ class Line(ComponentList):
                     
         newl = cls(line.map, *comps[1:])
         newl.neigh['left' if direction > 0 else 'right'] = \
-            dpoint.euclidean(), line
+            dpoint.euclidean((0,0)), line
         
         newl.fill()
         newl.conquer()
@@ -204,15 +206,15 @@ class Line(ComponentList):
         """
         y0 = (self.down - self.up) * .5 + self.up
         x0 = self.polynom(y0)
-        
+
         df = self.polynom.deriv()
         ty = numpy.poly1d([df(y0), 0])
         px = numpy.poly1d([-df(y0), y0 + df(y0) * x0])
-        
+
         xlim, ylim = self.map.shape
         delta = int(self.density / 3) * direction
         pn = Point(x0 + delta, px(x0 + delta))
-                
+
         while 0 <= pn.x < xlim and 0 <= pn.y < ylim:
             count, total = 0, 0.0
            
@@ -313,7 +315,7 @@ class LineList(object):
 
         self.map = cmap
         self.shape = cmap.shape
-        
+
     def __getitem__(self, index):
         """
         Acessa e retorna a linha presente na posição dada
@@ -381,12 +383,12 @@ class LineList(object):
         Mostra em uma imagem, todas as linhas presentes na lista.
         @return Image
         """
-        img = Image.new(self.shape, inverted = inverted)
+        img = Image.new(self.shape)
 
         for line in self.lines:
             line.draw(img, (255, 255, 255))
 
-        if img.inverted:
+        if inverted:
             img = img.transpose()
 
         return img
@@ -398,10 +400,10 @@ class LineList(object):
         @return float, int Porcentagem e metros de falhas encontradas.
         @return inverted Imagem está invertida?
         """
-        img = Image.new(self.shape, inverted = inverted)
+        img = Image.new(self.shape)
         red, blue = 0, 0
         distmedia = 0
-        
+
         for line in self.lines:
             proxline = min(line.neigh["left"][0], line.neigh["right"][0])
             maxdist = (.5 * proxline / distance)
@@ -448,7 +450,7 @@ class LineList(object):
                     cv.circle(img.raw, p, 0, (255,0,0),2)
                 blue += len(points)
 
-        if img.inverted:
+        if inverted:
             img = img.transpose()
 
         total = red + blue

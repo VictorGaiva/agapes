@@ -11,12 +11,14 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
-from .point import *
-from .map import *
+import copy
 
 import cv2 as cv
 import numpy
-import copy
+
+from .util import Point
+from .map import *
+
 
 class Component(object):
     """
@@ -112,7 +114,7 @@ class ComponentList(object):
         lcomp, shape, inverted = max(slopes, key = lambda el: el[0])[1:]
         cmap = lcomp.map(shape, inverted)
 
-        return lcomp, cmap
+        return lcomp, cmap, inverted
     
     @property
     def count(self):
