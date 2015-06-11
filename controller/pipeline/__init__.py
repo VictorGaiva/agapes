@@ -72,6 +72,7 @@ class Pipeline(object):
                 except Empty:
                     continue
                 except:
+                    print u"Erro no processamento do talhão!"
                     comm.notify(-1, data, {})
 
     @classmethod
