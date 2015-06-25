@@ -109,6 +109,17 @@ class SelectionSpectator(GridSpectator):
         self.text[cell] = text
         self.tcolor[cell] = self.tcolor.get(cell, color)
 
+    def gettext(self, cell):
+        """
+
+        :param cell:
+        :return:
+        """
+        if cell in self.text.keys():
+            return self.text[cell]
+
+        return None
+
     def remtext(self, cell):
         """
         Remove um texto a ser desenhado sobre uma célula do

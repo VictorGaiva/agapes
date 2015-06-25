@@ -49,7 +49,7 @@ class LayeredPatchWork(List, Grid):
     insert = Grid.insert
     remove = Grid.remove
 
-    def shred(self, least = 0.5):
+    def shred(self, least = 0.3):
         """
         Recorta a imagem, cria todos os retalhos possíveis
         de existirem sobre a imagem e seleciona apenas aqueles

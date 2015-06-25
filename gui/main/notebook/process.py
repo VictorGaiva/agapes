@@ -35,6 +35,7 @@ class ProcessPage(Panel):
         self.control = control
         self.inicial = inicial
         self.parent = parent
+        self.address = None
         self.BuildUI()
 
         self.control.bind(self)
@@ -161,24 +162,25 @@ class ProcessPage(Panel):
         calculados pela página.
         :return BoxSizer
         """
-        self.r_pcent = StaticText(self.root, -1, "0", style = ALIGN_RIGHT, size = (84,68))
+        self.r_pcent = StaticText(self.root, -1, "0.00", style = ALIGN_CENTER, size = (178,68))
         self.r_pcent.SetFont(Font(45, DEFAULT, NORMAL, NORMAL))
-        self.r_patch = StaticText(self.root, -1, "0/0")
+        self.r_patch = StaticText(self.root, -1, "0/0", style=ALIGN_LEFT)
         self.r_cmtrs = StaticText(self.root, -1, "0 m")
-        self.r_fmtrs = StaticText(self.root, -1, "0 m")
+        self.r_fmtrs = StaticText(self.root, -1, "0 m", style=ALIGN_LEFT)
 
-        mainr = BoxSizer(HORIZONTAL)
-        mainr.Add(self.r_pcent, 1, RIGHT | ALIGN_RIGHT, 5)
-        mainr.Add(StaticText(self.root, -1, "%\nfalhas"), 1, TOP, 20)
+        mainr = BoxSizer(VERTICAL)
+        mainr.Add(self.r_pcent, 1, EXPAND | ALIGN_CENTER, 5)
+        mainr.Add(StaticText(self.root, -1, "% falhas", style = ALIGN_CENTER), 0, EXPAND | ALIGN_CENTER)
 
-        other = FlexGridSizer(3, 2,5,5)
-        other.AddGrowableCol(0, 2)
-        other.Add(StaticText(self.root, -1, u"Retalhos:"), 0, EXPAND)
-        other.Add(self.r_patch, 0, ALIGN_RIGHT)
-        other.Add(StaticText(self.root, -1, u"Plantação:"), 0, EXPAND)
-        other.Add(self.r_cmtrs, 0, ALIGN_RIGHT)
-        other.Add(StaticText(self.root, -1, u"Falhas:"), 0, EXPAND)
-        other.Add(self.r_fmtrs, 0, ALIGN_RIGHT)
+        #other = FlexGridSizer(3, 2,5,5)
+        #other.AddGrowableCol(0, 2)
+        other = BoxSizer(VERTICAL)
+        other.Add(StaticText(self.root, -1, u"Retalhos:"), 1)#, EXPAND)
+        other.Add(self.r_patch, 1, ALIGN_LEFT)
+        other.Add(StaticText(self.root, -1, u"Plantação:"), 1)#, EXPAND)
+        other.Add(self.r_cmtrs, 1, ALIGN_LEFT)
+        other.Add(StaticText(self.root, -1, u"Falhas:"), 1)#, EXPAND)
+        other.Add(self.r_fmtrs, 1, ALIGN_LEFT)
 
         box = StaticBox(self.root, -1, "  Resultado  ")
         box = StaticBoxSizer(box, VERTICAL)

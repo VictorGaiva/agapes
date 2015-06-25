@@ -11,6 +11,9 @@ Este arquivo é responsável pelo desenho da interface do
 programa e também pela execução e apresentação dos
 resultados obtidos com a imagem fornecida.
 """
+from core.patchwork import PatchWork
+import cv2 as cv
+import os
 
 #TODO: Organizar as funções em grupos de funções correlacionadas.
 
@@ -44,10 +47,10 @@ def updateresult(control):
         count = count + 1
 
     if not count:
-        control.pg.r_pcent.SetLabel("0")
+        control.pg.r_pcent.SetLabel("0.00")
         control.pg.r_fmtrs.SetLabel("0 m")
     else:
-        control.pg.r_pcent.SetLabel(str(int(round(totalpcent / float(count)))))
+        control.pg.r_pcent.SetLabel(str(round(totalpcent / float(count), 2)))
         control.pg.r_fmtrs.SetLabel(str(totalmeter) + " m")
 
 def layer(button, control, e):
@@ -115,6 +118,7 @@ def addresult(button, control, e):
 
     elems = set([e.pos for e in control.sp.selection])
     control.selected.update(elems)
+    control.pg.r_patch.SetLabel(str(len(control.selected)) + "/" + str(control.patchcount))
     updateresult(control)
 
 def delresult(button, control, e):
@@ -154,6 +158,26 @@ def run(button, control, e):
     button.Disable()
     control.ex.run(control, control.pg.i_dval.GetValue())
 
+def end(button, control, e):
+    """
+    Callback para o evento BUTTON de finalizar.
+    :param button Botão responsável pelo evento.
+    :param control Controlador de página.
+    :param e Dados do evento.
+    """
+    img = control.im[0].copy()
+
+    pw = PatchWork((200,200), img)
+    pw.shred()
+
+    for patch in control.selected:
+        pt = control.im.access(patch)[3].swap()
+        pw.access(patch).sew(pt)
+        cv.putText(img.raw, control.sp.gettext(patch), (patch[0]*200 + 10, patch[1]*200 + 190), cv.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2, cv.CV_AA)
+
+    fdir = os.path.split(os.path.realpath(control.pg.address))
+    img.save(fdir[0] + os.path.sep + "processed." + fdir[1])
+
 def segmented(data, context):
     """
     Callback para o evento global ImageSegmented.
@@ -170,7 +194,7 @@ def processed(data, context):
     :param context Contexto de evento.
     """
     data.patch.sew(data.image.swap(), 3)
-    context.control.sp.addtext(data.patch.pos, str(int(round(data.percent))) + "%", (255,0,0))
+    context.control.sp.addtext(data.patch.pos, str(round(data.percent, 2)) + "%", (255,0,0))
     context.control.result[data.patch.pos] = (data.percent, data.meters)
     updateresult(context.control)
     update(context.control)

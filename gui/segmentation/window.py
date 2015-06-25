@@ -67,6 +67,8 @@ class Window(wx.Frame):
         """
         self.i_soil = wx.ToggleButton(self.root, -1, "Terra", size = (75, 25))
         self.i_cane = wx.ToggleButton(self.root, -1, "Cana", size = (75, 25))
+        self.w_incr = wx.Button(self.root, -1, "Incrementar", size = (75, 25))
+        self.w_sobr = wx.Button(self.root, -1, "Sobreescreve", size = (75, 25))
         self.w_test = wx.Button(self.root, -1, "Testar", size = (75, 25))
         self.w_close = wx.Button(self.root, -1, "Finalizar", size = (75, 25))
 
@@ -74,6 +76,8 @@ class Window(wx.Frame):
         root.Add(self.i_soil, 0, wx.RIGHT, 3)
         root.Add(self.i_cane, 0)
         root.Add((1,1), 1, wx.EXPAND)
+        root.Add(self.w_incr, 0, wx.RIGHT, 3)
+        root.Add(self.w_sobr, 0, wx.RIGHT, 3)
         root.Add(self.w_test, 0, wx.RIGHT, 3)
         root.Add(self.w_close, 0, wx.RIGHT)
 

@@ -148,6 +148,7 @@ class ComponentList(object):
         )[0]
 
         value = map(func, self.comps[1:count + 1])
+        
         return sum(value) / float(count)
     
     def sort(self, key = lambda c: c.belief, reverse = False):

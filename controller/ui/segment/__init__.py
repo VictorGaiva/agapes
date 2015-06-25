@@ -67,6 +67,8 @@ class Control(object):
         Event("CaneClick", self.win.canvas).bind(e.clickcane, self)
         Event(wx.EVT_TOGGLEBUTTON, self.win.i_soil).bind(e.soil, self)
         Event(wx.EVT_TOGGLEBUTTON, self.win.i_cane).bind(e.cane, self)
+        Event(wx.EVT_BUTTON, self.win.w_incr).bind(e.incrementa, self)
+        Event(wx.EVT_BUTTON, self.win.w_sobr).bind(e.sobreescreve, self)
         Event(wx.EVT_BUTTON, self.win.w_test).bind(e.test, self)
         Event(wx.EVT_BUTTON, self.win.w_close).bind(e.close, self)
         Event(wx.EVT_MOTION, self.win.canvas).bind(self.mMotion)
