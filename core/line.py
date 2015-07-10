@@ -136,12 +136,15 @@ class Line(ComponentList):
         """
         return int(round(self.area / self.length))
 
-    #def interpolate(self):
-    #    """
-    #    Calcula a interpolação
-    #    :return:
-    #    """
-    
+    def interpolate(self):
+        """
+        Calcula a interpolação do polinômio da função e gera pontos
+        sobre esse polimônio de forma que a plotagem seja correta.
+        :yields Point
+        """
+        for y in xrange(self.up, self.down):
+            yield y, int(round(self.polynom(y)))
+
     def conquer(self):
         """
         Encontra e adiciona novos componentes achados sobre a imagem do
@@ -430,12 +433,12 @@ class LineList(object):
                 comp.draw(img, (255, 255, 255))
 
 
-            for y in xrange(line.up, line.down):
-            #for y in line.interpolate():
-                x = int(round(line.polynom(y)))
+            #for y in xrange(line.up, line.down):
+            for y, x in line.interpolate():
                 incomp = False
 
                 for _x in xrange(x - 5, x + 5):
+                #for _x in xrange(x - 1, x + 1):
                     if 0 <= _x < self.shape.x \
                     and self.map[_x, y] is not None and self.map[_x, y] in line.comps:
                         incomp = True
@@ -444,14 +447,14 @@ class LineList(object):
                 if incomp:
                     if len(points) > maxdist:
                         for p in points:
-                            cv.circle(img.raw, p, 0, (0,0,255),2) # vermelho
+                            cv.circle(img.raw, p, 0, (0,0,255),0) # vermelho
                         red += len(points)
                     elif len(points) > 0:
                         for p in points:
-                            cv.circle(img.raw, p, 0, (255,0,0),2) # azul
+                            cv.circle(img.raw, p, 0, (255,0,0),0) # azul
                         blue += len(points)
 
-                    cv.circle(img.raw, (x,y), 0, (255,0,0),2)
+                    cv.circle(img.raw, (x,y), 0, (255,0,0),0)
                     points = []
                     blue += 1
 
@@ -460,11 +463,11 @@ class LineList(object):
 
             if len(points) > maxdist:
                 for p in points:
-                    cv.circle(img.raw, p, 0, (0,0,255),2)
+                    cv.circle(img.raw, p, 0, (0,0,255),0)
                 red += len(points)
             elif len(points) > 0:
                 for p in points:
-                    cv.circle(img.raw, p, 0, (255,0,0),2)
+                    cv.circle(img.raw, p, 0, (255,0,0),0)
                 blue += len(points)
 
         if inverted:
