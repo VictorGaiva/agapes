@@ -46,7 +46,7 @@ class PatchWork(Image, Grid):
     __getitem__ = Image.__getitem__
     __setitem__ = Image.__setitem__
 
-    def shred(self, least = 0.5):
+    def shred(self, least = 0.3):
         """
         Recorta a imagem, cria todos os retalhos possíveis
         de existirem sobre a imagem e seleciona apenas aqueles

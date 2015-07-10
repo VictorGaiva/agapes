@@ -145,9 +145,10 @@ class ComponentList(object):
             numpy.polyfit(
                 *zip(*comp.points), deg = 1
             )
-        )[1]
+        )[0]
 
         value = map(func, self.comps[1:count + 1])
+        
         return sum(value) / float(count)
     
     def sort(self, key = lambda c: c.belief, reverse = False):

@@ -135,7 +135,16 @@ class Line(ComponentList):
         @return int Densidade em pixels.
         """
         return int(round(self.area / self.length))
-    
+
+    def interpolate(self):
+        """
+        Calcula a interpolação do polinômio da função e gera pontos
+        sobre esse polimônio de forma que a plotagem seja correta.
+        :yields Point
+        """
+        for y in xrange(self.up, self.down):
+            yield y, int(round(self.polynom(y)))
+
     def conquer(self):
         """
         Encontra e adiciona novos componentes achados sobre a imagem do
@@ -314,6 +323,7 @@ class LineList(object):
         })()
 
         self.map = cmap
+        self.mindist = float('inf')
         self.shape = cmap.shape
 
     def __getitem__(self, index):
@@ -364,10 +374,17 @@ class LineList(object):
         @yields int, Line Posição da nova linha encontrada e a própria linha.
         """
         while self.lines.first.search(Line.left):
+            dist = self.lines.first.neigh['left'][0]
+            if dist < self.mindist:
+                self.mindist = dist
             yield 0, self.lines.first.neigh['left'][1]
             
         while self.lines.last.search(Line.right):
+            dist = self.lines.last.neigh['right'][0]
+            if dist < self.mindist:
+                self.mindist = dist
             yield self.count, self.lines.last.neigh['right'][1]
+        print 'mindist',self.mindist
     
     def complete(self):
         """
@@ -377,7 +394,9 @@ class LineList(object):
         """
         for pos, line in self.search():
             self.lines.insert(pos, line)
-    
+        
+        line = self.lines[-1]
+
     def display(self, inverted):
         """
         Mostra em uma imagem, todas as linhas presentes na lista.
@@ -405,8 +424,8 @@ class LineList(object):
         distmedia = 0
 
         for line in self.lines:
-            proxline = min(line.neigh["left"][0], line.neigh["right"][0])
-            maxdist = (.5 * proxline / distance)
+            #proxline = min(line.neigh["left"][0], line.neigh["right"][0])
+            maxdist = (self.mindist / distance)
             distmedia += maxdist
             points = []
             
@@ -414,11 +433,12 @@ class LineList(object):
                 comp.draw(img, (255, 255, 255))
 
 
-            for y in xrange(line.up, line.down):
-                x = int(round(line.polynom(y)))
+            #for y in xrange(line.up, line.down):
+            for y, x in line.interpolate():
                 incomp = False
 
                 for _x in xrange(x - 5, x + 5):
+                #for _x in xrange(x - 1, x + 1):
                     if 0 <= _x < self.shape.x \
                     and self.map[_x, y] is not None and self.map[_x, y] in line.comps:
                         incomp = True
@@ -427,14 +447,14 @@ class LineList(object):
                 if incomp:
                     if len(points) > maxdist:
                         for p in points:
-                            cv.circle(img.raw, p, 0, (0,0,255),2)
+                            cv.circle(img.raw, p, 0, (0,0,255),0) # vermelho
                         red += len(points)
                     elif len(points) > 0:
                         for p in points:
-                            cv.circle(img.raw, p, 0, (255,0,0),2)
+                            cv.circle(img.raw, p, 0, (255,0,0),0) # azul
                         blue += len(points)
 
-                    cv.circle(img.raw, (x,y), 0, (255,0,0),2)
+                    cv.circle(img.raw, (x,y), 0, (255,0,0),0)
                     points = []
                     blue += 1
 
@@ -443,11 +463,11 @@ class LineList(object):
 
             if len(points) > maxdist:
                 for p in points:
-                    cv.circle(img.raw, p, 0, (0,0,255),2)
+                    cv.circle(img.raw, p, 0, (0,0,255),0)
                 red += len(points)
             elif len(points) > 0:
                 for p in points:
-                    cv.circle(img.raw, p, 0, (255,0,0),2)
+                    cv.circle(img.raw, p, 0, (255,0,0),0)
                 blue += len(points)
 
         if inverted:
@@ -455,4 +475,4 @@ class LineList(object):
 
         total = red + blue
         metro = 2 * (distmedia / len(self.lines))
-        return (100 * red) / total, red / metro, img
+        return (100 * red) / float(total), red / metro, img

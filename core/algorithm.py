@@ -42,6 +42,6 @@ class Algorithm(object):
 
         for i, p in enumerate(self.patch):
             p.select(0)
-            comm.push(patch = p, distance = distance, id = i)
+            comm.push(patch = p, distance = distance, id = i, address = control.pg.address)
 
         comm.consume()

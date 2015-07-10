@@ -16,6 +16,7 @@ from .image import Image
 from sklearn.neighbors import KNeighborsClassifier
 import config
 import numpy
+import os.path
 
 class Segmentator(object):
     """
@@ -39,7 +40,7 @@ class Segmentator(object):
         self.knn.fit(x, y)
 
     @classmethod
-    def train(cls, trainfile = config.root + "/trainset.txt", train = None):
+    def train(cls, trainfile = config.root + "/trainset.csv", train = None):
         """
         Treina uma instância de Segmentator para aplicação
         do algoritmo de segmentação.
@@ -56,7 +57,13 @@ class Segmentator(object):
                 l = line.strip().split(' ')
                 x.append([int(l[0]), int(l[1]), int(l[2])])
                 y.append(int(l[3]))
-
+        patchfile = config.root+os.sep+'patchtrain.csv'
+        if os.path.isfile(patchfile):
+            with open(patchfile, "r") as trainl:
+             for line in trainl:
+                l = line.strip().split(' ')
+                x.append([int(l[0]), int(l[1]), int(l[2])])
+                y.append(int(l[3]))
         return cls(x, y)
 
     def apply(self, image):

@@ -71,6 +71,7 @@ class Control(BaseControl):
             Event(wx.EVT_BUTTON, self.pg.s_del).bind(e.delresult, self)
             Event(wx.EVT_BUTTON, self.pg.s_fsg).bind(e.patchsegment, self)
             Event(wx.EVT_BUTTON, self.pg.a_run).bind(e.run, self)
+            Event(wx.EVT_BUTTON, self.pg.a_stop).bind(e.end, self)
             Event(wx.EVT_MOTION, self.pg.canvas).bind(self.mMotion)
             Event(wx.EVT_MOUSEWHEEL, self.pg.canvas).bind(self.mWheel)
             Event(wx.EVT_LEFT_DOWN, self.pg.canvas).bind(self.lDown)
@@ -114,10 +115,14 @@ class Control(BaseControl):
         self.sp = SelectionSpectator(self.im, self.im.psize, self.pg.canvas.size)
 
         self.pg.canvas.set(self.sp)
+        self.pg.address = fname
         self.sp.update()
         self.pg.canvas.update()
 
         self.ex = Algorithm(self.im)
+        self.patchcount = len(self.ex.patch)
+        print "Quantidade de retalhos:", self.patchcount
+        self.pg.r_patch.SetLabel("0/" + str(self.patchcount))
 
     def enter(self, canvas):
         """
