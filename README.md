@@ -14,11 +14,16 @@ Atualmente o sistema funciona apenas no Windows, por conta da biblioteca **ver o
 
 ###Como utilizar, passo a passo.
 ##### Bibliotecas necessárias:
-1. OpenCV
-2. Python 2.7 (**32 bits**) 
+Instalar nessa ordem:
+
+1. [OpenCV](http://sourceforge.net/projects/opencvlibrary/files/opencv-win/3.0.0/opencv-3.0.0.exe/download)
+2. [Python 2.7](https://www.python.org/ftp/python/2.7.10/python-2.7.10.msi) (**32 bits**) 
 3. Sub-biblioteca:
-    -  
-    -
+    - [NumPy](http://sourceforge.net/projects/numpy/files/NumPy/1.9.2/numpy-1.9.2-win32-superpack-python2.7.exe/download)
+    - [SciPy](http://sourceforge.net/projects/scipy/files/scipy/0.14.0/scipy-0.14.0-win32-superpack-python2.7.exe/download) (**0.14.0**)
+    - [wxPython](http://sourceforge.net/projects/wxpython/files/wxPython/3.0.2.0/wxPython3.0-win32-3.0.2.0-py27.exe/download)
+    - [scikit-learn](http://sourceforge.net/projects/scikit-learn/files/scikit-learn-0.13.1.win32-py2.7.exe/download) (**0.13.1**)
+
 
 
 ### To do
