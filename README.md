@@ -18,18 +18,25 @@ Atualmente o sistema funciona apenas no Windows, por conta da biblioteca **ver o
 2. Python 2.7 (**32 bits**) 
 3. Sub-biblioteca:
     -  
+    -
 
 
 ### To do
 #####Funções à serem implementadas.
 - [ ] Eliminar as árvores na segmentação;
 - [ ] Implementar versão para o terminal para facilitar os testes;
-- [ ] 
+- [ ] Utilizar o Geoprocessamento para obter o tamanho da platação e melhorar o espaçamento entre as linhas;
+- [ ] Criar o relatório;
+- [ ] Salvar os dados;
+- [ ] Criar um resultado parcial;
+- [ ] Importar uma pasta;
 
 #####Para correção.
-- [ ] 
-- [ ]
-- [ ]
+- [ ] Reorganizar o core;
+- [ ] Corrigir o zoomIn (está centralizando no centro da imagem);
+- [ ] Mostrar o tamanho da plantação;
+- [ ] ;
+
 -----------------------
 #### Update 0.2
 - [X] Implementação de segmentação avulsa.
