@@ -26,6 +26,8 @@ Instalar nessa ordem:
 
 
 
+
+
 ### To do
 #####Funções à serem implementadas.
 - [ ] Eliminar as árvores na segmentação;
