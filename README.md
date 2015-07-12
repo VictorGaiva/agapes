@@ -6,7 +6,7 @@
 
 O AGapES - Suger foi desenvolvido por [Rodrigo Albuquerque de Oliveira Siqueira](http://lattes.cnpq.br/6242098395565903) e o [Edson Takashi Matsubara](facom.ufms.br/~edsontm/). Desenvolvido em [Python](https://www.python.org/) com objetivo de contabilizar a quantidade de falhas em uma plantação de cana-de-açúcar a partir de imagens aéreas obtidas através de aeronaves não-tripuladas, como VANTs.
 
-Atualmente o sistema funciona apenas no Windows, por conta da biblioteca **ver o nome**. O sistema é proprietário, e para maiores detalhes entre em contato com a PSG. 
+Atualmente o sistema funciona apenas no Windows, por conta função **SpinCtrlDouble** da biblioteca **wxPython**. O sistema é proprietário, e para maiores detalhes entre em contato com a PSG. 
 
 ![alt text](http://www.psgtecnologiaaplicada.com.br/Theme/Images/visao_aerea_plantacao_cana.png)
 
