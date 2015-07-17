@@ -1,10 +1,10 @@
-**A**utomatic **Gap** **E**valuation **S**ystem for Sugarcane Lines (AGapES - Sugar)
+﻿**A**utomatic **Gap** **E**valuation **S**ystem for Sugarcane Lines (AGapES - Sugar)
 ==========================
 ######Parceria Laboratório de Inteligência Artificial (LIA) e PSG - Tecnologia Aplicada
 - Última atualização: **12/07/2015**.
 - Versão: **0.2.1** (veja o log de alteração para maiores informações);
 
-O AGapES - Suger foi desenvolvido por [Rodrigo Albuquerque de Oliveira Siqueira](http://lattes.cnpq.br/6242098395565903) e o [Edson Takashi Matsubara](facom.ufms.br/~edsontm/). Desenvolvido em [Python](https://www.python.org/) com objetivo de contabilizar a quantidade de falhas em uma plantação de cana-de-açúcar a partir de imagens aéreas obtidas através de aeronaves não-tripuladas, como VANTs.
+O AGapES - Suger foi desenvolvido por [Rodrigo Albuquerque de Oliveira Siqueira](http://lattes.cnpq.br/6242098395565903) e o [Edson Takashi Matsubara](http://facom.ufms.br/~edsontm/). Desenvolvido em [Python](https://www.python.org/) com objetivo de contabilizar a quantidade de falhas em uma plantação de cana-de-açúcar a partir de imagens aéreas obtidas através de aeronaves não-tripuladas, como VANTs.
 
 Atualmente o sistema funciona apenas no Windows, por conta função **SpinCtrlDouble** da biblioteca **wxPython**. O sistema é proprietário, e para maiores detalhes entre em contato com a PSG. 
 
