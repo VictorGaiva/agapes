@@ -475,4 +475,4 @@ class LineList(object):
 
         total = red + blue
         metro = 2 * (distmedia / len(self.lines))
-        return (100 * red) / float(total), red / metro, img
+        return (100 * red) / float(total), red / metro, blue / metro, img

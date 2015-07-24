@@ -34,6 +34,7 @@ def updateresult(control):
     """
     totalpcent = 0
     totalmeter = 0
+    totalcrops = 0
     count = 0
 
     for elem in control.selected:
@@ -41,16 +42,19 @@ def updateresult(control):
         if elem not in control.result.keys():
             continue
 
-        pcent, meter = control.result[elem]
+        pcent, meter, crops = control.result[elem]
         totalpcent = totalpcent + pcent
         totalmeter = totalmeter + meter
+        totalcrops = totalcrops + crops
         count = count + 1
 
     if not count:
         control.pg.r_pcent.SetLabel("0.00")
         control.pg.r_fmtrs.SetLabel("0 m")
+        control.pg.r_cmtrs.SetLabel("0 m")
     else:
         control.pg.r_pcent.SetLabel(str(round(totalpcent / float(count), 2)))
+        control.pg.r_cmtrs.SetLabel(str(totalcrops) + " m")
         control.pg.r_fmtrs.SetLabel(str(totalmeter) + " m")
 
 def layer(button, control, e):
@@ -195,6 +199,6 @@ def processed(data, context):
     """
     data.patch.sew(data.image.swap(), 3)
     context.control.sp.addtext(data.patch.pos, str(round(data.percent, 2)) + "%", (255,0,0))
-    context.control.result[data.patch.pos] = (data.percent, data.meters)
+    context.control.result[data.patch.pos] = (data.percent, data.meters, data.crop)
     updateresult(context.control)
     update(context.control)

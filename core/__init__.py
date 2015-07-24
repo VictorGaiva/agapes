@@ -58,9 +58,9 @@ def ProcessImage(data):
     lines = LineList.first(data.compmap, data.compmap.comp[1])
     lines.complete()
 
-    pct, mtrs, image = lines.error(data.distance, data.compmap.inverted)
+    pct, mtrs, crop, image = lines.error(data.distance, data.compmap.inverted)
 
-    return dict(image = image, percent = pct, meters = mtrs)
+    return dict(image = image, percent = pct, meters = mtrs, crop = crop)
 
 def SaveImage(original, image):
     """
